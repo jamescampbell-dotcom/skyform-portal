@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Skyform - Calibration Register</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#2d333b;--border:#30363d;--border2:#444c56;--text:#e6edf3;--text2:#c9d1d9;--text3:#8b949e;--accent:#1f6feb;--green:#3fb950;--gbg:rgba(63,185,80,.12);--amber:#d29922;--abg:rgba(210,153,34,.12);--red:#f85149;--rbg:rgba(248,81,73,.10);--blue:#58a6ff;--r:8px;--rl:12px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;padding-bottom:60px;}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:52px;gap:14px;position:sticky;top:0;z-index:100;}
+.hdr img{height:30px;border-radius:4px;}
+.hdr-title{font-size:13px;font-weight:600;color:var(--text2);}
+.hdr-pill{margin-left:auto;background:var(--accent);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:600;color:#fff;}
+.wrap{max-width:700px;margin:0 auto;padding:20px 16px;}
+h1{font-size:22px;font-weight:600;margin-bottom:6px;}
+.intro{font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:20px;}
+.sub-bar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.sub-bar label{font-size:12px;font-weight:600;color:var(--text3);white-space:nowrap;}
+.sub-wrap{flex:1;position:relative;}
+.sub-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:8px 12px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;}
+.sub-input:focus{border-color:var(--accent);}
+.sub-dd{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);z-index:200;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none;}
+.sub-dd.open{display:block;}
+.dd-item{padding:10px 14px;font-size:13px;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:8px;}
+.dd-item:hover{background:var(--bg3);}
+.dd-known{font-size:10px;font-weight:600;background:var(--gbg);color:var(--green);padding:2px 7px;border-radius:8px;margin-left:auto;}
+.dd-new{font-size:10px;font-weight:600;background:var(--abg);color:var(--amber);padding:2px 7px;border-radius:8px;margin-left:auto;}
+.sub-status{font-size:11px;margin-top:4px;min-height:14px;}
+.sub-status.known{color:var(--green);}
+.sub-status.new-eng{color:var(--amber);}
+.mode-toggle{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:24px;}
+.mode-btn{flex:1;padding:10px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:500;color:var(--text3);background:none;border:none;cursor:pointer;transition:all .15s;}
+.mode-btn.active{background:var(--accent);color:#fff;}
+.mode-btn:hover:not(.active){color:var(--text);background:var(--bg4);}
+.panel{display:none;}.panel.active{display:block;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:16px;overflow:hidden;}
+.card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.card-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.card-title{font-size:13px;font-weight:600;}.card-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.card-body{padding:18px;}
+.fg{display:grid;gap:14px;margin-bottom:14px;}
+.fg.c2{grid-template-columns:1fr 1fr;}
+.fg.c3{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:480px){.fg.c2,.fg.c3{grid-template-columns:1fr;}}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.field input,.field select,.field textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
+.field textarea{resize:vertical;min-height:80px;line-height:1.5;}
+.field input[type=date]{color-scheme:dark;}
+.field .hint{font-size:10px;color:var(--text3);margin-top:4px;}
+.req{color:var(--red);}
+.unk-btn{background:var(--bg4);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;font-family:"DM Sans",sans-serif;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;white-space:nowrap;transition:all .15s;}
+.unk-btn:hover{border-color:var(--accent);color:var(--blue);}
+.unk-btn.set{background:var(--abg);border-color:var(--amber);color:var(--amber);}
+.img-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:all .15s;position:relative;}
+.img-zone:hover{border-color:var(--accent);background:rgba(31,111,235,.04);}
+.img-zone.loaded{border-style:solid;border-color:var(--green);padding:0;}
+.img-zone.loaded img{width:100%;max-height:200px;object-fit:cover;border-radius:6px;display:block;}
+.iz-icon{font-size:28px;margin-bottom:8px;display:block;}
+.iz-text{font-size:13px;color:var(--text3);}
+.iz-sub{font-size:11px;color:var(--text3);margin-top:4px;opacity:.7;}
+.img-clear{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:none;border-radius:50%;width:26px;height:26px;color:#fff;font-size:16px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;}
+.chip-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{padding:6px 14px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;}
+.chip:hover{border-color:var(--accent);color:var(--blue);}
+.chip.sel{background:var(--accent);border-color:var(--accent);color:#fff;}
+.state-grp{display:flex;gap:8px;flex-wrap:wrap;}
+.state-btn{flex:1;min-width:100px;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg3);font-family:"DM Sans",sans-serif;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;transition:all .15s;text-align:center;}
+.state-btn.sg{border-color:var(--green);background:var(--gbg);color:var(--green);}
+.state-btn.sa{border-color:var(--amber);background:var(--abg);color:var(--amber);}
+.state-btn.sr{border-color:var(--red);background:var(--rbg);color:var(--red);}
+.state-btn.su{border-color:var(--border2);background:var(--bg4);color:var(--text3);}
+.bsel.su{border-color:var(--border2);background:var(--bg4);color:var(--text3);}
+.tag-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:480px){.tag-grid{grid-template-columns:1fr;}}
+.tag-card{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;}
+.tag-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.tag-sel{width:100%;background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;}
+.tag-sel:focus{border-color:var(--accent);}
+.submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;border-radius:var(--r);font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;color:#fff;cursor:pointer;margin-top:8px;transition:opacity .15s;}
+.submit-btn:hover{opacity:.9;}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+.bulk-scroll{overflow-x:auto;}
+.btbl{width:100%;border-collapse:collapse;min-width:860px;}
+.btbl th{background:var(--bg3);padding:8px 10px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);text-align:left;border-bottom:2px solid var(--border2);white-space:nowrap;}
+.btbl td{padding:5px 4px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.btbl tr:hover td{background:rgba(255,255,255,.02);}
+.bi{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text);outline:none;}
+.bi:focus{border-color:var(--accent);}
+.bsel{width:100%;min-width:110px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text);outline:none;cursor:pointer;}
+.bsel.sg{border-color:var(--green);background:var(--gbg);color:var(--green);}
+.bsel.sa{border-color:var(--amber);background:var(--abg);color:var(--amber);}
+.bsel.sr{border-color:var(--red);background:var(--rbg);color:var(--red);}
+.add-row{width:100%;margin-top:8px;background:var(--bg2);border:1px dashed var(--border2);border-radius:var(--r);padding:10px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:500;color:var(--blue);cursor:pointer;transition:all .15s;}
+.add-row:hover{border-color:var(--accent);background:rgba(31,111,235,.06);}
+.del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:4px;transition:all .15s;}
+.del-btn:hover{color:var(--red);background:var(--rbg);}
+.rn{font-size:11px;color:var(--text3);text-align:center;width:28px;}
+.success{display:none;text-align:center;padding:40px 20px;}
+.success.show{display:block;}
+.si{font-size:56px;margin-bottom:16px;}
+.st{font-size:22px;font-weight:600;color:var(--green);margin-bottom:8px;}
+.ss{font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:24px;}
+.smeta{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:left;margin-bottom:24px;}
+.srow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.srow:last-child{border-bottom:none;}
+.sk{color:var(--text3);}.sv{color:var(--text);font-weight:500;}
+.again-btn{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:10px 24px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;}
+.again-btn:hover{border-color:var(--accent);color:var(--blue);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 20px;font-size:13px;font-weight:500;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;}
+.toast.ok{border-color:var(--green);color:var(--green);}
+.toast.err{border-color:var(--red);color:var(--red);}
+</style>
+<!-- build:1777564249 -->
+</head>
+<body>
+<header class="hdr">
+  <img src="logo.png" alt="Skyform">
+  <span class="hdr-title">Equipment Calibration Register</span>
+  <span class="hdr-pill">&#9679; Live Sync</span>
+</header>
+<div class="wrap">
+  <h1>Calibration Equipment Catalogue</h1>
+  <p class="intro">Register your calibrated tools and equipment. Data saves to the Skyform database immediately and is visible to Ops and HSEQ in real time.</p>
+  <div class="sub-bar">
+    <label>&#128100; Submitting as:</label>
+    <div class="sub-wrap">
+      <input class="sub-input" id="sub-input" type="text" placeholder="Start typing your name..." autocomplete="off">
+      <div class="sub-dd" id="sub-dd"></div>
+      <div class="sub-status" id="sub-status"></div>
+    </div>
+  </div>
+  <div class="success" id="success">
+    <div class="si">&#10003;</div>
+    <div class="st">Submitted successfully</div>
+    <div class="ss">Your equipment data has been saved to the Skyform database.<br>Your Ops Manager can see it in the portal now.</div>
+    <div class="smeta" id="s-meta"></div>
+    <button class="again-btn" id="again-btn">&#43; Submit More Equipment</button>
+  </div>
+  <div id="form-area">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-single">&#9998; Single Tool Entry</button>
+      <button class="mode-btn" id="btn-bulk">&#9783; Bulk Entry</button>
+    </div>
+    <div class="panel active" id="panel-single">
+      <div class="card">
+        <div class="card-hdr"><div class="card-icon" style="background:rgba(31,111,235,.15)">&#128247;</div><div><div class="card-title">Equipment Photo</div><div class="card-sub">Optional photograph of the tool</div></div></div>
+        <div class="card-body">
+          <div class="img-zone" id="eq-zone"><span class="iz-icon">&#128247;</span><div class="iz-text">Tap to upload equipment photo</div><div class="iz-sub">JPG or PNG - max 5MB</div></div>
+          <input type="hidden" id="eq-photo-data">
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-icon" style="background:rgba(63,185,80,.15)">&#128296;</div><div><div class="card-title">Equipment Details</div><div class="card-sub">Core identification information</div></div></div>
+        <div class="card-body">
+          <div class="field" style="margin-bottom:18px;"><label>Equipment Type <span class="req">*</span></label><div class="chip-grid" id="chip-grid"></div><input type="hidden" id="eq-type"></div>
+          <div class="fg c2">
+            <div class="field"><label>Equipment Name <span class="req">*</span></label><input type="text" id="eq-name" placeholder="e.g. Digital Vernier Calliper"></div>
+            <div class="field"><label>Quantity</label><input type="number" id="eq-qty" value="1" min="1"></div>
+          </div>
+          <div class="fg c2">
+            <div class="field"><label>Identifier / Asset ID <span class="req">*</span></label><input type="text" id="eq-id" placeholder="e.g. SKY-CAL-001"></div>
+            <div class="field"><label>Serial Number</label><div style="display:flex;gap:6px;align-items:center"><input type="text" id="eq-serial" placeholder="Manufacturer serial" style="flex:1"><button type="button" class="unk-btn" id="unk-serial">Unknown</button></div></div>
+          </div>
+          <div class="fg"><div class="field"><label>Operating Range</label><input type="text" id="eq-range" placeholder="e.g. 0-150mm +/-0.02mm"><div class="hint">Measurement range and accuracy</div></div></div>
+          <div class="fg"><div class="field"><label>Tags</label><input type="text" id="eq-tags" placeholder="e.g. torque, offshore, beatrice"><div class="hint">Comma-separated keywords</div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-icon" style="background:rgba(210,153,34,.15)">&#128203;</div><div><div class="card-title">Calibration Status</div><div class="card-sub">Current state and next check date</div></div></div>
+        <div class="card-body">
+          <div class="field" style="margin-bottom:16px;"><label>Calibration State <span class="req">*</span></label><div class="state-grp" id="state-grp"></div><input type="hidden" id="eq-state" value="In Date"></div>
+          <div class="fg c2">
+            <div class="field"><label>Next Calibration Check</label><div style="display:flex;gap:6px;align-items:center"><input type="date" id="eq-next" style="flex:1"><button type="button" class="unk-btn" id="unk-next">Unknown</button></div></div>
+            <div class="field"><label>Last Calibration Date</label><div style="display:flex;gap:6px;align-items:center"><input type="date" id="eq-last" style="flex:1"><button type="button" class="unk-btn" id="unk-last">Unknown</button></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-icon" style="background:rgba(248,81,73,.12)">&#128269;</div><div><div class="card-title">Last Inspection</div><div class="card-sub">Comments and certificate from most recent inspection</div></div></div>
+        <div class="card-body">
+          <div class="field" style="margin-bottom:16px;"><label>Last Inspection Comments</label><textarea id="eq-insp" placeholder="Notes from the most recent calibration inspection..."></textarea></div>
+          <div class="field" style="margin-bottom:16px;"><label>Upload Calibration Certificate</label><div class="img-zone" id="cert-zone"><span class="iz-icon">&#128196;</span><div class="iz-text">Tap to upload certificate or inspection report</div><div class="iz-sub">Photo of certificate - max 5MB</div></div><input type="hidden" id="cert-data"></div>
+          <div class="field"><label>Additional Comments</label><textarea id="eq-notes" placeholder="Any other relevant notes..."></textarea></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-icon" style="background:rgba(88,166,255,.12)">&#127991;</div><div><div class="card-title">Asset Tagging</div><div class="card-sub">Tag to location and engineer for live asset tracking</div></div></div>
+        <div class="card-body">
+          <div class="tag-grid">
+            <div class="tag-card"><div class="tag-label">&#128205; Tagged at Location</div><select class="tag-sel" id="eq-loc"><option value="">- Select location -</option></select></div>
+            <div class="tag-card"><div class="tag-label">&#128100; Tagged to Engineer</div><select class="tag-sel" id="eq-eng"><option value="">- Select engineer -</option></select></div>
+          </div>
+          <p style="font-size:11px;color:var(--text3);margin-top:12px;">When equipment moves, simply resubmit with updated tags.</p>
+        </div>
+      </div>
+      <button class="submit-btn" id="submit-single">&#128190; Submit to Database</button>
+    </div>
+    <div class="panel" id="panel-bulk">
+      <div class="card">
+        <div class="card-hdr"><div class="card-icon" style="background:rgba(63,185,80,.15)">&#9783;</div><div><div class="card-title">Bulk Equipment Entry</div><div class="card-sub">Add multiple tools - fill each row then submit</div></div></div>
+        <div class="card-body" style="padding:12px;">
+          <div class="bulk-scroll">
+            <table class="btbl">
+              <thead><tr><th style="width:28px">#</th><th style="min-width:130px">Type</th><th style="min-width:160px">Name *</th><th style="min-width:110px">Asset ID *</th><th style="min-width:110px">Serial</th><th style="min-width:120px">State</th><th style="min-width:120px">Next Check</th><th style="min-width:140px">Location</th><th style="min-width:140px">Engineer</th><th style="min-width:130px">Notes</th><th style="width:36px"></th></tr></thead>
+              <tbody id="bulk-body"></tbody>
+            </table>
+          </div>
+          <button class="add-row" id="add-row-btn">+ Add Another Tool</button>
+        </div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">Default tags apply to rows where those fields are blank:</div>
+        <div class="tag-grid">
+          <div class="tag-card"><div class="tag-label">&#128205; Default Location</div><select class="tag-sel" id="bulk-loc"><option value="">- All different -</option></select></div>
+          <div class="tag-card"><div class="tag-label">&#128100; Default Engineer</div><select class="tag-sel" id="bulk-eng"><option value="">- All different -</option></select></div>
+        </div>
+      </div>
+      <button class="submit-btn" id="submit-bulk">&#128190; Submit All Tools to Database</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+
+var SUPA_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co";
+var SUPA_KEY = "sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK";
+var FALLBACK_ENGS = ["Alexander Agathokleous", "Alex Miller", "Billy Allison", "Billy McAllister", "Charlie Marshall", "Daniel Bucklee", "David Wood", "Dylan Buckley", "Garry McCabe", "Iain Gordon", "Jack Holland", "John Peters", "Josh Boyce", "Kevin George", "Kevin Lochrie", "Kris Allan", "Lewis Gook", "Matt Docwra", "Matthew Burgess", "Michael Allan", "Paul McLaughlin", "Peter Canero", "Ryan Anderson", "Tyler King"];
+var ALL_SITES = ["Beatrice", "Hornsea 1", "Hornsea 2", "Aikengall 2", "Whitelee", "Blacklaw", "Bhlaraidh", "Rothes 2", "Pauls Hill", "Andershaw", "Carcant", "Minsca", "Ewe Hill", "Dunmaglass", "Clyde East", "Clyde South", "NNG Dundee", "Crystal Rig 1", "Midhill", "Hywind", "Office - Skyform HQ", "In Transit / Vehicle", "Other"];
+var EQ_TYPES = ["Callipers", "Torque Screwdrivers", "Scales", "Tachometers", "Tech Kits", "Torque Wrenches", "Load Cells", "Lifting Accessories", "Other"];
+var knownEngs = FALLBACK_ENGS.slice();
+var bulkRows = 0;
+
+window.addEventListener("load", function() {
+  buildChips(); buildStateBtns(); populateSelects();
+  wireSubmitter(); wireImgZone("eq-zone","eq-photo-data","camera","Tap to upload equipment photo");
+  wireImgZone("cert-zone","cert-data","doc","Tap to upload certificate or report");
+  wireModeToggle(); wireSubmitBtns();
+  document.getElementById("add-row-btn").addEventListener("click", addBulkRow);
+  document.getElementById("again-btn").addEventListener("click", resetForm);
+  wireUnkBtn("unk-serial","eq-serial"); wireUnkBtn("unk-next","eq-next"); wireUnkBtn("unk-last","eq-last");
+  loadEngineers();
+  addBulkRow(); addBulkRow(); addBulkRow();
+});
+
+function loadEngineers() {
+  fetch(SUPA_URL + "/rest/v1/engineers?select=name&order=name.asc", {
+    headers: {"apikey": SUPA_KEY, "Authorization": "Bearer " + SUPA_KEY}
+  }).then(function(r){return r.json();}).then(function(rows){
+    if (rows && rows.length) knownEngs = rows.map(function(r){return r.name;});
+  }).catch(function(){});
+}
+
+function wireSubmitter() {
+  var inp = document.getElementById("sub-input");
+  var dd = document.getElementById("sub-dd");
+  inp.addEventListener("input", function() {
+    document.getElementById("sub-status").textContent = "";
+    dd.innerHTML = "";
+    var val = inp.value;
+    if (!val || val.length < 2) { dd.classList.remove("open"); return; }
+    var q = val.toLowerCase();
+    var matches = knownEngs.filter(function(n){return n.toLowerCase().indexOf(q)>-1;});
+    matches.slice(0,6).forEach(function(name) {
+      var item = document.createElement("div"); item.className = "dd-item";
+      var span = document.createElement("span"); span.textContent = name;
+      var badge = document.createElement("span"); badge.className = "dd-known"; badge.textContent = "Known";
+      item.appendChild(span); item.appendChild(badge);
+      item.addEventListener("mousedown", function(){pickName(name,true);});
+      dd.appendChild(item);
+    });
+    var exact = knownEngs.some(function(n){return n.toLowerCase()===q;});
+    if (!exact && val.trim().length >= 3) {
+      var trimmed = val.trim();
+      var ni = document.createElement("div"); ni.className = "dd-item";
+      var sp2 = document.createElement("span"); sp2.textContent = "Add “" + trimmed + "” as new engineer";
+      var b2 = document.createElement("span"); b2.className = "dd-new"; b2.textContent = "New";
+      ni.appendChild(sp2); ni.appendChild(b2);
+      ni.addEventListener("mousedown", function(){pickName(trimmed,false);});
+      dd.appendChild(ni);
+    }
+    if (dd.children.length) { dd.classList.add("open"); } else { dd.classList.remove("open"); }
+  });
+  inp.addEventListener("blur", function(){
+    setTimeout(function(){
+      dd.classList.remove("open");
+      var v = inp.value.trim();
+      if (v) pickName(v, knownEngs.some(function(n){return n.toLowerCase()===v.toLowerCase();}));
+    }, 200);
+  });
+}
+
+function pickName(name, known) {
+  document.getElementById("sub-input").value = name;
+  document.getElementById("sub-dd").classList.remove("open");
+  var st = document.getElementById("sub-status");
+  if (known) { st.className="sub-status known"; st.textContent="Found in engineer register"; }
+  else { st.className="sub-status new-eng"; st.textContent="New name - will be added on submission"; }
+  if (!known && knownEngs.indexOf(name)===-1) { knownEngs.push(name); knownEngs.sort(); }
+}
+
+function buildChips() {
+  var grid = document.getElementById("chip-grid");
+  EQ_TYPES.forEach(function(t) {
+    var c = document.createElement("div"); c.className = "chip"; c.textContent = t;
+    c.addEventListener("click", function(){
+      document.querySelectorAll(".chip").forEach(function(x){x.classList.remove("sel");});
+      c.classList.add("sel"); document.getElementById("eq-type").value = t;
+    });
+    grid.appendChild(c);
+  });
+}
+
+function buildStateBtns() {
+  var grp = document.getElementById("state-grp");
+  var states = [["In Date","sg"],["Due Soon","sa"],["Out of Date","sr"],["Unknown","su"]];
+  states.forEach(function(s, i) {
+    var btn = document.createElement("button"); btn.type="button";
+    btn.className = "state-btn" + (i===0?" sg":"");
+    var dot = document.createElement("span");
+    dot.style.cssText = "width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block;margin-right:6px";
+    btn.appendChild(dot); btn.appendChild(document.createTextNode(s[0]));
+    btn.addEventListener("click", function(){
+      document.querySelectorAll(".state-btn").forEach(function(b){b.className="state-btn";});
+      btn.classList.add(s[1]);
+      document.getElementById("eq-state").value = s[0];
+    });
+    grp.appendChild(btn);
+  });
+}
+
+function populateSelects() {
+  [["eq-loc",ALL_SITES],["eq-eng",knownEngs],["bulk-loc",ALL_SITES],["bulk-eng",knownEngs]].forEach(function(pair) {
+    var sel = document.getElementById(pair[0]);
+    if (!sel) return;
+    pair[1].forEach(function(v) {
+      var opt = document.createElement("option"); opt.value=v; opt.textContent=v; sel.appendChild(opt);
+    });
+  });
+}
+
+function wireImgZone(zoneId, dataId, type, txt) {
+  var zone = document.getElementById(zoneId);
+  var inp = document.createElement("input"); inp.type="file"; inp.accept="image/*"; inp.style.display="none";
+  zone.appendChild(inp);
+  zone.addEventListener("click", function(){ inp.click(); });
+  inp.addEventListener("change", function(){
+    var file = inp.files[0]; if (!file) return;
+    if (file.size > 5*1024*1024) { showToast("Image too large - max 5MB","err"); return; }
+    var reader = new FileReader();
+    reader.onload = function(e) { loadImgIntoZone(zone, dataId, e.target.result, type, txt); };
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImgIntoZone(zone, dataId, src, type, txt) {
+  zone.classList.add("loaded");
+  var img = document.createElement("img"); img.src=src; img.alt="preview";
+  var clr = document.createElement("button"); clr.className="img-clear"; clr.innerHTML="&#215;";
+  clr.addEventListener("click", function(ev){
+    ev.stopPropagation();
+    document.getElementById(dataId).value="";
+    zone.classList.remove("loaded"); zone.innerHTML="";
+    var icon = document.createElement("span"); icon.className="iz-icon";
+    icon.innerHTML = type==="camera" ? "&#128247;" : "&#128196;";
+    var t = document.createElement("div"); t.className="iz-text"; t.textContent=txt;
+    var s = document.createElement("div"); s.className="iz-sub"; s.textContent="JPG or PNG - max 5MB";
+    var ni = document.createElement("input"); ni.type="file"; ni.accept="image/*"; ni.style.display="none";
+    zone.appendChild(icon); zone.appendChild(t); zone.appendChild(s); zone.appendChild(ni);
+    ni.addEventListener("change", function(){
+      var f2=ni.files[0]; if(!f2) return;
+      if(f2.size>5*1024*1024){showToast("Image too large - max 5MB","err");return;}
+      var r2=new FileReader(); r2.onload=function(e2){loadImgIntoZone(zone,dataId,e2.target.result,type,txt);}; r2.readAsDataURL(f2);
+    });
+    zone.onclick=function(){ni.click();};
+  });
+  zone.innerHTML=""; zone.appendChild(img); zone.appendChild(clr);
+  document.getElementById(dataId).value=src;
+}
+
+function wireModeToggle() {
+  document.getElementById("btn-single").addEventListener("click",function(){setMode("single");});
+  document.getElementById("btn-bulk").addEventListener("click",function(){setMode("bulk");});
+}
+function setMode(m) {
+  var s=(m==="single");
+  document.getElementById("btn-single").classList.toggle("active",s);
+  document.getElementById("btn-bulk").classList.toggle("active",!s);
+  document.getElementById("panel-single").classList.toggle("active",s);
+  document.getElementById("panel-bulk").classList.toggle("active",!s);
+}
+
+function addBulkRow() {
+  bulkRows++;
+  var n = bulkRows;
+  var tr = document.createElement("tr"); tr.id="brow-"+n;
+  var cols = [
+    mkCell(mkSpan(n)),
+    mkCell(mkSel("btype-"+n,EQ_TYPES,"- Type -","bsel")),
+    mkCell(mkInp("bname-"+n,"Name *")),
+    mkCell(mkInp("bid-"+n,"Asset ID *")),
+    mkCell(mkInp("bserial-"+n,"Serial")),
+    mkCell(mkStateSel("bstate-"+n)),
+    mkCell(mkDateInp("bnext-"+n)),
+    mkCell(mkSel("bloc-"+n,ALL_SITES,"- Location -","bsel")),
+    mkCell(mkSel("beng-"+n,knownEngs,"- Engineer -","bsel")),
+    mkCell(mkInp("bnotes-"+n,"Notes")),
+    mkCell(mkDelBtn(n))
+  ];
+  cols.forEach(function(td){tr.appendChild(td);});
+  document.getElementById("bulk-body").appendChild(tr);
+  updBulkCount();
+}
+function mkCell(el){var td=document.createElement("td");td.appendChild(el);return td;}
+function mkSpan(n){var s=document.createElement("span");s.className="rn";s.textContent=n;return s;}
+function mkInp(id,ph){var i=document.createElement("input");i.className="bi";i.id=id;i.placeholder=ph;return i;}
+function mkDateInp(id){var i=document.createElement("input");i.className="bi";i.id=id;i.type="date";return i;}
+function mkSel(id,opts,ph,cls){
+  var s=document.createElement("select");s.className=cls;s.id=id;
+  var b=document.createElement("option");b.value="";b.textContent=ph;s.appendChild(b);
+  opts.forEach(function(o){var op=document.createElement("option");op.value=o;op.textContent=o;s.appendChild(op);});
+  return s;
+}
+function mkStateSel(id){
+  var s=mkSel(id,["In Date","Due Soon","Out of Date","Unknown"],"","bsel sg");
+  s.value="In Date";
+  s.addEventListener("change",function(){
+    s.className="bsel";
+    if(s.value==="In Date")s.classList.add("sg");
+    else if(s.value==="Due Soon")s.classList.add("sa");
+    else if(s.value==="Out of Date")s.classList.add("sr");
+    else s.classList.add("su");
+  });
+  return s;
+}
+function mkDelBtn(n){
+  var b=document.createElement("button");b.className="del-btn";b.innerHTML="&#215;";b.type="button";
+  b.addEventListener("click",function(){var r=document.getElementById("brow-"+n);if(r){r.remove();updBulkCount();}});
+  return b;
+}
+function updBulkCount(){
+  var n=document.getElementById("bulk-body").children.length;
+  document.getElementById("submit-bulk").textContent=
+    n>0 ? "Submit "+n+" Tool"+(n!==1?"s":"")+" to Database" : "Submit All Tools to Database";
+}
+
+function wireSubmitBtns(){
+  document.getElementById("submit-single").addEventListener("click",doSubmitSingle);
+  document.getElementById("submit-bulk").addEventListener("click",doSubmitBulk);
+}
+
+function supaInsert(rows,cb){
+  fetch(SUPA_URL+"/rest/v1/calibration_equipment",{
+    method:"POST",
+    headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY,"Content-Type":"application/json","Prefer":"return=representation"},
+    body:JSON.stringify(rows)
+  }).then(function(r){return r.json();}).then(function(d){cb(null,d);}).catch(function(e){cb(e);});
+}
+
+function getSubmitter(){return document.getElementById("sub-input").value.trim();}
+
+function doSubmitSingle(){
+  var sub=getSubmitter(), name=document.getElementById("eq-name").value.trim(),
+      id=document.getElementById("eq-id").value.trim(), type=document.getElementById("eq-type").value;
+  if(!sub){showToast("Please enter your name first","err");return;}
+  if(!name){showToast("Equipment name is required","err");return;}
+  if(!id){showToast("Identifier / Asset ID is required","err");return;}
+  if(!type){showToast("Please select an equipment type","err");return;}
+  var btn=document.getElementById("submit-single"); btn.disabled=true; btn.textContent="Submitting...";
+  var row={equipment_type:type,name:name,
+    quantity:parseInt(document.getElementById("eq-qty").value)||1,
+    operating_range:document.getElementById("eq-range").value.trim(),
+    tags:document.getElementById("eq-tags").value.trim(),
+    identifier:id,serial_number:(document.getElementById("eq-serial").dataset.unknown==="true"?"Unknown":document.getElementById("eq-serial").value.trim()),
+    state:document.getElementById("eq-state").value,
+    next_check_date:(document.getElementById("eq-next").dataset.unknown==="true"?"Unknown":document.getElementById("eq-next").value||null),
+    last_check_date:(document.getElementById("eq-last").dataset.unknown==="true"?"Unknown":document.getElementById("eq-last").value||null),
+    last_inspection_comments:document.getElementById("eq-insp").value.trim(),
+    additional_comments:document.getElementById("eq-notes").value.trim(),
+    tagged_location:document.getElementById("eq-loc").value,
+    tagged_engineer:document.getElementById("eq-eng").value,
+    image_data:document.getElementById("eq-photo-data").value?"[photo attached]":"",
+    cert_data:document.getElementById("cert-data").value?"[cert attached]":"",
+    submitted_by:sub};
+  supaInsert([row],function(err){
+    btn.disabled=false; btn.textContent="Submit to Database";
+    if(err){showToast("Submission failed - please try again","err");return;}
+    showSuccess([row]);
+  });
+}
+
+function doSubmitBulk(){
+  var sub=getSubmitter();
+  if(!sub){showToast("Please enter your name first","err");return;}
+  var defLoc=document.getElementById("bulk-loc").value, defEng=document.getElementById("bulk-eng").value;
+  var rows=[]; var trows=document.getElementById("bulk-body").children;
+  for(var i=0;i<trows.length;i++){
+    var n=trows[i].id.replace("brow-","");
+    var nm=document.getElementById("bname-"+n).value.trim(), id=document.getElementById("bid-"+n).value.trim();
+    if(!nm&&!id) continue;
+    if(!nm){showToast("Row "+n+": Name is required","err");return;}
+    if(!id){showToast("Row "+n+": Asset ID is required","err");return;}
+    rows.push({equipment_type:document.getElementById("btype-"+n).value,name:nm,identifier:id,
+      serial_number:document.getElementById("bserial-"+n).value.trim(),
+      state:document.getElementById("bstate-"+n).value,
+      next_check_date:document.getElementById("bnext-"+n).value||null,
+      tagged_location:document.getElementById("bloc-"+n).value||defLoc,
+      tagged_engineer:document.getElementById("beng-"+n).value||defEng,
+      additional_comments:document.getElementById("bnotes-"+n).value.trim(),
+      submitted_by:sub,quantity:1});
+  }
+  if(!rows.length){showToast("No tools to submit","err");return;}
+  var btn=document.getElementById("submit-bulk"); btn.disabled=true; btn.textContent="Submitting "+rows.length+" tools...";
+  supaInsert(rows,function(err){
+    btn.disabled=false; updBulkCount();
+    if(err){showToast("Submission failed - please try again","err");return;}
+    showSuccess(rows);
+  });
+}
+
+function showSuccess(rows){
+  document.getElementById("form-area").style.display="none";
+  document.getElementById("success").classList.add("show");
+  var sub=getSubmitter();
+  var html="<div class='srow'><span class='sk'>Tools submitted</span><span class='sv'>"+rows.length+"</span></div>"
+    +"<div class='srow'><span class='sk'>Submitted by</span><span class='sv'>"+sub+"</span></div>"
+    +"<div class='srow'><span class='sk'>Timestamp</span><span class='sv'>"+new Date().toLocaleString()+"</span></div>"
+    +(rows.length===1?"<div class='srow'><span class='sk'>Equipment</span><span class='sv'>"+rows[0].name+"</span></div>":"")
+    +"<div class='srow'><span class='sk'>Status</span><span class='sv' style='color:var(--green)'>Saved to Supabase</span></div>";
+  document.getElementById("s-meta").innerHTML=html;
+  window.scrollTo(0,0);
+}
+
+function resetForm(){
+  document.getElementById("form-area").style.display="block";
+  document.getElementById("success").classList.remove("show");
+  ["eq-name","eq-id","eq-serial","eq-range","eq-tags","eq-insp","eq-notes"].forEach(function(id){document.getElementById(id).value="";});
+  document.getElementById("eq-qty").value="1";
+  document.getElementById("eq-next").value=""; document.getElementById("eq-last").value="";
+  document.querySelectorAll(".chip").forEach(function(c){c.classList.remove("sel");});
+  document.getElementById("eq-type").value="";
+  var btns=document.querySelectorAll(".state-btn");
+  btns.forEach(function(b,i){b.className="state-btn"+(i===0?" sg":"");});
+  document.getElementById("eq-state").value="In Date";
+  ["unk-serial","unk-next","unk-last"].forEach(function(id){var b=document.getElementById(id);if(!b)return;b.classList.remove("set");b.textContent="Unknown";var inp=document.getElementById(b.id.replace("unk-","eq-"));if(inp){inp.disabled=false;delete inp.dataset.unknown;}});
+}
+
+function wireUnkBtn(btnId, fieldId) {
+  var btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.addEventListener("click", function() {
+    var inp = document.getElementById(fieldId);
+    if (btn.classList.contains("set")) {
+      inp.disabled = false; inp.value = ""; delete inp.dataset.unknown;
+      btn.classList.remove("set"); btn.textContent = "Unknown";
+    } else {
+      inp.disabled = true; inp.value = ""; inp.dataset.unknown = "true";
+      inp.placeholder = "Unknown - HSEQ to verify";
+      btn.classList.add("set"); btn.textContent = "Set";
+    }
+  });
+}
+
+function showToast(msg,type){
+  var t=document.getElementById("toast");
+  t.textContent=msg; t.className="toast show"+(type?" "+type:"");
+  setTimeout(function(){t.className="toast";},3500);
+}
+</script>
+</body>
+</html>

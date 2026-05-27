@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Skyform — DWS Verification Roadmap</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#2d333b;--border:#30363d;--border2:#444c56;--text:#e6edf3;--text2:#c9d1d9;--text3:#8b949e;--accent:#1f6feb;--green:#3fb950;--gbg:rgba(63,185,80,.12);--amber:#d29922;--abg:rgba(210,153,34,.12);--red:#f85149;--rbg:rgba(248,81,73,.10);--blue:#58a6ff;--purple:#a371f7;--pbg:rgba(163,113,247,.12);--r:8px;--rl:12px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;height:56px;gap:16px;}
+.hdr img{height:32px;border-radius:4px;}
+.hdr-title{font-size:14px;font-weight:600;flex:1;}
+.hdr-badge{background:var(--accent);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:#fff;}
+.wrap{max-width:1000px;margin:0 auto;padding:32px 20px;}
+.page-title{font-size:26px;font-weight:600;margin-bottom:6px;}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:40px;line-height:1.6;}
+/* FLOW DIAGRAM */
+.flow{display:flex;flex-direction:column;gap:0;}
+.flow-step{display:flex;align-items:stretch;gap:0;}
+.flow-left{width:200px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;padding:0 20px 0 0;justify-content:center;}
+.flow-actor{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:right;}
+.flow-actor.eng{color:var(--blue);}
+.flow-actor.sky{color:var(--green);}
+.flow-actor.cli{color:var(--amber);}
+.flow-actor.sys{color:var(--purple);}
+.flow-actor.rad{color:var(--red);}
+.flow-spine{width:60px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;position:relative;}
+.flow-node{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:2;flex-shrink:0;margin:8px 0;}
+.flow-line{width:2px;flex:1;min-height:20px;}
+.flow-right{flex:1;padding:8px 0 8px 20px;display:flex;flex-direction:column;justify-content:center;}
+.step-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.step-body{font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:6px;}
+.step-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.chip{font-size:10px;font-weight:600;padding:3px 9px;border-radius:10px;}
+.c-g{background:var(--gbg);color:var(--green);}
+.c-b{background:rgba(88,166,255,.12);color:var(--blue);}
+.c-a{background:var(--abg);color:var(--amber);}
+.c-p{background:var(--pbg);color:var(--purple);}
+.c-r{background:var(--rbg);color:var(--red);}
+/* phase headers */
+.phase-header{margin:32px 0 20px;display:flex;align-items:center;gap:12px;}
+.phase-title{font-size:16px;font-weight:600;}
+.phase-pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;text-transform:uppercase;letter-spacing:.06em;}
+/* summary box */
+.summary-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:24px;margin-top:40px;}
+.sum-title{font-size:16px;font-weight:600;margin-bottom:16px;}
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:600px){.sum-grid{grid-template-columns:1fr;}}
+.sum-card{background:var(--bg3);border-radius:var(--r);padding:14px;}
+.sum-icon{font-size:24px;margin-bottom:8px;}
+.sum-card-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.sum-card-body{font-size:11px;color:var(--text3);line-height:1.5;}
+/* verification chain */
+.chain{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:24px;margin-top:20px;}
+.chain-title{font-size:16px;font-weight:600;margin-bottom:4px;}
+.chain-sub{font-size:12px;color:var(--text3);margin-bottom:20px;}
+.chain-row{display:flex;align-items:center;gap:0;margin-bottom:8px;}
+.chain-item{flex:1;text-align:center;padding:12px 8px;background:var(--bg3);border-radius:var(--r);}
+.chain-item-icon{font-size:18px;margin-bottom:4px;}
+.chain-item-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);}
+.chain-item-sub{font-size:9px;color:var(--text3);margin-top:2px;}
+.chain-arrow{font-size:18px;color:var(--text3);padding:0 4px;flex-shrink:0;}
+.chain-vs{text-align:center;margin-top:12px;}
+.chain-vs-label{font-size:10px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;}
+.chain-vs-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;}
+.chain-badge{font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;}
+@media(max-width:600px){.flow-left{width:100px;font-size:9px;}.flow-node{width:36px;height:36px;font-size:14px;}.chain-arrow{display:none;}.chain-row{flex-wrap:wrap;}.chain-item{min-width:calc(50% - 8px);}}
+</style>
+<!-- build:1777564249 -->
+</head>
+<body>
+<header class="hdr">
+  <img src="logo.png" alt="Skyform">
+  <span class="hdr-title">Digital Day Work Sheet — Verification System</span>
+  <span class="hdr-badge">Interactive Roadmap</span>
+</header>
+<div class="wrap">
+  <div class="page-title">How the Digital DWS System Works</div>
+  <div class="page-sub">A complete walkthrough of every step — from the engineer's morning scan to the verified record in the ops database.<br>Every green chip represents a passive data point captured automatically without the engineer needing to do anything extra.</div>
+
+  <!-- PHASE 1: MORNING -->
+  <div class="phase-header">
+    <div style="width:32px;height:32px;border-radius:50%;background:rgba(31,111,235,.2);display:flex;align-items:center;justify-content:center;font-size:14px">1</div>
+    <div>
+      <div class="phase-title">Start of Day — Engineer Arrival</div>
+      <span class="phase-pill" style="background:rgba(31,111,235,.12);color:var(--blue)">Morning</span>
+    </div>
+  </div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-left"><span class="flow-actor eng">Engineer</span></div>
+      <div class="flow-spine">
+        <div class="flow-node" style="background:rgba(31,111,235,.2);color:var(--blue)">&#128273;</div>
+        <div class="flow-line" style="background:var(--border2)"></div>
+      </div>
+      <div class="flow-right">
+        <div class="step-title">QR Card Scan — Pier or Site Arrival</div>
+        <div class="step-body">Engineer scans their personal laminated QR card using their phone camera. Takes 3 seconds. The check-in page opens automatically.</div>
+        <div class="step-chips">
+          <span class="chip c-g">GPS captured</span>
+          <span class="chip c-g">Device timestamp logged</span>
+          <span class="chip c-b">Saved to Supabase instantly</span>
+          <span class="chip c-a">Engineer does nothing extra</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left"><span class="flow-actor sys">System</span></div>
+      <div class="flow-spine">
+        <div class="flow-node" style="background:var(--gbg);color:var(--green)">&#128204;</div>
+        <div class="flow-line" style="background:var(--border2)"></div>
+      </div>
+      <div class="flow-right">
+        <div class="step-title">Check-in Record Created</div>
+        <div class="step-body">Database logs: engineer name, GPS coordinates, timestamp, accuracy. This is Checkpoint 1 in the verification chain — the verified start of the working day.</div>
+        <div class="step-chips">
+          <span class="chip c-g">site_checkins table updated</span>
+          <span class="chip c-b">Ops dashboard shows engineer as active</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left"><span class="flow-actor rad">Radius</span></div>
+      <div class="flow-spine">
+        <div class="flow-node" style="background:var(--rbg);color:var(--red)">&#128663;</div>
+        <div class="flow-line" style="background:var(--border2)"></div>
+      </div>
+      <div class="flow-right">
+        <div class="step-title">Van GPS — Arrival at Site</div>
+        <div class="step-body">Radius Telematics records the van arriving at the site GPS coordinates. Fully automatic — no engineer action needed. This is Checkpoint 2.</div>
+        <div class="step-chips">
+          <span class="chip c-r">Arrival time logged</span>
+          <span class="chip c-r">GPS coordinates recorded</span>
+          <span class="chip c-a">Pulled via Power Automate every hour</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2: DURING THE DAY -->
+  <div class="phase-header">
+    <div style="width:32px;height:32px;border-radius:50%;background:rgba(210,153,34,.2);display:flex;align-items:center;justify-content:center;font-size:14px">2</div>
+    <div>
+      <div class="phase-title">During the Day — Work Recording</div>
+      <span class="phase-pill" style="background:var(--abg);color:var(--amber)">Working Hours</span>
+    </div>
+  </div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-left"><span class="flow-actor eng">Engineer</span></div>
+      <div class="flow-spine">
+        <div class="flow-node" style="background:var(--abg);color:var(--amber)">&#128297;</div>
+        <div class="flow-line" style="background:var(--border2)"></div>
+      </div>
+      <div class="flow-right">
+        <div class="step-title">Opens Digital Day Work Sheet</div>
+        <div class="step-body">Engineer opens skyform_dws.html on their phone. The moment the page loads, device timestamp and GPS are silently captured — this is the verified form-open time. They fill in the form exactly as they would on paper.</div>
+        <div class="step-chips">
+          <span class="chip c-g">Open timestamp: immutable</span>
+          <span class="chip c-g">GPS on open</span>
+          <span class="chip c-b">Identical to paper DWS layout</span>
+          <span class="chip c-a">Works offline — syncs when online</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left"><span class="flow-actor eng">Engineer</span></div>
+      <div class="flow-spine">
+        <div class="flow-node" style="background:var(--abg);color:var(--amber)">&#128295;</div>
+        <div class="flow-line" style="background:var(--border2)"></div>
+      </div>
+      <div class="flow-right">
+        <div class="step-title">Logs Work Per Turbine</div>
+        <div class="step-body">For each turbine: enter the turbine number, time started, and description of work. Add parts used with serial numbers. Mark each part as supplied by Skyform or client.</div>
+        <div class="step-chips">
+          <span class="chip c-b">Per-turbine work log</span>
+          <span class="chip c-b">Parts + serial numbers</span>
+          <span class="chip c-b">Supplier attribution (Skyform/Client)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3: END OF DAY -->
+  <div class="phase-header">
+    <div style="width:32px;height:32px;border-radius:50%;background:rgba(63,185,80,.2);display:flex;align-items:center;justify-content:center;font-size:14px">3</div>
+    <div>
+      <div class="phase-title">End of Day — Submission and Signatures</div>
+      <span class="phase-pill" style="background:var(--gbg);color:var(--green)">Close of Day</span>
+    </div>
+  </div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-left"><span class="flow-actor eng">Engineer</span></div>
+      <div class="flow-spine">
+        <div class="flow-node" style="background:rgba(163,113,247,.2);color:var(--purple)">&#9998;</div>
+        <div class="flow-line" style="background:var(--border2)"></div>
+      </div>
+      <div class="flow-right">
+        <div class="step-title">Engineer Signs and Submits</div>
+        <div class="step-body">Engineer draws their signature on the touchscreen and taps Submit. Submit timestamp and GPS are captured at this exact moment — Checkpoint 3. The form is immediately locked and sent to the database.</div>
+        <div class="step-chips">
+          <span class="chip c-g">Submit timestamp captured</span>
+          <span class="chip c-g">GPS on submit</span>
+          <span class="chip c-p">Signature image stored</span>
+          <span class="chip c-b">Record locked — cannot be edited</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left"><span class="flow-actor eng">Engineer</span></div>
+      <div class="flow-spine">
+        <div class="flow-node" style="background:rgba(31,111,235,.2);color:var(--blue)">&#128273;</div>
+        <div class="flow-line" style="background:var(--border2)"></div>
+      </div>
+      <div class="flow-right">
+        <div class="step-title">QR Card Departure Scan</div>
+        <div class="step-body">Engineer scans their card again on departure from site or pier. GPS and timestamp logged — this is Checkpoint 4 and the verified end of the working day.</div>
+        <div class="step-chips">
+          <span class="chip c-g">Departure GPS + timestamp</span>
+          <span class="chip c-b">Total verified time on site calculated</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left"><span class="flow-actor sys">System</span></div>
+      <div class="flow-spine">
+        <div class="flow-node" style="background:var(--gbg);color:var(--green)">&#128274;</div>
+        <div class="flow-line" style="background:var(--border2)"></div>
+      </div>
+      <div class="flow-right">
+        <div class="step-title">Unique Client Link Generated</div>
+        <div class="step-body">The system automatically generates a unique, one-use counter-signature link tied to this specific sheet. The engineer copies it from the confirmation screen and sends it to the windfarm supervisor via WhatsApp or email.</div>
+        <div class="step-chips">
+          <span class="chip c-b">Unique ref per sheet</span>
+          <span class="chip c-b">Expires after signing</span>
+          <span class="chip c-a">No client account needed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 4: CLIENT -->
+  <div class="phase-header">
+    <div style="width:32px;height:32px;border-radius:50%;background:rgba(210,153,34,.2);display:flex;align-items:center;justify-content:center;font-size:14px">4</div>
+    <div>
+      <div class="phase-title">Client Counter-Signature</div>
+      <span class="phase-pill" style="background:var(--abg);color:var(--amber)">Client Action</span>
+    </div>
+  </div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-left"><span class="flow-actor cli">Client</span></div>
+      <div class="flow-spine">
+        <div class="flow-node" style="background:var(--abg);color:var(--amber)">&#128241;</div>
+        <div class="flow-line" style="background:var(--border2)"></div>
+      </div>
+      <div class="flow-right">
+        <div class="step-title">Client Opens Link on Their Device</div>
+        <div class="step-body">Windfarm supervisor taps the link on their own phone or tablet. They see a clean summary showing exactly what work was done, which turbines, which parts were used — identical to the paper DWS they receive today.</div>
+        <div class="step-chips">
+          <span class="chip c-a">No app, no account, no download</span>
+          <span class="chip c-a">Batch signing — multiple days at once</span>
+          <span class="chip c-b">Client sees only work data — no GPS/tracking info</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left"><span class="flow-actor cli">Client</span></div>
+      <div class="flow-spine">
+        <div class="flow-node" style="background:var(--abg);color:var(--amber)">&#9998;</div>
+        <div class="flow-line" style="background:var(--border2)"></div>
+      </div>
+      <div class="flow-right">
+        <div class="step-title">Client Signs and Submits</div>
+        <div class="step-body">Client draws their signature and taps Confirm. Their signature, name, and date are sent back to the database. Critically, the timestamp comes from THEIR device — completely independent of the engineer's submission.</div>
+        <div class="step-chips">
+          <span class="chip c-a">Independent device timestamp</span>
+          <span class="chip c-a">Independent GPS (if permitted)</span>
+          <span class="chip c-p">Second, independent record of signing time</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 5: VERIFICATION -->
+  <div class="phase-header">
+    <div style="width:32px;height:32px;border-radius:50%;background:rgba(163,113,247,.2);display:flex;align-items:center;justify-content:center;font-size:14px">5</div>
+    <div>
+      <div class="phase-title">Automatic Verification — Ops Dashboard</div>
+      <span class="phase-pill" style="background:var(--pbg);color:var(--purple)">Intelligence Layer</span>
+    </div>
+  </div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-left"><span class="flow-actor sys">System</span></div>
+      <div class="flow-spine">
+        <div class="flow-node" style="background:var(--pbg);color:var(--purple)">&#9881;</div>
+        <div class="flow-line" style="background:var(--border2)"></div>
+      </div>
+      <div class="flow-right">
+        <div class="step-title">Radius Telematics Cross-Reference</div>
+        <div class="step-body">Power Automate pulls journey data from the Radius Kinesis API every hour. For each submitted sheet, the system matches van arrival and departure GPS against the claimed site and times. Discrepancies surface automatically.</div>
+        <div class="step-chips">
+          <span class="chip c-r">Van arrival vs claimed on-site time</span>
+          <span class="chip c-r">Van departure vs claimed off-site time</span>
+          <span class="chip c-r">GPS site match</span>
+        </div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left"><span class="flow-actor sky">Ops Manager</span></div>
+      <div class="flow-spine">
+        <div class="flow-node" style="background:var(--gbg);color:var(--green)">&#128202;</div>
+      </div>
+      <div class="flow-right">
+        <div class="step-title">Live Dashboard — Green / Amber / Red</div>
+        <div class="step-body">Every sheet in the live viewer shows an automatic confidence score. Green means all data points align. Amber means client signature is pending. Red means there is a discrepancy between submitted times and verified data — and exactly what the discrepancy is.</div>
+        <div class="step-chips">
+          <span class="chip c-g">Green: All checks passed</span>
+          <span class="chip c-a">Amber: Awaiting signature or Radius data</span>
+          <span class="chip c-r">Red: Anomaly detected — review required</span>
+          <span class="chip c-b">Full audit trail retained permanently</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VERIFICATION CHAIN -->
+  <div class="chain">
+    <div class="chain-title">The Four Verification Checkpoints</div>
+    <div class="chain-sub">Every day work sheet is cross-referenced against four independent data sources — none of which require the engineer to do anything beyond their normal workflow.</div>
+    <div class="chain-row">
+      <div class="chain-item" style="border-top:3px solid var(--blue)">
+        <div class="chain-item-icon">&#128273;</div>
+        <div class="chain-item-title">QR Scan In</div>
+        <div class="chain-item-sub">GPS + timestamp on arrival</div>
+      </div>
+      <div class="chain-arrow">&#8594;</div>
+      <div class="chain-item" style="border-top:3px solid var(--amber)">
+        <div class="chain-item-icon">&#128241;</div>
+        <div class="chain-item-title">DWS Open</div>
+        <div class="chain-item-sub">Device timestamp when form opened</div>
+      </div>
+      <div class="chain-arrow">&#8594;</div>
+      <div class="chain-item" style="border-top:3px solid var(--green)">
+        <div class="chain-item-icon">&#128190;</div>
+        <div class="chain-item-title">DWS Submit</div>
+        <div class="chain-item-sub">Timestamp + GPS on submission</div>
+      </div>
+      <div class="chain-arrow">&#8594;</div>
+      <div class="chain-item" style="border-top:3px solid var(--amber)">
+        <div class="chain-item-icon">&#128273;</div>
+        <div class="chain-item-title">QR Scan Out</div>
+        <div class="chain-item-sub">GPS + timestamp on departure</div>
+      </div>
+      <div class="chain-arrow">&#8594;</div>
+      <div class="chain-item" style="border-top:3px solid var(--red)">
+        <div class="chain-item-icon">&#128663;</div>
+        <div class="chain-item-title">Radius Van</div>
+        <div class="chain-item-sub">Fleet GPS arrival + departure</div>
+      </div>
+      <div class="chain-arrow">&#8594;</div>
+      <div class="chain-item" style="border-top:3px solid var(--purple)">
+        <div class="chain-item-icon">&#9998;</div>
+        <div class="chain-item-title">Client Sig</div>
+        <div class="chain-item-sub">Independent device timestamp</div>
+      </div>
+    </div>
+    <div class="chain-vs">
+      <div class="chain-vs-label">Cross-referenced against claimed hours from the Day Work Sheet</div>
+      <div class="chain-vs-row">
+        <span class="chain-badge" style="background:var(--gbg);color:var(--green)">All match = GREEN — pay without query</span>
+        <span class="chain-badge" style="background:var(--abg);color:var(--amber)">Partial = AMBER — awaiting signature or data</span>
+        <span class="chain-badge" style="background:var(--rbg);color:var(--red)">Mismatch = RED — investigate before payment</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-box">
+    <div class="sum-title">What this means in practice</div>
+    <div class="sum-grid">
+      <div class="sum-card">
+        <div class="sum-icon">&#128451;</div>
+        <div class="sum-card-title">No more paper</div>
+        <div class="sum-card-body">The digital DWS replaces paper completely. No lost forms, no illegible handwriting, no chasing engineers to return sheets.</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-icon">&#128274;</div>
+        <div class="sum-card-title">Verified hours</div>
+        <div class="sum-card-body">Six independent data points corroborate every sheet. Discrepancies surface automatically — no one needs to look for them.</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-icon">&#9203;</div>
+        <div class="sum-card-title">Faster payment</div>
+        <div class="sum-card-body">Sheets are submitted in real time. Green sheets can be invoiced immediately. No waiting for paper to come back to the office.</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-icon">&#128591;</div>
+        <div class="sum-card-title">Client experience unchanged</div>
+        <div class="sum-card-body">The client sees exactly what they see on paper today. They review the work and sign. Nothing else changes for them.</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-icon">&#127758;</div>
+        <div class="sum-card-title">Offshore-ready</div>
+        <div class="sum-card-body">Works offline. QR scan at the pier captures the verified start and end of every offshore deployment regardless of connectivity.</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-icon">&#128202;</div>
+        <div class="sum-card-title">Live ops intelligence</div>
+        <div class="sum-card-body">Ops manager sees every engineer, every site, every sheet in real time. Anomalies are flagged before payment is processed.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

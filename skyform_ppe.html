@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Skyform - PPE Register</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#2d333b;--border:#30363d;--border2:#444c56;--text:#e6edf3;--text2:#c9d1d9;--text3:#8b949e;--accent:#1f6feb;--green:#3fb950;--gbg:rgba(63,185,80,.12);--amber:#d29922;--abg:rgba(210,153,34,.12);--red:#f85149;--rbg:rgba(248,81,73,.10);--blue:#58a6ff;--r:8px;--rl:12px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;padding-bottom:60px;}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:52px;gap:14px;position:sticky;top:0;z-index:100;}
+.hdr img{height:30px;border-radius:4px;}
+.hdr-title{font-size:13px;font-weight:600;color:var(--text2);}
+.hdr-pill{margin-left:auto;background:var(--green);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:600;color:#fff;}
+.wrap{max-width:700px;margin:0 auto;padding:20px 16px;}
+h1{font-size:22px;font-weight:600;margin-bottom:6px;}
+.intro{font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:20px;}
+/* submitter */
+.sub-bar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+.sub-bar label{font-size:12px;font-weight:600;color:var(--text3);white-space:nowrap;padding-top:9px;}
+.sub-wrap{flex:1;position:relative;}
+.sub-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:8px 12px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;}
+.sub-input:focus{border-color:var(--accent);}
+.sub-dd{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);z-index:200;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none;}
+.sub-dd.open{display:block;}
+.dd-item{padding:10px 14px;font-size:13px;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:8px;}
+.dd-item:hover{background:var(--bg3);}
+.dd-known{font-size:10px;font-weight:600;background:var(--gbg);color:var(--green);padding:2px 7px;border-radius:8px;margin-left:auto;}
+.dd-new{font-size:10px;font-weight:600;background:var(--abg);color:var(--amber);padding:2px 7px;border-radius:8px;margin-left:auto;}
+.sub-status{font-size:11px;margin-top:4px;min-height:14px;}
+.sub-status.known{color:var(--green);}
+.sub-status.new-eng{color:var(--amber);}
+/* cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:16px;overflow:hidden;}
+.card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.card-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.card-title{font-size:13px;font-weight:600;}
+.card-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.card-body{padding:18px;}
+/* fields */
+.fg{display:grid;gap:14px;margin-bottom:14px;}
+.fg.c2{grid-template-columns:1fr 1fr;}
+.fg.c3{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:480px){.fg.c2,.fg.c3{grid-template-columns:1fr;}}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.field input,.field select,.field textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
+.field textarea{resize:vertical;min-height:80px;line-height:1.5;}
+.field input[type=date]{color-scheme:dark;}
+.field .hint{font-size:10px;color:var(--text3);margin-top:4px;}
+.req{color:var(--red);}
+/* ppe type grid */
+.ppe-cats{display:flex;flex-direction:column;gap:12px;}
+.cat-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;padding-left:2px;}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;}
+.chip:hover{border-color:var(--accent);color:var(--blue);}
+.chip.sel{color:#fff;}
+/* en standard display */
+.en-badge{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--text3);font-family:"DM Mono",monospace;min-height:38px;display:flex;align-items:center;}
+.en-badge.set{color:var(--blue);border-color:rgba(88,166,255,.3);background:rgba(88,166,255,.06);}
+/* retirement calc */
+.retire-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin-top:14px;}
+.retire-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0;}
+.retire-key{color:var(--text3);}
+.retire-val{font-family:"DM Mono",monospace;font-weight:500;}
+.retire-val.ok{color:var(--green);}
+.retire-val.warn{color:var(--amber);}
+.retire-val.crit{color:var(--red);}
+.retire-val.unknown{color:var(--text3);font-style:italic;}
+/* condition buttons */
+.cond-grp{display:flex;gap:8px;flex-wrap:wrap;}
+.cond-btn{flex:1;min-width:100px;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg3);font-family:"DM Sans",sans-serif;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;transition:all .15s;text-align:center;}
+.cond-btn.cg{border-color:var(--green);background:var(--gbg);color:var(--green);}
+.cond-btn.ca{border-color:var(--amber);background:var(--abg);color:var(--amber);}
+.cond-btn.cr{border-color:var(--red);background:var(--rbg);color:var(--red);}
+/* image upload */
+.img-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:all .15s;position:relative;}
+.img-zone:hover{border-color:var(--accent);background:rgba(31,111,235,.04);}
+.img-zone.loaded{border-style:solid;border-color:var(--green);padding:0;}
+.img-zone.loaded img{width:100%;max-height:180px;object-fit:cover;border-radius:6px;display:block;}
+.iz-icon{font-size:24px;margin-bottom:6px;display:block;}
+.iz-text{font-size:12px;color:var(--text3);}
+.iz-sub{font-size:10px;color:var(--text3);margin-top:3px;opacity:.7;}
+.img-clear{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;border-radius:50%;width:24px;height:24px;color:#fff;font-size:14px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;}
+/* unknown btn */
+.unk-btn{background:var(--bg4);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;font-family:"DM Sans",sans-serif;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;white-space:nowrap;transition:all .15s;}
+.unk-btn:hover{border-color:var(--accent);color:var(--blue);}
+.unk-btn.set{background:var(--abg);border-color:var(--amber);color:var(--amber);}
+/* tagging */
+.tag-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:480px){.tag-grid{grid-template-columns:1fr;}}
+.tag-card{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;}
+.tag-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.tag-sel{width:100%;background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;}
+.tag-sel:focus{border-color:var(--accent);}
+.tag-required{border-color:var(--amber);}
+/* submit */
+.submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--green),#059669);border:none;border-radius:var(--r);font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;color:#fff;cursor:pointer;margin-top:8px;transition:opacity .15s;}
+.submit-btn:hover{opacity:.9;}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+/* success */
+.success{display:none;text-align:center;padding:40px 20px;}
+.success.show{display:block;}
+.si{font-size:56px;margin-bottom:16px;}
+.st{font-size:22px;font-weight:600;color:var(--green);margin-bottom:8px;}
+.ss{font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:24px;}
+.smeta{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;text-align:left;margin-bottom:24px;}
+.srow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.srow:last-child{border-bottom:none;}
+.sk{color:var(--text3);}.sv{color:var(--text);font-weight:500;}
+.again-btn{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:10px 24px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;}
+.again-btn:hover{border-color:var(--green);color:var(--green);}
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 20px;font-size:13px;font-weight:500;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;}
+.toast.ok{border-color:var(--green);color:var(--green);}
+.toast.err{border-color:var(--red);color:var(--red);}
+</style>
+<!-- build:1777564249 -->
+</head>
+<body>
+<header class="hdr">
+  <img src="logo.png" alt="Skyform">
+  <span class="hdr-title">PPE Register</span>
+  <span class="hdr-pill">&#128737; PPE Tracking</span>
+</header>
+<div class="wrap">
+  <h1>Personal Protective Equipment Register</h1>
+  <p class="intro">Register each item of PPE. The system automatically calculates retirement dates and flags items approaching end of life. HSEQ will be alerted to any Unknown fields or items requiring action.</p>
+
+  <!-- SUBMITTER -->
+  <div class="sub-bar">
+    <label>&#128100; Engineer:</label>
+    <div class="sub-wrap">
+      <input class="sub-input" id="sub-input" type="text" placeholder="Start typing your name..." autocomplete="off">
+      <div class="sub-dd" id="sub-dd"></div>
+      <!-- CERTIFICATE UPLOAD -->
+            <!-- OTHER DESCRIPTION (shown only when Other is selected) -->
+      <div class="field-group" id="other-desc-group" style="display:none">
+        <label class="field-label">Item Description <span style="color:var(--danger)">*</span></label>
+        <textarea id="ppe-other-desc" placeholder="Please describe the PPE item — type, standard, purpose and any relevant details..." style="min-height:80px"></textarea>
+      </div>
+<div class="field-group" id="cert-upload-group">
+        <label class="field-label">Certificate / Test Report <span style="font-size:11px;color:var(--text-muted);font-weight:400">(optional — photo or scan)</span></label>
+        <div id="cert-zone" style="border:2px dashed var(--border);border-radius:10px;padding:22px;text-align:center;cursor:pointer;background:var(--card);transition:border-color .2s;margin-top:4px">
+          <div style="font-size:28px;margin-bottom:6px">&#128196;</div>
+          <div style="font-size:13px;color:var(--text-muted)">Tap to upload certificate / test report</div>
+        </div>
+      </div>
+      <div class="sub-status" id="sub-status"></div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success" id="success">
+    <div class="si">&#10003;</div>
+    <div class="st">PPE item registered</div>
+    <div class="ss">Your PPE record has been saved to the Skyform database.<br>HSEQ can now see it in the live viewer.</div>
+    <div class="smeta" id="s-meta"></div>
+    <button class="again-btn" id="again-btn">&#43; Register Another Item</button>
+  </div>
+
+  <div id="form-area">
+
+    <!-- PPE TYPE -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-icon" style="background:rgba(63,185,80,.15)">&#128737;</div><div><div class="card-title">PPE Item Type</div><div class="card-sub">Select the type of PPE being registered</div></div></div>
+      <div class="card-body">
+        <div class="field" style="margin-bottom:18px;">
+          <label>Item Type <span class="req">*</span></label>
+          <div class="ppe-cats" id="ppe-type-grid"></div>
+          <input type="hidden" id="ppe-type">
+        </div>
+        <div class="fg c2">
+          <div class="field"><label>EN / ISO Standard</label><div class="en-badge" id="en-badge">Select a type above</div><input type="hidden" id="ppe-std"></div>
+          <div class="field"><label>Category</label><div class="en-badge" id="cat-badge">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ITEM DETAILS -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-icon" style="background:rgba(31,111,235,.15)">&#128203;</div><div><div class="card-title">Item Details</div><div class="card-sub">Manufacturer, model and serial number</div></div></div>
+      <div class="card-body">
+        <div class="fg c2">
+          <div class="field"><label>Brand / Manufacturer</label><input type="text" id="ppe-brand" placeholder="e.g. Skylotec, Kong, 3M"></div>
+          <div class="field"><label>Model</label><input type="text" id="ppe-model" placeholder="e.g. Orizont 2, Claw"></div>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Serial Number <span class="req">*</span></label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="text" id="ppe-serial" placeholder="Serial number from label" style="flex:1">
+            <button type="button" class="unk-btn" id="unk-serial">Unknown</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATES & RETIREMENT -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-icon" style="background:rgba(210,153,34,.15)">&#128197;</div><div><div class="card-title">Dates & Retirement</div><div class="card-sub">The system calculates retirement date automatically</div></div></div>
+      <div class="card-body">
+        <div class="fg c2">
+          <div class="field">
+            <label>Manufacture Date <span class="req">*</span></label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="date" id="ppe-mfg" style="flex:1">
+              <button type="button" class="unk-btn" id="unk-mfg">Unknown</button>
+            </div>
+            <div class="hint">Found on label — used to calculate retirement</div>
+          </div>
+          <div class="field">
+            <label>Date First Put Into Service</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="date" id="ppe-service" style="flex:1">
+              <button type="button" class="unk-btn" id="unk-service">Unknown</button>
+            </div>
+          </div>
+        </div>
+        <div class="fg c2">
+          <div class="field">
+            <label>Last Inspection Date</label>
+            <input type="date" id="ppe-last-insp">
+          </div>
+          <div class="field">
+            <label>Next Inspection Due</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="date" id="ppe-next-insp" style="flex:1">
+              <button type="button" class="unk-btn" id="unk-next-insp">Unknown</button>
+            </div>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Inspector Name</label>
+          <input type="text" id="ppe-inspector" placeholder="Name of person who carried out last inspection">
+        </div>
+        <!-- RETIREMENT CALC BOX -->
+        <div class="retire-box" id="retire-box">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;">Calculated retirement information</div>
+          <div class="retire-row"><span class="retire-key">Manufacture date</span><span class="retire-val unknown" id="r-mfg">Not set</span></div>
+          <div class="retire-row"><span class="retire-key">Max lifespan</span><span class="retire-val" id="r-life" style="color:var(--text3)">Select item type</span></div>
+          <div class="retire-row"><span class="retire-key">Calculated retirement</span><span class="retire-val unknown" id="r-retire">—</span></div>
+          <div class="retire-row"><span class="retire-key">Status</span><span class="retire-val unknown" id="r-status">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONDITION -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-icon" style="background:rgba(248,81,73,.12)">&#128269;</div><div><div class="card-title">Condition Assessment</div><div class="card-sub">Current condition of this item</div></div></div>
+      <div class="card-body">
+        <div class="field" style="margin-bottom:16px;">
+          <label>Condition <span class="req">*</span></label>
+          <div class="cond-grp" id="cond-grp"></div>
+          <input type="hidden" id="ppe-condition" value="Good">
+        </div>
+        <div class="field">
+          <label>Inspection Notes</label>
+          <textarea id="ppe-notes" placeholder="Any defects, observations or actions required from the last inspection..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHOTOS -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-icon" style="background:rgba(88,166,255,.12)">&#128247;</div><div><div class="card-title">Photos</div><div class="card-sub">Photo of the item and the manufacturer label</div></div></div>
+      <div class="card-body">
+        <div class="fg c2">
+          <div class="field">
+            <label>Item Photo</label>
+            <div class="img-zone" id="item-zone"><span class="iz-icon">&#128247;</span><div class="iz-text">Tap to upload item photo</div><div class="iz-sub">JPG or PNG - max 5MB</div></div>
+            <input type="hidden" id="item-photo-data">
+          </div>
+          <div class="field">
+            <label>Label Photo <span style="color:var(--text3);font-weight:400;font-size:10px">(serial/mfg date)</span></label>
+            <div class="img-zone" id="label-zone"><span class="iz-icon">&#127991;</span><div class="iz-text">Tap to upload label photo</div><div class="iz-sub">Shows serial number and date</div></div>
+            <input type="hidden" id="label-photo-data"><input type="hidden" id="cert-photo-data">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAGGING -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-icon" style="background:rgba(63,185,80,.12)">&#127991;</div><div><div class="card-title">Asset Tagging</div><div class="card-sub">PPE must be tagged to the engineer who owns it</div></div></div>
+      <div class="card-body">
+        <div class="tag-grid">
+          <div class="tag-card" style="border-color:rgba(63,185,80,.3)">
+            <div class="tag-label">&#128100; Assigned to Engineer <span class="req">*</span></div>
+            <select class="tag-sel tag-required" id="ppe-eng"><option value="">- Select engineer -</option></select>
+          </div>
+          <div class="tag-card">
+            <div class="tag-label">&#128205; Currently at Location</div>
+            <select class="tag-sel" id="ppe-loc"><option value="">- Select location -</option></select>
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--text3);margin-top:12px;">PPE is assigned to a specific engineer. Location shows where they currently are.</p>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submit-btn">&#128737; Register PPE Item</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var SUPA_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co";
+var SUPA_KEY = "sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK";
+var FALLBACK_ENGS = ["Alexander Agathokleous", "Alex Miller", "Billy Allison", "Billy McAllister", "Charlie Marshall", "Daniel Bucklee", "David Wood", "Dylan Buckley", "Garry McCabe", "Iain Gordon", "Jack Holland", "John Peters", "Josh Boyce", "Kevin George", "Kevin Lochrie", "Kris Allan", "Lewis Gook", "Matt Docwra", "Matthew Burgess", "Michael Allan", "Paul McLaughlin", "Peter Canero", "Ryan Anderson", "Tyler King"];
+var ALL_SITES = ["Beatrice", "Hornsea 1", "Hornsea 2", "Aikengall 2", "Whitelee", "Blacklaw", "Bhlaraidh", "Rothes 2", "Pauls Hill", "Andershaw", "Carcant", "Minsca", "Ewe Hill", "Dunmaglass", "Clyde East", "Clyde South", "NNG Dundee", "Crystal Rig 1", "Midhill", "Hywind", "Office - Skyform HQ", "In Transit / Vehicle", "Other"];
+var PPE_TYPES = ["Safety Helmet", "Full Body Harness", "Fall Arrest Lanyard (Twin)", "Work Restraint Lanyard", "Fall Arrest Glider", "Transfer Connector", "Hi-Vis Workwear", "Safety Boots", "Cut Resistant Gloves", "Noise Protection", "Safety Glasses", "Immersion Suit", "Lifejacket 275N", "Personal Locator Beacon", "Head Lamp", "Arc / FR Clothing", "Electrical Gloves", "Arc Face & Head Protection", "FR Hot Works Clothing", "Hot Works Gloves", "Face & Eye Protection", "Respiratory Protection", "Other"];
+var PPE_META  = {"Safety Helmet": {"std": "EN 397 (<25 dN chin strap)", "life": 5, "insp": 12, "cat": "Standard"}, "Full Body Harness": {"std": "EN 361 / EN 358", "life": 10, "insp": 6, "cat": "Standard"}, "Fall Arrest Lanyard (Twin)": {"std": "EN 355 (ANSI Standard gate)", "life": 10, "insp": 6, "cat": "Standard"}, "Work Restraint Lanyard": {"std": "EN 358 (Adjustable)", "life": 10, "insp": 6, "cat": "Standard"}, "Fall Arrest Glider": {"std": "EN 353-1 / EN 353-2", "life": 10, "insp": 6, "cat": "Standard"}, "Transfer Connector": {"std": "EN 362", "life": 10, "insp": 6, "cat": "Standard"}, "Hi-Vis Workwear": {"std": "EN 13688 / EN 20471 Class 2", "life": null, "insp": 12, "cat": "Standard"}, "Safety Boots": {"std": "EN 20345 S3 SRC", "life": null, "insp": 12, "cat": "Standard"}, "Cut Resistant Gloves": {"std": "EN 388 4X44F Min.", "life": null, "insp": 12, "cat": "Standard"}, "Noise Protection": {"std": "EN 352-1 to 7", "life": null, "insp": 12, "cat": "Standard"}, "Safety Glasses": {"std": "EN 166 (Clear lens)", "life": null, "insp": 12, "cat": "Standard"}, "Immersion Suit": {"std": "ISO 15027-1", "life": 5, "insp": 12, "cat": "Offshore"}, "Lifejacket 275N": {"std": "ISO 12402-2 / ISO 12402-6", "life": 10, "insp": 12, "cat": "Offshore"}, "Personal Locator Beacon": {"std": "AIS / 121.5MHz", "life": null, "insp": 12, "cat": "Offshore"}, "Head Lamp": {"std": "N/A", "life": null, "insp": 12, "cat": "Standard"}, "Arc / FR Clothing": {"std": "EN ISO 11612 / IEC 61482-2", "life": null, "insp": 12, "cat": "Electrical"}, "Electrical Gloves": {"std": "EN 60903 / IEC 61482 Class 0", "life": null, "insp": 6, "cat": "Electrical"}, "Arc Face & Head Protection": {"std": "ASTM F2178 HRC 4", "life": null, "insp": 12, "cat": "Electrical"}, "FR Hot Works Clothing": {"std": "EN 11611 / EN 11612 / EN 14116", "life": null, "insp": 12, "cat": "Hot Works"}, "Hot Works Gloves": {"std": "EN 388 / EN 407 / EN 12477", "life": null, "insp": 12, "cat": "Hot Works"}, "Face & Eye Protection": {"std": "EN 166 Task Specific", "life": null, "insp": 12, "cat": "Hot Works"}, "Respiratory Protection": {"std": "EN 149 Task Specific", "life": null, "insp": 12, "cat": "Hot Works"}, "Other": {"std": "N/A", "life": null, "insp": 12, "cat": "Other"}};
+var CERT_REQUIRED = ["Full Body Harness", "Fall Arrest Lanyard (Twin)", "Work Restraint Lanyard", "Fall Arrest Glider", "Transfer Connector", "Lifejacket 275N", "Immersion Suit", "Personal Locator Beacon", "Electrical Gloves"];
+var knownEngs = FALLBACK_ENGS.slice();
+var selectedType = '';
+var selectedCondition = 'Good';
+
+
+function updateCertRequirement(itemType) {
+  var isRequired = CERT_REQUIRED.indexOf(itemType) > -1;
+  var badge = document.getElementById("cert-req-badge");
+  var optNote = document.getElementById("cert-opt-note");
+  var noWrap = document.getElementById("no-cert-wrap");
+  var zone = document.getElementById("cert-zone");
+  var chk = document.getElementById("no-cert-chk");
+  var flag = document.getElementById("cert-missing-flag");
+
+  if (badge) badge.style.display = isRequired ? "inline" : "none";
+  if (optNote) optNote.style.display = isRequired ? "none" : "inline";
+  if (noWrap) noWrap.style.display = isRequired ? "block" : "none";
+
+  // Reset the no-cert checkbox and flag when type changes
+  if (chk) { chk.checked = false; }
+  if (flag) flag.value = "";
+
+  // Update zone border colour
+  if (zone) {
+    zone.style.borderColor = isRequired ? "#e67e22" : "";
+    zone.style.borderWidth = isRequired ? "2px" : "";
+  }
+}
+
+window.addEventListener("load", function() {
+  buildPPEGrid(); buildCondBtns(); populateSelects();
+  wireSubmitter(); wireImgZone("item-zone","item-photo-data","&#128247;","Tap to upload item photo");
+  wireImgZone("label-zone","label-photo-data","&#127991;","Tap to upload label photo");
+  wireImgZone("cert-zone","cert-photo-data","&#128196;","Tap to upload certificate / test report");
+  // Wire no-cert checkbox
+  var noCertChk = document.getElementById("no-cert-chk");
+  if(noCertChk) {
+    noCertChk.addEventListener("change", function() {
+      var zone = document.getElementById("cert-zone");
+      var flag = document.getElementById("cert-missing-flag");
+      if(this.checked) {
+        // Disable the upload zone visually
+        zone.style.opacity = "0.4";
+        zone.style.pointerEvents = "none";
+        // Clear any existing cert
+        document.getElementById("cert-photo-data").value = "";
+        zone.innerHTML = '<div style="font-size:22px;margin-bottom:5px">&#128203;</div><div style="font-size:12px;color:var(--text-muted)">Certificate marked as not available</div>';
+        if(flag) flag.value = "cert_outstanding";
+      } else {
+        zone.style.opacity = "";
+        zone.style.pointerEvents = "";
+        zone.innerHTML = '<div style="font-size:28px;margin-bottom:6px">&#128196;</div><div style="font-size:13px;color:var(--text-muted)">Tap to upload certificate / test report</div>';
+        if(flag) flag.value = "";
+        // Re-wire the upload zone
+        wireImgZone("cert-zone","cert-photo-data","&#128196;","Tap to upload certificate / test report");
+      }
+    });
+  }
+  wireUnkBtn("unk-serial","ppe-serial");
+  wireUnkBtn("unk-mfg","ppe-mfg"); wireUnkBtn("unk-service","ppe-service"); wireUnkBtn("unk-next-insp","ppe-next-insp");
+  document.getElementById("ppe-mfg").addEventListener("change", updateRetirement);
+  document.getElementById("submit-btn").addEventListener("click", doSubmit);
+  document.getElementById("again-btn").addEventListener("click", resetForm);
+  loadEngineers();
+});
+
+function loadEngineers() {
+  fetch(SUPA_URL + "/rest/v1/engineers?select=name&order=name.asc", {
+    headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
+  }).then(function(r){return r.json();}).then(function(rows){
+    if(rows&&rows.length) knownEngs=rows.map(function(r){return r.name;});
+  }).catch(function(){});
+}
+
+function wireSubmitter() {
+  var inp=document.getElementById("sub-input"), dd=document.getElementById("sub-dd");
+  inp.addEventListener("input",function(){
+    document.getElementById("sub-status").textContent="";
+    dd.innerHTML="";
+    var val=inp.value; if(!val||val.length<2){dd.classList.remove("open");return;}
+    var q=val.toLowerCase();
+    knownEngs.filter(function(n){return n.toLowerCase().indexOf(q)>-1;}).slice(0,6).forEach(function(name){
+      var item=document.createElement("div"); item.className="dd-item";
+      var sp=document.createElement("span"); sp.textContent=name;
+      var b=document.createElement("span"); b.className="dd-known"; b.textContent="Known";
+      item.appendChild(sp); item.appendChild(b);
+      item.addEventListener("mousedown",function(){pickName(name,true);});
+      dd.appendChild(item);
+    });
+    var exact=knownEngs.some(function(n){return n.toLowerCase()===q;});
+    if(!exact&&val.trim().length>=3){
+      var trimmed=val.trim();
+      var ni=document.createElement("div"); ni.className="dd-item";
+      var sp2=document.createElement("span"); sp2.textContent="Add as new: "+trimmed;
+      var b2=document.createElement("span"); b2.className="dd-new"; b2.textContent="New";
+      ni.appendChild(sp2); ni.appendChild(b2);
+      ni.addEventListener("mousedown",function(){pickName(trimmed,false);});
+      dd.appendChild(ni);
+    }
+    if(dd.children.length){dd.classList.add("open");}else{dd.classList.remove("open");}
+  });
+  inp.addEventListener("blur",function(){
+    setTimeout(function(){
+      dd.classList.remove("open");
+      var v=inp.value.trim();
+      if(v) pickName(v,knownEngs.some(function(n){return n.toLowerCase()===v.toLowerCase();}));
+    },200);
+  });
+}
+function pickName(name,known){
+  document.getElementById("sub-input").value=name;
+  document.getElementById("sub-dd").classList.remove("open");
+  var st=document.getElementById("sub-status");
+  st.className="sub-status"+(known?" known":" new-eng");
+  st.textContent=known?"Found in engineer register":"New name - will be added on submission";
+  if(!known&&knownEngs.indexOf(name)===-1){knownEngs.push(name);knownEngs.sort();}
+}
+
+function buildPPEGrid() {
+  var cats = {}, catOrder = [];
+  PPE_TYPES.forEach(function(t){
+    var cat = PPE_META[t].cat;
+    if(!cats[cat]){cats[cat]=[];catOrder.push(cat);}
+    cats[cat].push(t);
+  });
+  var grid = document.getElementById("ppe-type-grid");
+  catOrder.forEach(function(cat){
+    var wrap=document.createElement("div");
+    var lbl=document.createElement("div"); lbl.className="cat-label"; lbl.textContent=cat+" PPE";
+    var row=document.createElement("div"); row.className="chip-row";
+    cats[cat].forEach(function(t){
+      var chip=document.createElement("div"); chip.className="chip"; chip.textContent=t;
+      var catCols={"Standard":"#1f6feb","Offshore":"#0ea5e9","Electrical":"#f59e0b","Hot Works":"#ef4444"};
+      chip.addEventListener("click",function(){
+        document.querySelectorAll(".chip").forEach(function(c){c.classList.remove("sel");c.style.background="";c.style.borderColor="";});
+        chip.classList.add("sel");
+        var col=catCols[cat]||"#1f6feb";
+        chip.style.background=col; chip.style.borderColor=col;
+        selectedType=t;
+        document.getElementById("ppe-type").value=t;
+        // Show/hide Other description field
+        var otherGrp=document.getElementById("other-desc-group");
+        if(otherGrp) otherGrp.style.display=(t==="Other")?"block":"none";
+        if(t!=="Other"){var od=document.getElementById("ppe-other-desc");if(od)od.value="";}
+        // Show/hide cert requirement
+        updateCertRequirement(t);
+        var meta=PPE_META[t];
+        var enBadge=document.getElementById("en-badge");
+        enBadge.textContent=meta.std; enBadge.className="en-badge set";
+        document.getElementById("ppe-std").value=meta.std;
+        var catBadge=document.getElementById("cat-badge");
+        catBadge.textContent=cat; catBadge.className="en-badge set";
+        updateRetirement();
+      });
+      row.appendChild(chip);
+    });
+    wrap.appendChild(lbl); wrap.appendChild(row);
+    grid.appendChild(wrap);
+  });
+}
+
+function buildCondBtns() {
+  var grp=document.getElementById("cond-grp");
+  var conds=[["Good","cg"],["Monitor","ca"],["Remove from Service","cr"]];
+  conds.forEach(function(c,i){
+    var btn=document.createElement("button"); btn.type="button";
+    btn.className="cond-btn"+(i===0?" cg":"");
+    var dot=document.createElement("span");
+    dot.style.cssText="width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block;margin-right:6px";
+    btn.appendChild(dot); btn.appendChild(document.createTextNode(c[0]));
+    btn.addEventListener("click",function(){
+      document.querySelectorAll(".cond-btn").forEach(function(b){b.className="cond-btn";});
+      btn.classList.add(c[1]); selectedCondition=c[0];
+      document.getElementById("ppe-condition").value=c[0];
+    });
+    grp.appendChild(btn);
+  });
+}
+
+function populateSelects() {
+  [["ppe-eng",knownEngs],["ppe-loc",ALL_SITES]].forEach(function(pair){
+    var sel=document.getElementById(pair[0]);
+    pair[1].forEach(function(v){var opt=document.createElement("option");opt.value=v;opt.textContent=v;sel.appendChild(opt);});
+  });
+}
+
+function updateRetirement() {
+  var type=document.getElementById("ppe-type").value;
+  var mfgEl=document.getElementById("ppe-mfg");
+  var mfgUnk=(mfgEl.dataset.unknown==="true");
+  var mfgVal=mfgEl.value;
+  var meta=type?PPE_META[type]:null;
+
+  var rMfg=document.getElementById("r-mfg");
+  var rLife=document.getElementById("r-life");
+  var rRetire=document.getElementById("r-retire");
+  var rStatus=document.getElementById("r-status");
+
+  if(mfgUnk){rMfg.textContent="Unknown - HSEQ to verify";rMfg.className="retire-val unknown";}
+  else if(mfgVal){rMfg.textContent=new Date(mfgVal).toLocaleDateString("en-GB");rMfg.className="retire-val ok";}
+  else{rMfg.textContent="Not set";rMfg.className="retire-val unknown";}
+
+  if(!meta){rLife.textContent="Select item type";rLife.className="retire-val";rLife.style.color="var(--text3)";return;}
+
+  if(!meta.life){rLife.textContent="No fixed lifespan";rLife.className="retire-val";rLife.style.color="var(--text3)";rRetire.textContent="N/A";rRetire.className="retire-val";rRetire.style.color="var(--text3)";rStatus.textContent="Inspection-based only";rStatus.className="retire-val";rStatus.style.color="var(--text3)";return;}
+
+  rLife.textContent=meta.life+" years from manufacture";rLife.className="retire-val";rLife.style.color="var(--blue)";
+
+  if(mfgUnk||!mfgVal){rRetire.textContent="Unknown";rRetire.className="retire-val unknown";rStatus.textContent="HSEQ action required";rStatus.className="retire-val warn";return;}
+
+  var mfgDate=new Date(mfgVal);
+  var retireDate=new Date(mfgDate);
+  retireDate.setFullYear(retireDate.getFullYear()+meta.life);
+  var now=new Date();
+  var monthsLeft=Math.round((retireDate-now)/(1000*60*60*24*30));
+
+  rRetire.textContent=retireDate.toLocaleDateString("en-GB");
+
+  if(retireDate<now){rRetire.className="retire-val crit";rStatus.textContent="RETIRED - remove from service immediately";rStatus.className="retire-val crit";}
+  else if(monthsLeft<=6){rRetire.className="retire-val warn";rStatus.textContent="Retiring in "+monthsLeft+" months - plan replacement";rStatus.className="retire-val warn";}
+  else if(monthsLeft<=12){rRetire.className="retire-val warn";rStatus.textContent="Retiring in "+monthsLeft+" months - monitor";rStatus.className="retire-val warn";}
+  else{rRetire.className="retire-val ok";rStatus.textContent="Within service life ("+monthsLeft+" months remaining)";rStatus.className="retire-val ok";}
+}
+
+function wireImgZone(zoneId,dataId,icon,txt){
+  var zone=document.getElementById(zoneId);
+  var inp=document.createElement("input");inp.type="file";inp.accept="image/*";inp.style.display="none";
+  zone.appendChild(inp);
+  zone.addEventListener("click",function(){inp.click();});
+  inp.addEventListener("change",function(){
+    var file=inp.files[0];if(!file)return;
+    if(file.size>5*1024*1024){showToast("Image too large - max 5MB","err");return;}
+    var reader=new FileReader();
+    reader.onload=function(e){loadImg(zone,dataId,e.target.result,icon,txt);};
+    reader.readAsDataURL(file);
+  });
+}
+function loadImg(zone,dataId,src,icon,txt){
+  zone.classList.add("loaded");
+  var img=document.createElement("img");img.src=src;img.alt="preview";
+  var clr=document.createElement("button");clr.className="img-clear";clr.innerHTML="&#215;";
+  clr.addEventListener("click",function(ev){
+    ev.stopPropagation();
+    document.getElementById(dataId).value="";
+    zone.classList.remove("loaded");zone.innerHTML="";
+    var ic=document.createElement("span");ic.className="iz-icon";ic.innerHTML=icon;
+    var t=document.createElement("div");t.className="iz-text";t.textContent=txt;
+    var s=document.createElement("div");s.className="iz-sub";s.textContent="JPG or PNG - max 5MB";
+    var ni=document.createElement("input");ni.type="file";ni.accept="image/*";ni.style.display="none";
+    ni.addEventListener("change",function(){
+      var f2=ni.files[0];if(!f2)return;
+      if(f2.size>5*1024*1024){showToast("Image too large","err");return;}
+      var r2=new FileReader();r2.onload=function(e2){loadImg(zone,dataId,e2.target.result,icon,txt);};r2.readAsDataURL(f2);
+    });
+    zone.appendChild(ic);zone.appendChild(t);zone.appendChild(s);zone.appendChild(ni);
+    zone.onclick=function(){ni.click();};
+  });
+  zone.innerHTML="";zone.appendChild(img);zone.appendChild(clr);
+  document.getElementById(dataId).value=src;
+}
+
+function wireUnkBtn(btnId,fieldId){
+  var btn=document.getElementById(btnId);if(!btn)return;
+  btn.addEventListener("click",function(){
+    var inp=document.getElementById(fieldId);
+    if(btn.classList.contains("set")){
+      inp.disabled=false;inp.value="";delete inp.dataset.unknown;
+      btn.classList.remove("set");btn.textContent="Unknown";
+    } else {
+      inp.disabled=true;inp.value="";inp.dataset.unknown="true";
+      inp.placeholder="Unknown - HSEQ to verify";
+      btn.classList.add("set");btn.textContent="Set";
+    }
+    if(fieldId==="ppe-mfg") updateRetirement();
+  });
+}
+
+function doSubmit(){
+  var sub=document.getElementById("sub-input").value.trim();
+  var type=document.getElementById("ppe-type").value;
+  var serial=document.getElementById("ppe-serial");
+  var eng=document.getElementById("ppe-eng").value;
+  if(!sub){showToast("Please enter your name first","err");return;}
+  if(!type){showToast("Please select a PPE item type","err");return;}
+  if(!serial.value.trim()&&serial.dataset.unknown!=="true"){showToast("Serial number is required — or mark as Unknown","err");return;}
+  if(!eng){showToast("Please assign this item to an engineer","err");return;}
+  if(type==="Other"){
+    var od=document.getElementById("ppe-other-desc");
+    if(!od||!od.value.trim()){showToast("Please describe the item in the description field","err");return;}
+  }
+  // Cert required items — must have cert OR tick the no-cert box
+  if(CERT_REQUIRED.indexOf(type) > -1) {
+    var hasCert = document.getElementById("cert-photo-data").value;
+    var noCert = document.getElementById("no-cert-chk") && document.getElementById("no-cert-chk").checked;
+    if(!hasCert && !noCert) {
+      showToast("Please upload the certificate or tick \"I do not have the certificate\"","err");
+      document.getElementById("cert-zone").style.borderColor="#c0392b";
+      return;
+    }
+  }
+
+  var btn=document.getElementById("submit-btn");btn.disabled=true;btn.textContent="Submitting...";
+
+  var mfgEl=document.getElementById("ppe-mfg");
+  var svcEl=document.getElementById("ppe-service");
+  var nextEl=document.getElementById("ppe-next-insp");
+
+  var row={
+    item_type:type,
+    en_standard:document.getElementById("ppe-std").value,
+    brand:document.getElementById("ppe-brand").value.trim(),
+    model:document.getElementById("ppe-model").value.trim(),
+    serial_number:serial.dataset.unknown==="true"?"Unknown":serial.value.trim(),
+    manufacture_date:mfgEl.dataset.unknown==="true"?"Unknown":mfgEl.value||null,
+    first_use_date:svcEl.dataset.unknown==="true"?"Unknown":svcEl.value||null,
+    last_inspection_date:document.getElementById("ppe-last-insp").value||null,
+    next_inspection_date:nextEl.dataset.unknown==="true"?"Unknown":nextEl.value||null,
+    inspector_name:document.getElementById("ppe-inspector").value.trim(),
+    condition:document.getElementById("ppe-condition").value,
+    notes:document.getElementById("ppe-notes").value.trim(),
+    image_data:document.getElementById("item-photo-data").value?"[photo attached]":"",
+    label_image_data:document.getElementById("label-photo-data").value?"[label photo attached]":"",
+    tagged_engineer:eng,
+    tagged_location:document.getElementById("ppe-loc").value,
+    submitted_by:sub,
+    cert_image_data:document.getElementById("cert-photo-data").value?"[cert attached]":"",
+    cert_outstanding:document.getElementById("cert-missing-flag")?document.getElementById("cert-missing-flag").value:"",
+    other_description:document.getElementById("ppe-other-desc")?document.getElementById("ppe-other-desc").value.trim():""
+  };
+
+  fetch(SUPA_URL+"/rest/v1/ppe_register",{
+    method:"POST",
+    headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY,"Content-Type":"application/json","Prefer":"return=representation"},
+    body:JSON.stringify([row])
+  }).then(function(r){return r.json();}).then(function(){
+    btn.disabled=false;btn.textContent="Register PPE Item";
+    showSuccess(row);
+  }).catch(function(){btn.disabled=false;btn.textContent="Register PPE Item";showToast("Submission failed - please try again","err");});
+}
+
+function showSuccess(row){
+  document.getElementById("form-area").style.display="none";
+  document.getElementById("success").classList.add("show");
+  var html="<div class='srow'><span class='sk'>Item type</span><span class='sv'>"+row.item_type+"</span></div>"
+    +"<div class='srow'><span class='sk'>Serial number</span><span class='sv'>"+row.serial_number+"</span></div>"
+    +"<div class='srow'><span class='sk'>Assigned to</span><span class='sv'>"+row.tagged_engineer+"</span></div>"
+    +"<div class='srow'><span class='sk'>Condition</span><span class='sv'>"+row.condition+"</span></div>"
+    +"<div class='srow'><span class='sk'>Submitted by</span><span class='sv'>"+row.submitted_by+"</span></div>"
+    +"<div class='srow'><span class='sk'>Status</span><span class='sv' style='color:var(--green)'>Saved to Supabase</span></div>";
+  document.getElementById("s-meta").innerHTML=html;
+  window.scrollTo(0,0);
+}
+
+function resetForm(){
+  document.getElementById("form-area").style.display="block";
+  document.getElementById("success").classList.remove("show");
+  ["ppe-brand","ppe-model","ppe-serial","ppe-inspector","ppe-notes"].forEach(function(id){
+    var el=document.getElementById(id);el.value="";el.disabled=false;delete el.dataset.unknown;
+  });
+  ["ppe-mfg","ppe-service","ppe-last-insp","ppe-next-insp"].forEach(function(id){
+    var el=document.getElementById(id);el.value="";el.disabled=false;delete el.dataset.unknown;
+  });
+  ["unk-serial","unk-mfg","unk-service","unk-next-insp"].forEach(function(id){
+    var b=document.getElementById(id);if(b){b.classList.remove("set");b.textContent="Unknown";}
+  });
+  document.querySelectorAll(".chip").forEach(function(c){c.classList.remove("sel");c.style.background="";c.style.borderColor="";});
+  document.getElementById("ppe-type").value=""; selectedType="";
+  document.getElementById("en-badge").textContent="Select a type above"; document.getElementById("en-badge").className="en-badge";
+  document.getElementById("cat-badge").textContent="—"; document.getElementById("cat-badge").className="en-badge";
+  document.querySelectorAll(".cond-btn").forEach(function(b,i){b.className="cond-btn"+(i===0?" cg":"");});
+  document.getElementById("ppe-condition").value="Good"; selectedCondition="Good";
+  updateRetirement();
+}
+
+function showToast(msg,type){
+  var t=document.getElementById("toast");
+  t.textContent=msg;t.className="toast show"+(type?" "+type:"");
+  setTimeout(function(){t.className="toast";},3500);
+}
+</script>
+</body>
+</html>

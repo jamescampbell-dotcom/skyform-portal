@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Skyform - PPE Live View</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#2d333b;--border:#30363d;--border2:#444c56;--text:#e6edf3;--text2:#c9d1d9;--text3:#8b949e;--accent:#1f6feb;--green:#3fb950;--gbg:rgba(63,185,80,.12);--amber:#d29922;--abg:rgba(210,153,34,.12);--red:#f85149;--rbg:rgba(248,81,73,.10);--blue:#58a6ff;--purple:#a371f7;--r:8px;--rl:12px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;height:56px;gap:16px;position:sticky;top:0;z-index:100;}
+.hdr img{height:32px;border-radius:4px;}
+.hdr-title{font-size:14px;font-weight:600;}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.live-badge{display:flex;align-items:center;gap:6px;background:var(--gbg);border:1px solid rgba(63,185,80,.3);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--green);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.pause-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:6px 14px;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;}
+.pause-btn:hover{border-color:var(--accent);color:var(--blue);}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 20px;}
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:700px){.stats-bar{grid-template-columns:repeat(3,1fr);}}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px;}
+.stat-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.stat-val{font-size:26px;font-weight:600;font-family:"DM Mono",monospace;line-height:1;}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:5px;}
+.action-banner{border-radius:var(--r);padding:12px 16px;margin-bottom:16px;display:none;align-items:center;gap:10px;}
+.action-banner.show{display:flex;}
+.ab-red{background:var(--rbg);border:1px solid rgba(248,81,73,.3);}
+.ab-amber{background:var(--abg);border:1px solid rgba(210,153,34,.3);}
+.ab-icon{font-size:18px;flex-shrink:0;}
+.ab-text{font-size:13px;flex:1;}
+.ab-red .ab-text{color:var(--red);}
+.ab-amber .ab-text{color:var(--amber);}
+.ab-count{font-size:20px;font-weight:700;font-family:"DM Mono",monospace;}
+.ab-red .ab-count{color:var(--red);}
+.ab-amber .ab-count{color:var(--amber);}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.toolbar-title{font-size:15px;font-weight:600;}
+.toolbar-count{font-size:12px;color:var(--text3);background:var(--bg3);border-radius:20px;padding:2px 10px;}
+.spacer{flex:1;}
+.fsel{background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:7px 12px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text2);outline:none;cursor:pointer;}
+.fsel:focus{border-color:var(--accent);}
+.srch{background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:7px 12px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text2);outline:none;width:180px;}
+.srch:focus{border-color:var(--accent);}
+.srch::placeholder{color:var(--text3);}
+/* engineer cards */
+.eng-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;}
+.eng-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;}
+.eng-card-hdr{padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.eng-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.eng-name{font-size:14px;font-weight:600;flex:1;}
+.eng-count{font-size:12px;color:var(--text3);}
+.eng-rag{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.rag-g{background:var(--green);}
+.rag-a{background:var(--amber);}
+.rag-r{background:var(--red);}
+.ppe-list{padding:0;}
+.ppe-item{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .1s;}
+.ppe-item:last-child{border-bottom:none;}
+.ppe-item:hover{background:var(--bg3);}
+.ppe-type{font-size:12px;font-weight:600;flex:1;color:var(--text);}
+.ppe-serial{font-size:11px;font-family:"DM Mono",monospace;color:var(--text3);}
+.cond-pill{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.cp-g{background:var(--gbg);color:var(--green);}
+.cp-a{background:var(--abg);color:var(--amber);}
+.cp-r{background:var(--rbg);color:var(--red);}
+.retire-pill{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.rp-ok{background:var(--gbg);color:var(--green);}
+.rp-warn{background:var(--abg);color:var(--amber);}
+.rp-crit{background:var(--rbg);color:var(--red);}
+.rp-na{background:var(--bg3);color:var(--text3);}
+/* detail expand */
+.ppe-detail{display:none;padding:10px 16px;background:var(--bg3);border-top:1px solid var(--border);}
+.ppe-detail.open{display:block;}
+.pd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.pd-field{background:var(--bg2);border-radius:6px;padding:8px 10px;}
+.pd-label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:3px;}
+.pd-val{font-size:12px;color:var(--text);}
+.pd-val.unknown{color:var(--amber);font-style:italic;}
+.pd-val.empty{color:var(--text3);font-style:italic;}
+.pd-val.crit{color:var(--red);}
+/* flat list mode */
+.flat-feed{display:flex;flex-direction:column;gap:8px;}
+.flat-row{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s;animation:sIn .3s ease-out;}
+@keyframes sIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.flat-row:hover{border-color:var(--border2);}
+.flat-row.new-f{border-color:var(--green);animation:nf .8s ease-out;}
+@keyframes nf{0%{border-color:var(--green);box-shadow:0 0 0 2px rgba(63,185,80,.2);}100%{border-color:var(--border);box-shadow:none;}}
+.fr-type{font-size:13px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fr-eng{font-size:11px;color:var(--blue);white-space:nowrap;}
+.fr-serial{font-size:11px;font-family:"DM Mono",monospace;color:var(--text3);white-space:nowrap;}
+/* empty */
+.empty{text-align:center;padding:60px 20px;color:var(--text3);}
+.empty-icon{font-size:48px;margin-bottom:16px;display:block;opacity:.4;}
+.last-upd{font-size:11px;color:var(--text3);text-align:center;margin-top:20px;}
+/* view toggle */
+.view-toggle{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.vt-btn{padding:6px 12px;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:500;color:var(--text3);background:none;border:none;cursor:pointer;transition:all .15s;}
+.vt-btn.active{background:var(--accent);color:#fff;}
+</style>
+<!-- build:1777564249 -->
+</head>
+<body>
+<header class="hdr">
+  <img src="logo.png" alt="Skyform">
+  <span class="hdr-title">PPE Register — Live View</span>
+  <div class="hdr-right">
+    <span class="live-badge"><span class="live-dot" id="live-dot"></span><span id="live-lbl">Live</span></span>
+    <button class="pause-btn" id="pause-btn">&#9646;&#9646; Pause</button>
+  </div>
+</header>
+<div class="wrap">
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-label">Total Items</div><div class="stat-val" id="s-total" style="color:var(--blue)">—</div><div class="stat-sub" id="s-total-sub">Loading...</div></div>
+    <div class="stat-card"><div class="stat-label">Good Condition</div><div class="stat-val" id="s-good" style="color:var(--green)">—</div><div class="stat-sub">No action needed</div></div>
+    <div class="stat-card"><div class="stat-label">Monitor</div><div class="stat-val" id="s-mon" style="color:var(--amber)">—</div><div class="stat-sub">Needs attention</div></div>
+    <div class="stat-card"><div class="stat-label">Remove / Retire</div><div class="stat-val" id="s-bad" style="color:var(--red)">—</div><div class="stat-sub">Immediate action</div></div>
+    <div class="stat-card"><div class="stat-label">HSEQ Actions</div><div class="stat-val" id="s-unk" style="color:var(--amber)">—</div><div class="stat-sub">Unknown fields</div></div>
+  </div>
+  <!-- BANNERS -->
+  <div class="action-banner ab-red" id="banner-rfs"><span class="ab-icon">&#9888;</span><span class="ab-text"><strong>Remove from Service</strong> — items flagged for immediate withdrawal</span><span class="ab-count" id="bn-rfs">0</span></div>
+  <div class="action-banner ab-amber" id="banner-unk"><span class="ab-icon">&#8505;</span><span class="ab-text"><strong>HSEQ Action Required</strong> — items with unknown details needing verification</span><span class="ab-count" id="bn-unk">0</span></div>
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <span class="toolbar-title">PPE Register</span>
+    <span class="toolbar-count" id="tc">0 items</span>
+    <div class="spacer"></div>
+    <input class="srch" id="srch" type="text" placeholder="&#128269; Search...">
+    <select class="fsel" id="f-cond"><option value="">All conditions</option><option>Good</option><option>Monitor</option><option value="Remove from Service">Remove from Service</option></select>
+    <select class="fsel" id="f-cat"><option value="">All types</option></select>
+    <div class="view-toggle"><button class="vt-btn active" id="vt-eng">By Engineer</button><button class="vt-btn" id="vt-list">All Items</button></div>
+  </div>
+  <div id="eng-view"><div class="eng-grid" id="eng-grid"></div></div>
+  <div id="list-view" style="display:none"><div class="flat-feed" id="flat-feed"></div></div>
+  <div class="empty" id="empty" style="display:none"><span class="empty-icon">&#128737;</span><div style="font-size:16px;font-weight:600;color:var(--text2);margin-bottom:8px">Waiting for PPE submissions</div><div style="font-size:13px;line-height:1.6">Share the PPE register form with your engineers.<br>Items will appear here as soon as they submit.</div></div>
+  <div class="last-upd" id="last-upd"></div>
+</div>
+<script>
+var SUPA_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co";
+var SUPA_KEY = "sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK";
+var PPE_TYPES = ["Safety Helmet","Full Body Harness","Fall Arrest Lanyard (Twin)","Work Restraint Lanyard","Fall Arrest Glider","Transfer Connector","Hi-Vis Workwear","Safety Boots","Cut Resistant Gloves","Noise Protection","Safety Glasses","Immersion Suit","Lifejacket 275N","Personal Locator Beacon","Head Lamp","Arc / FR Clothing","Electrical Gloves","Arc Face & Head Protection","FR Hot Works Clothing","Hot Works Gloves","Face & Eye Protection","Respiratory Protection"];
+var PPE_LIFESPAN = {"Safety Helmet":5,"Full Body Harness":10,"Fall Arrest Lanyard (Twin)":10,"Work Restraint Lanyard":10,"Fall Arrest Glider":10,"Transfer Connector":10,"Immersion Suit":5,"Lifejacket 275N":10};
+
+var allData=[], paused=false, viewMode="eng", knownIds={}, openItems={};
+
+window.addEventListener("load",function(){
+  buildTypeFilter(); fetchData(); startRefresh();
+  document.getElementById("pause-btn").addEventListener("click",togglePause);
+  document.getElementById("srch").addEventListener("input",render);
+  document.getElementById("f-cond").addEventListener("change",render);
+  document.getElementById("f-cat").addEventListener("change",render);
+  document.getElementById("vt-eng").addEventListener("click",function(){setView("eng");});
+  document.getElementById("vt-list").addEventListener("click",function(){setView("list");});
+});
+
+function buildTypeFilter(){
+  var sel=document.getElementById("f-cat");
+  PPE_TYPES.forEach(function(t){var o=document.createElement("option");o.value=t;o.textContent=t;sel.appendChild(o);});
+}
+
+function fetchData(){
+  fetch(SUPA_URL+"/rest/v1/ppe_register?order=created_at.desc&limit=500",{
+    headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
+  }).then(function(r){return r.json();}).then(function(rows){
+    if(!rows||!Array.isArray(rows))return;
+    var newIds={};
+    rows.forEach(function(r){newIds[r.id]=true;});
+    rows.forEach(function(r){if(allData.length>0&&!knownIds[r.id])r._isNew=true;});
+    allData=rows; knownIds=newIds;
+    renderStats(); render();
+    document.getElementById("last-upd").textContent="Last refreshed: "+new Date().toLocaleTimeString("en-GB");
+  }).catch(function(){});
+}
+function startRefresh(){setInterval(function(){if(!paused)fetchData();},5000);}
+function togglePause(){
+  paused=!paused;
+  var btn=document.getElementById("pause-btn"),dot=document.getElementById("live-dot"),lbl=document.getElementById("live-lbl");
+  if(paused){btn.textContent="Resume";dot.style.animation="none";dot.style.opacity=".3";lbl.textContent="Paused";}
+  else{btn.innerHTML="&#9646;&#9646; Pause";dot.style.animation="";dot.style.opacity="";lbl.textContent="Live";fetchData();}
+}
+function setView(v){
+  viewMode=v;
+  document.getElementById("vt-eng").classList.toggle("active",v==="eng");
+  document.getElementById("vt-list").classList.toggle("active",v==="list");
+  document.getElementById("eng-view").style.display=v==="eng"?"block":"none";
+  document.getElementById("list-view").style.display=v==="list"?"block":"none";
+  render();
+}
+
+function calcRetire(item){
+  var life=PPE_LIFESPAN[item.item_type];
+  if(!life) return null;
+  if(!item.manufacture_date||item.manufacture_date==="Unknown") return "unknown";
+  var mfg=new Date(item.manufacture_date);
+  var ret=new Date(mfg); ret.setFullYear(ret.getFullYear()+life);
+  var now=new Date();
+  var months=Math.round((ret-now)/(1000*60*60*24*30));
+  return {date:ret,months:months,status:ret<now?"retired":months<=6?"soon":months<=12?"warn":"ok"};
+}
+
+function retirePill(item){
+  var r=calcRetire(item);
+  if(!r) return "";
+  if(r==="unknown") return "<span class='retire-pill rp-warn'>Retire date unknown</span>";
+  if(r.status==="retired") return "<span class='retire-pill rp-crit'>RETIRED</span>";
+  if(r.status==="soon") return "<span class='retire-pill rp-warn'>Retires in "+r.months+"m</span>";
+  if(r.status==="warn") return "<span class='retire-pill rp-warn'>"+r.months+"m left</span>";
+  return "<span class='retire-pill rp-ok'>"+r.months+"m left</span>";
+}
+
+function condPill(cond){
+  if(cond==="Good") return "<span class='cond-pill cp-g'>Good</span>";
+  if(cond==="Monitor") return "<span class='cond-pill cp-a'>Monitor</span>";
+  return "<span class='cond-pill cp-r'>Remove from Service</span>";
+}
+
+function hasUnknown(item){
+  return item.serial_number==="Unknown"||item.manufacture_date==="Unknown"||item.next_inspection_date==="Unknown"||item.first_use_date==="Unknown";
+}
+
+function renderStats(){
+  var total=allData.length;
+  var good=allData.filter(function(r){return r.condition==="Good";}).length;
+  var mon=allData.filter(function(r){return r.condition==="Monitor";}).length;
+  var bad=allData.filter(function(r){return r.condition==="Remove from Service"||calcRetire(r)==="unknown"||( calcRetire(r)&&calcRetire(r)!=="unknown"&&calcRetire(r).status==="retired");}).length;
+  var unk=allData.filter(function(r){return hasUnknown(r);}).length;
+  var rfs=allData.filter(function(r){return r.condition==="Remove from Service";}).length;
+  document.getElementById("s-total").textContent=total;
+  document.getElementById("s-total-sub").textContent=total+" items registered";
+  document.getElementById("s-good").textContent=good;
+  document.getElementById("s-mon").textContent=mon;
+  document.getElementById("s-bad").textContent=bad;
+  document.getElementById("s-unk").textContent=unk;
+  var bRfs=document.getElementById("banner-rfs");
+  if(rfs>0){bRfs.classList.add("show");document.getElementById("bn-rfs").textContent=rfs;}else{bRfs.classList.remove("show");}
+  var bUnk=document.getElementById("banner-unk");
+  if(unk>0){bUnk.classList.add("show");document.getElementById("bn-unk").textContent=unk;}else{bUnk.classList.remove("show");}
+}
+
+function getFiltered(){
+  var srch=document.getElementById("srch").value.toLowerCase();
+  var fCond=document.getElementById("f-cond").value;
+  var fCat=document.getElementById("f-cat").value;
+  return allData.filter(function(r){
+    if(fCond&&r.condition!==fCond)return false;
+    if(fCat&&r.item_type!==fCat)return false;
+    if(srch){var hay=((r.item_type||"")+" "+(r.serial_number||"")+" "+(r.tagged_engineer||"")+" "+(r.brand||"")+" "+(r.model||"")).toLowerCase();if(hay.indexOf(srch)===-1)return false;}
+    return true;
+  });
+}
+
+function render(){
+  var filtered=getFiltered();
+  document.getElementById("tc").textContent=filtered.length+" item"+(filtered.length!==1?"s":"");
+  document.getElementById("empty").style.display=filtered.length===0&&allData.length===0?"block":"none";
+  if(viewMode==="eng") renderByEng(filtered);
+  else renderList(filtered);
+}
+
+function renderByEng(items){
+  var byEng={}, engOrder=[];
+  items.forEach(function(r){
+    var e=r.tagged_engineer||"Unassigned";
+    if(!byEng[e]){byEng[e]=[];engOrder.push(e);}
+    byEng[e].push(r);
+  });
+  var grid=document.getElementById("eng-grid");
+  grid.innerHTML="";
+  engOrder.forEach(function(eng){
+    var ePPE=byEng[eng];
+    var hasRfs=ePPE.some(function(r){return r.condition==="Remove from Service";});
+    var hasMon=ePPE.some(function(r){return r.condition==="Monitor"||hasUnknown(r);});
+    var ragClass=hasRfs?"rag-r":hasMon?"rag-a":"rag-g";
+    var initials=eng.split(" ").map(function(w){return w[0];}).join("").slice(0,2).toUpperCase();
+    var card=document.createElement("div"); card.className="eng-card";
+    var hdr=document.createElement("div"); hdr.className="eng-card-hdr";
+    var av=document.createElement("div"); av.className="eng-av";
+    var bgCols={"rag-g":"rgba(63,185,80,.15)","rag-a":"rgba(210,153,34,.15)","rag-r":"rgba(248,81,73,.12)"};
+    var txCols={"rag-g":"var(--green)","rag-a":"var(--amber)","rag-r":"var(--red)"};
+    av.style.background=bgCols[ragClass]; av.style.color=txCols[ragClass]; av.textContent=initials;
+    var nm=document.createElement("div"); nm.className="eng-name"; nm.textContent=eng;
+    var cnt=document.createElement("div"); cnt.className="eng-count"; cnt.textContent=ePPE.length+" items";
+    var rag=document.createElement("div"); rag.className="eng-rag "+ragClass;
+    hdr.appendChild(av); hdr.appendChild(nm); hdr.appendChild(cnt); hdr.appendChild(rag);
+    var list=document.createElement("div"); list.className="ppe-list";
+    ePPE.forEach(function(r){
+      var row=document.createElement("div"); row.className="ppe-item";
+      var tp=document.createElement("span"); tp.className="ppe-type"; tp.textContent=r.item_type;
+      var sr=document.createElement("span"); sr.className="ppe-serial"; sr.textContent=r.serial_number||"—";
+      var det=document.createElement("div"); det.className="ppe-detail";
+      var retR=calcRetire(r);
+      var retTxt=!retR?"N/A":retR==="unknown"?"Unknown":retR.date.toLocaleDateString("en-GB")+(retR.status==="retired"?" (RETIRED)":"");
+      var fields=[
+        ["Brand",r.brand],["Model",r.model],["EN Standard",r.en_standard],
+        ["Manufacture date",r.manufacture_date||"—"],["First use",r.first_use_date||"—"],
+        ["Last inspection",r.last_inspection_date||"—"],["Next inspection",r.next_inspection_date||"—"],
+        ["Inspector",r.inspector_name||"—"],["Retirement date",retTxt],
+        ["Location",r.tagged_location||"—"],["Submitted by",r.submitted_by||"—"],
+      ];
+      var pg=document.createElement("div"); pg.className="pd-grid";
+      fields.forEach(function(f){
+        var fc=document.createElement("div"); fc.className="pd-field";
+        var fl=document.createElement("div"); fl.className="pd-label"; fl.textContent=f[0];
+        var fv=document.createElement("div");
+        if(!f[1]||f[1]==="—"){fv.className="pd-val empty";fv.textContent="—";}
+        else if(f[1]==="Unknown"){fv.className="pd-val unknown";fv.textContent="Unknown - HSEQ to verify";}
+        else if(f[1]&&f[1].indexOf("RETIRED")>-1){fv.className="pd-val crit";fv.textContent=f[1];}
+        else{fv.className="pd-val";fv.textContent=f[1];}
+        fc.appendChild(fl); fc.appendChild(fv); pg.appendChild(fc);
+      });
+      det.appendChild(pg);
+      var pillDiv=document.createElement("div"); pillDiv.style.display="flex"; pillDiv.style.gap="6px"; pillDiv.style.alignItems="center";
+      pillDiv.innerHTML=condPill(r.condition)+" "+retirePill(r);
+      row.appendChild(tp); row.appendChild(sr); row.appendChild(pillDiv);
+      row.addEventListener("click",function(){det.classList.toggle("open");});
+      list.appendChild(row); list.appendChild(det);
+    });
+    card.appendChild(hdr); card.appendChild(list); grid.appendChild(card);
+  });
+}
+
+function renderList(items){
+  var feed=document.getElementById("flat-feed");
+  feed.innerHTML="";
+  items.forEach(function(r){
+    var row=document.createElement("div"); row.className="flat-row"+(r._isNew?" new-f":"");
+    var tp=document.createElement("span"); tp.className="fr-type"; tp.textContent=r.item_type;
+    var eng=document.createElement("span"); eng.className="fr-eng"; eng.textContent=r.tagged_engineer||"Unassigned";
+    var sr=document.createElement("span"); sr.className="fr-serial"; sr.textContent=r.serial_number||"—";
+    var condDiv=document.createElement("div"); condDiv.innerHTML=condPill(r.condition)+" "+retirePill(r);
+    row.appendChild(tp); row.appendChild(eng); row.appendChild(sr); row.appendChild(condDiv);
+    feed.appendChild(row);
+  });
+}
+</script>
+</body>
+</html>

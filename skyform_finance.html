@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Skyform Finance Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F6F2;--bg2:#FFFFFF;--bg3:#F0EEE8;--bg4:#E8E5DC;
+  --border:#D8D4C8;--border2:#C8C4B4;
+  --text:#1A1916;--text2:#3D3B35;--text3:#7A7768;
+  --accent:#1A3A2A;--accent2:#2D5C42;--accent3:#4A8C65;
+  --amber:#C4860A;--abg:#FEF3DC;--amborder:#E8B84B;
+  --red:#B83220;--rbg:#FEECEC;--redborder:#E07060;
+  --blue:#1A3A5C;--bbg:#EEF3FA;--blueborder:#6090C8;
+  --green:#1A5C35;--gbg:#EEF7F1;--greenborder:#60B880;
+  --gold:#8B6914;--goldbg:#FBF5E6;
+  --r:6px;--rl:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;display:flex;flex-direction:column;}
+/* ── HEADER ── */
+.hdr{background:var(--accent);padding:0 24px;display:flex;align-items:center;height:56px;gap:16px;flex-shrink:0;}
+.hdr-logo{font-family:"Syne",sans-serif;font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px;}
+.hdr-logo span{color:#4A8C65;}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.5);margin-left:2px;font-weight:400;}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.hdr-badge{font-size:10px;font-weight:600;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.15);}
+/* ── LAYOUT ── */
+.app{display:flex;flex:1;overflow:hidden;}
+/* ── SIDEBAR ── */
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sb-section{padding:16px 12px 8px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border-radius:var(--r);margin:2px 8px;transition:all .15s;}
+.sb-item:hover{background:var(--bg3);color:var(--text);}
+.sb-item.active{background:var(--accent);color:#fff;}
+.sb-item.active .sb-icon{opacity:1;}
+.sb-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.sb-badge{margin-left:auto;font-size:10px;font-weight:700;background:var(--red);color:#fff;border-radius:10px;padding:1px 6px;min-width:18px;text-align:center;}
+.sb-badge.amber{background:var(--amber);}
+.sb-badge.green{background:var(--green);}
+.sb-spacer{flex:1;}
+.sb-footer{padding:12px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);}
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;padding:24px;}
+.page{display:none;}
+.page.active{display:block;}
+/* ── STATS BAR ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px;position:relative;overflow:hidden;}
+.stat::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;}
+.stat.blue::before{background:var(--blue);}
+.stat.amber::before{background:var(--amber);}
+.stat.red::before{background:var(--red);}
+.stat.green::before{background:var(--green);}
+.stat-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.stat-val{font-size:22px;font-weight:700;font-family:"Syne",sans-serif;line-height:1;margin-bottom:4px;}
+.stat-sub{font-size:10px;color:var(--text3);}
+/* ── PAGE HEADERS ── */
+.page-hdr{margin-bottom:20px;}
+.page-title{font-family:"Syne",sans-serif;font-size:22px;font-weight:700;margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--text3);}
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:16px;overflow:hidden;}
+.card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.card-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.card-title{font-size:13px;font-weight:600;font-family:"Syne",sans-serif;}
+.card-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.card-actions{margin-left:auto;display:flex;gap:8px;}
+.card-body{padding:18px;}
+/* ── FORM FIELDS ── */
+.fg{display:grid;gap:12px;margin-bottom:12px;}
+.fg.c2{grid-template-columns:1fr 1fr;}
+.fg.c3{grid-template-columns:1fr 1fr 1fr;}
+.fg.c4{grid-template-columns:1fr 1fr 1fr 1fr;}
+@media(max-width:900px){.fg.c2,.fg.c3,.fg.c4{grid-template-columns:1fr;}}
+.field label{display:block;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:9px 11px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent3);background:var(--bg2);}
+.field input[type=date]{color-scheme:light;}
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent2);}
+.btn-secondary{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);}
+.btn-secondary:hover{background:var(--bg4);border-color:var(--border);}
+.btn-danger{background:var(--rbg);border:1px solid var(--redborder);color:var(--red);}
+.btn-success{background:var(--gbg);border:1px solid var(--greenborder);color:var(--green);}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+/* ── IMPORT DROP ZONE ── */
+.dropzone{border:2px dashed var(--border2);border-radius:var(--rl);padding:32px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:12px;}
+.dropzone:hover,.dropzone.drag-over{border-color:var(--accent3);background:var(--gbg);}
+.dz-icon{font-size:32px;margin-bottom:10px;opacity:.4;}
+.dz-text{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:4px;}
+.dz-sub{font-size:12px;color:var(--text3);}
+/* ── TRANSACTION TABLE ── */
+.tx-table{width:100%;border-collapse:collapse;}
+.tx-table th{background:var(--bg3);padding:8px 10px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);border-bottom:2px solid var(--border2);}
+.tx-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12px;}
+.tx-table tr:hover td{background:var(--bg3);}
+.tx-table tr.pending td{background:var(--abg);}
+.tx-table tr.flagged td{background:var(--rbg);}
+.tx-table tr.approved td{background:var(--gbg);}
+.amount{font-family:"DM Mono",monospace;font-size:12px;font-weight:500;text-align:right;}
+.amount.debit{color:var(--red);}
+.amount.credit{color:var(--green);}
+.mini-sel{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:4px 6px;font-family:"DM Sans",sans-serif;font-size:11px;color:var(--text);outline:none;cursor:pointer;max-width:160px;}
+.mini-sel:focus{border-color:var(--accent3);}
+.mini-inp{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:4px 6px;font-family:"DM Sans",sans-serif;font-size:11px;color:var(--text);outline:none;width:100%;max-width:160px;}
+.mini-inp:focus{border-color:var(--accent3);}
+/* Status pills */
+.pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;display:inline-block;}
+.pill-pending{background:var(--abg);color:var(--amber);border:1px solid var(--amborder);}
+.pill-approved{background:var(--gbg);color:var(--green);border:1px solid var(--greenborder);}
+.pill-flagged{background:var(--rbg);color:var(--red);border:1px solid var(--redborder);}
+.pill-dividend{background:var(--bbg);color:var(--blue);border:1px solid var(--blueborder);}
+/* VAT badges */
+.vat{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;font-family:"DM Mono",monospace;}
+.vat-T1{background:#EEF3FA;color:#1A3A5C;}
+.vat-T0{background:#F0F9F0;color:#1A5C35;}
+.vat-T2{background:#FAF5EE;color:#8B6914;}
+.vat-T9{background:#F5F5F5;color:#666;}
+/* ── TOOLBAR ── */
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.toolbar-title{font-family:"Syne",sans-serif;font-size:15px;font-weight:700;}
+.toolbar-count{font-size:12px;color:var(--text3);background:var(--bg3);border-radius:20px;padding:2px 10px;border:1px solid var(--border);}
+.spacer{flex:1;}
+.filter-sel{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:7px 10px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text2);outline:none;cursor:pointer;}
+.search-inp{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:7px 10px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text2);outline:none;width:180px;}
+.search-inp:focus,.filter-sel:focus{border-color:var(--accent3);}
+/* ── NOMINAL CODE BROWSER ── */
+.nom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+@media(max-width:800px){.nom-grid{grid-template-columns:1fr 1fr;}}
+.nom-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;transition:all .15s;}
+.nom-card:hover{border-color:var(--accent3);background:var(--gbg);}
+.nom-code{font-size:11px;font-weight:700;font-family:"DM Mono",monospace;color:var(--accent3);margin-bottom:2px;}
+.nom-name{font-size:12px;font-weight:500;color:var(--text);}
+.nom-cat{font-size:10px;color:var(--text3);margin-top:2px;}
+.cat-header{font-family:"Syne",sans-serif;font-size:13px;font-weight:700;padding:12px 0 6px;border-bottom:1px solid var(--border);margin-bottom:8px;color:var(--accent);}
+/* ── RULES ── */
+.rule-row{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;font-size:12px;}
+.rule-pattern{font-family:"DM Mono",monospace;font-size:11px;color:var(--blue);background:var(--bbg);padding:2px 8px;border-radius:4px;flex:1;}
+.rule-arrow{color:var(--text3);}
+.rule-nominal{font-family:"DM Mono",monospace;font-size:11px;font-weight:600;color:var(--accent);}
+/* ── EXPORT ── */
+.export-preview{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:14px;font-family:"DM Mono",monospace;font-size:11px;color:var(--text2);max-height:200px;overflow-y:auto;white-space:pre;line-height:1.6;}
+/* ── VAT SUMMARY ── */
+.vat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.vat-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;text-align:center;}
+.vat-code{font-family:"DM Mono",monospace;font-size:16px;font-weight:700;margin-bottom:4px;}
+.vat-amt{font-size:18px;font-weight:700;font-family:"Syne",sans-serif;margin-bottom:2px;}
+.vat-lbl{font-size:10px;color:var(--text3);}
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--accent);border-radius:var(--r);padding:12px 18px;font-size:13px;font-weight:500;color:#fff;box-shadow:0 8px 32px rgba(0,0,0,.2);z-index:999;opacity:0;pointer-events:none;transition:opacity .3s;max-width:380px;}
+.toast.show{opacity:1;}
+.toast.err{background:var(--red);}
+.toast.ok{background:var(--green);}
+/* ── IMPORT PREVIEW TABLE ── */
+.import-scroll{overflow-x:auto;max-height:320px;overflow-y:auto;}
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:48px 20px;color:var(--text3);}
+.empty-icon{font-size:40px;opacity:.3;margin-bottom:12px;}
+.empty-title{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:6px;font-family:"Syne",sans-serif;}
+.empty-sub{font-size:12px;line-height:1.6;}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-logo">skyf<span>●</span>rm <span style="font-weight:400;opacity:.7;font-size:14px">Finance</span></div>
+  <div class="hdr-right">
+    <span class="hdr-badge">&#128274; Sage 50 Connected</span>
+    <span class="hdr-badge" id="period-badge">May 2026</span>
+  </div>
+</header>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sb-section">Main</div>
+    <div class="sb-item active" onclick="nav('dashboard')"><span class="sb-icon">&#9646;&#9646;</span> Dashboard</div>
+    <div class="sb-item" onclick="nav('import')"><span class="sb-icon">&#8613;</span> Import Statements</div>
+    <div class="sb-item" onclick="nav('review')"><span class="sb-icon">&#128270;</span> Review & Code <span class="sb-badge amber" id="pending-badge">0</span></div>
+    <div class="sb-section">Reference</div>
+    <div class="sb-item" onclick="nav('nominals')"><span class="sb-icon">&#35;</span> Nominal Codes</div>
+    <div class="sb-item" onclick="nav('rules')"><span class="sb-icon">&#9889;</span> Auto-Code Rules</div>
+    <div class="sb-item" onclick="nav('vat')"><span class="sb-icon">&#37;</span> VAT Summary</div>
+    <div class="sb-section">Export</div>
+    <div class="sb-item" onclick="nav('export')"><span class="sb-icon">&#8613;</span> Sage 50 Export <span class="sb-badge green" id="export-badge">0</span></div>
+    <div class="sb-spacer"></div>
+    <div class="sb-footer">Skyform Finance v1.0<br>Sage 50 compatible export</div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-hdr">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Purchase ledger overview — current period</div>
+      </div>
+      <div class="stats">
+        <div class="stat blue">
+          <div class="stat-lbl">Total Imported</div>
+          <div class="stat-val" id="d-total">0</div>
+          <div class="stat-sub" id="d-total-sub">transactions this period</div>
+        </div>
+        <div class="stat amber">
+          <div class="stat-lbl">Pending Review</div>
+          <div class="stat-val" id="d-pending">0</div>
+          <div class="stat-sub">require nominal code</div>
+        </div>
+        <div class="stat red">
+          <div class="stat-lbl">Flagged Items</div>
+          <div class="stat-val" id="d-flagged">0</div>
+          <div class="stat-sub">dividends or personal</div>
+        </div>
+        <div class="stat green">
+          <div class="stat-lbl">Ready to Export</div>
+          <div class="stat-val" id="d-approved">0</div>
+          <div class="stat-sub">approved for Sage</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="card">
+          <div class="card-hdr">
+            <div class="card-icon" style="background:var(--bbg)">&#128203;</div>
+            <div><div class="card-title">Recent Transactions</div><div class="card-sub">Last 10 imported</div></div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <table class="tx-table" id="dash-recent-table">
+              <thead><tr><th>Date</th><th>Description</th><th>Source</th><th style="text-align:right">Amount</th><th>Status</th></tr></thead>
+              <tbody id="dash-recent"></tbody>
+            </table>
+            <div class="empty" id="dash-empty" style="padding:24px">
+              <div class="empty-icon">&#128203;</div>
+              <div class="empty-title">No transactions yet</div>
+              <div class="empty-sub">Import bank or card statements to get started</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr">
+            <div class="card-icon" style="background:var(--goldbg)">&#37;</div>
+            <div><div class="card-title">VAT Position</div><div class="card-sub">Current period input tax</div></div>
+          </div>
+          <div class="card-body">
+            <div class="vat-grid">
+              <div class="vat-box"><div class="vat-code" style="color:var(--blue)">T1</div><div class="vat-amt" id="vat-T1-dash">£0</div><div class="vat-lbl">Standard Rate</div></div>
+              <div class="vat-box"><div class="vat-code" style="color:var(--green)">T0</div><div class="vat-amt" id="vat-T0-dash">£0</div><div class="vat-lbl">Zero Rated</div></div>
+              <div class="vat-box"><div class="vat-code" style="color:var(--gold)">T2</div><div class="vat-amt" id="vat-T2-dash">£0</div><div class="vat-lbl">Exempt</div></div>
+              <div class="vat-box"><div class="vat-code" style="color:var(--text3)">T9</div><div class="vat-amt" id="vat-T9-dash">£0</div><div class="vat-lbl">Outside Scope</div></div>
+            </div>
+            <div style="background:var(--accent);border-radius:var(--r);padding:14px;color:#fff;text-align:center">
+              <div style="font-size:10px;opacity:.7;margin-bottom:4px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">Reclaimable Input VAT (T1)</div>
+              <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800" id="vat-reclaimable">£0.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── IMPORT ── -->
+    <div class="page" id="page-import">
+      <div class="page-hdr">
+        <div class="page-title">Import Statements</div>
+        <div class="page-sub">Upload Bank of Scotland or Mastercard CSV statements. The system will auto-detect the format.</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;">
+        <div class="card">
+          <div class="card-hdr"><div class="card-icon" style="background:var(--bbg)">&#127981;</div><div><div class="card-title">Bank of Scotland</div><div class="card-sub">Current account statement</div></div></div>
+          <div class="card-body">
+            <div class="dropzone" id="dz-bos" ondragover="dzOver(event,'dz-bos')" ondragleave="dzLeave('dz-bos')" ondrop="dzDrop(event,'bos')" onclick="document.getElementById('fi-bos').click()">
+              <div class="dz-icon">&#127981;</div>
+              <div class="dz-text">Drop CSV here</div>
+              <div class="dz-sub">Bank of Scotland export format</div>
+            </div>
+            <input type="file" id="fi-bos" accept=".csv" style="display:none" onchange="handleFile(this,'bos')">
+            <div class="field"><label>Source label</label><input type="text" id="src-bos" value="Bank of Scotland"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-icon" style="background:var(--rbg)">&#128179;</div><div><div class="card-title">Mastercard Statements</div><div class="card-sub">Director expense cards</div></div></div>
+          <div class="card-body">
+            <div class="field" style="margin-bottom:8px"><label>Card holder</label>
+              <select id="mc-holder">
+                <option value="MC — James Campbell">James Campbell</option>
+                <option value="MC — Stewart Finlay">Stewart Finlay</option>
+                <option value="MC — Director 3">Director 3</option>
+              </select>
+            </div>
+            <div class="dropzone" id="dz-mc" ondragover="dzOver(event,'dz-mc')" ondragleave="dzLeave('dz-mc')" ondrop="dzDrop(event,'mc')" onclick="document.getElementById('fi-mc').click()">
+              <div class="dz-icon">&#128179;</div>
+              <div class="dz-text">Drop CSV here</div>
+              <div class="dz-sub">Mastercard statement format</div>
+            </div>
+            <input type="file" id="fi-mc" accept=".csv" style="display:none" onchange="handleFile(this,'mc')">
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-icon" style="background:var(--goldbg)">&#128196;</div><div><div class="card-title">Manual Entry</div><div class="card-sub">Add a single transaction</div></div></div>
+          <div class="card-body">
+            <div class="fg">
+              <div class="field"><label>Date</label><input type="date" id="me-date"></div>
+              <div class="field"><label>Description</label><input type="text" id="me-desc" placeholder="Supplier name / description"></div>
+            </div>
+            <div class="fg c2">
+              <div class="field"><label>Amount (£)</label><input type="number" id="me-amount" step="0.01" placeholder="0.00"></div>
+              <div class="field"><label>Type</label>
+                <select id="me-type"><option value="debit">Debit (expense)</option><option value="credit">Credit (refund)</option></select>
+              </div>
+            </div>
+            <div class="field" style="margin-bottom:10px"><label>Source</label><input type="text" id="me-source" value="Manual Entry"></div>
+            <button class="btn btn-primary" style="width:100%" onclick="addManual()">+ Add Transaction</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="card" id="import-preview-card" style="display:none">
+        <div class="card-hdr">
+          <div class="card-icon" style="background:var(--gbg)">&#128202;</div>
+          <div><div class="card-title" id="preview-title">Import Preview</div><div class="card-sub" id="preview-sub">Review before importing</div></div>
+          <div class="card-actions">
+            <button class="btn btn-secondary btn-sm" onclick="clearPreview()">Cancel</button>
+            <button class="btn btn-primary btn-sm" onclick="confirmImport()">&#10003; Import All</button>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div class="import-scroll">
+            <table class="tx-table" id="preview-table">
+              <thead><tr><th>Date</th><th>Description</th><th>Source</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th></tr></thead>
+              <tbody id="preview-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REVIEW ── -->
+    <div class="page" id="page-review">
+      <div class="page-hdr">
+        <div class="page-title">Review & Code</div>
+        <div class="page-sub">Assign nominal codes, VAT treatment and approve transactions for Sage export</div>
+      </div>
+      <div class="toolbar">
+        <span class="toolbar-count" id="review-count">0 transactions</span>
+        <div class="spacer"></div>
+        <input class="search-inp" id="review-search" placeholder="&#128270; Search..." oninput="renderReview()">
+        <select class="filter-sel" id="review-filter" onchange="renderReview()">
+          <option value="">All</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="flagged">Flagged</option>
+        </select>
+        <button class="btn btn-secondary btn-sm" onclick="approveAll()">&#10003; Approve All Pending</button>
+        <button class="btn btn-primary btn-sm" onclick="autoCode()">&#9889; Auto-Code All</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="overflow-x:auto">
+          <table class="tx-table" id="review-table">
+            <thead><tr>
+              <th style="width:90px">Date</th>
+              <th>Description</th>
+              <th style="width:80px">Source</th>
+              <th style="width:170px">Nominal Code</th>
+              <th style="width:70px">VAT</th>
+              <th style="width:100px;text-align:right">Amount</th>
+              <th style="width:90px">Status</th>
+              <th style="width:80px">Actions</th>
+            </tr></thead>
+            <tbody id="review-body"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="review-empty">
+          <div class="empty-icon">&#128270;</div>
+          <div class="empty-title">No transactions to review</div>
+          <div class="empty-sub">Import bank or card statements first</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NOMINALS ── -->
+    <div class="page" id="page-nominals">
+      <div class="page-hdr">
+        <div class="page-title">Nominal Code Reference</div>
+        <div class="page-sub">Skyform chart of accounts — Sage 50 compatible</div>
+      </div>
+      <div id="nominals-container"></div>
+    </div>
+
+    <!-- ── RULES ── -->
+    <div class="page" id="page-rules">
+      <div class="page-hdr">
+        <div class="page-title">Auto-Code Rules</div>
+        <div class="page-sub">Supplier patterns that trigger automatic nominal code suggestions. Click Auto-Code to apply to all pending transactions.</div>
+      </div>
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-icon" style="background:var(--goldbg)">&#43;</div>
+          <div><div class="card-title">Add New Rule</div><div class="card-sub">Add a supplier keyword pattern</div></div>
+        </div>
+        <div class="card-body">
+          <div class="fg c4">
+            <div class="field"><label>Keyword Pattern</label><input type="text" id="rule-pattern" placeholder="e.g. travis perkins"></div>
+            <div class="field"><label>Nominal Code</label>
+              <select id="rule-nominal"><option value="0020">0020 — Plant & Machinery</option><option value="0030">0030 — Office Equipment</option><option value="0040">0040 — Furniture & Fixtures</option><option value="0050">0050 — Motor Vehicles</option><option value="1100">1100 — Debtors Control</option><option value="1200">1200 — Bank Current Account</option><option value="1210">1210 — Bank Deposit Account</option><option value="1220">1220 — Petty Cash</option><option value="1230">1230 — Directors Card — JC</option><option value="1231">1231 — Directors Card — SF</option><option value="1232">1232 — Directors Card — Director 3</option><option value="2100">2100 — Creditors Control</option><option value="2200">2200 — VAT Liability</option><option value="2210">2210 — PAYE & NI Liability</option><option value="2300">2300 — Directors Loan Account — JC</option><option value="2301">2301 — Directors Loan Account — SF</option><option value="3000">3000 — Ordinary Share Capital</option><option value="3200">3200 — Profit & Loss Account</option><option value="4000">4000 — Wind Farm Services — Onshore</option><option value="4001">4001 — Wind Farm Services — Offshore</option><option value="4002">4002 — Inspection & LOLER Services</option><option value="4003">4003 — PPE Supply & Service</option><option value="4004">4004 — Calibration Services</option><option value="4009">4009 — Other Income</option><option value="5000">5000 — Materials & Parts</option><option value="5001">5001 — Replacement Parts — Hoists</option><option value="5002">5002 — Wire Rope & Assemblies</option><option value="5003">5003 — PPE & Safety Equipment</option><option value="5004">5004 — Site Consumables</option><option value="5010">5010 — Subcontractor Costs</option><option value="6000">6000 — Direct Labour — Engineers</option><option value="6001">6001 — Offshore Allowances</option><option value="6002">6002 — Overtime</option><option value="7001">7001 — Directors Salaries</option><option value="7002">7002 — Staff Salaries</option><option value="7003">7003 — Employers NI</option><option value="7004">7004 — Employers Pension</option><option value="7010">7010 — Rent & Rates</option><option value="7011">7011 — Business Rates</option><option value="7012">7012 — Utilities — Electric & Gas</option><option value="7013">7013 — Cleaning & Maintenance</option><option value="7100">7100 — Telephone & Broadband</option><option value="7200">7200 — IT & Computing</option><option value="7201">7201 — Software Subscriptions</option><option value="7300">7300 — Motor & Vehicle Expenses</option><option value="7301">7301 — Fuel</option><option value="7302">7302 — Vehicle Hire & Lease</option><option value="7303">7303 — Vehicle Insurance</option><option value="7304">7304 — Road Tax & MOT</option><option value="7305">7305 — Vehicle Repairs</option><option value="7400">7400 — Travel & Accommodation</option><option value="7401">7401 — Hotel & Accommodation</option><option value="7402">7402 — Subsistence & Meals</option><option value="7403">7403 — Rail & Air Travel</option><option value="7404">7404 — Parking & Tolls</option><option value="7500">7500 — Stationery & Office Supplies</option><option value="7501">7501 — Postage & Courier</option><option value="7502">7502 — Printing</option><option value="7600">7600 — Legal & Professional Fees</option><option value="7601">7601 — Accountancy & Audit</option><option value="7602">7602 — Bank Charges & Fees</option><option value="7603">7603 — Insurance — General</option><option value="7604">7604 — Insurance — Professional Indemnity</option><option value="7700">7700 — Equipment Hire & Lease</option><option value="7701">7701 — Tool & Equipment Purchase</option><option value="7800">7800 — Repairs & Maintenance — Office</option><option value="7900">7900 — Marketing & Advertising</option><option value="7901">7901 — Memberships & Subscriptions</option><option value="7902">7902 — Training & Development</option><option value="7903">7903 — Entertainment — Client</option><option value="8000">8000 — Bank Interest Paid</option><option value="8001">8001 — Loan Interest</option><option value="8100">8100 — Depreciation</option><option value="9000">9000 — Directors Dividends — JC</option><option value="9001">9001 — Directors Dividends — SF</option><option value="9002">9002 — Directors Dividends — Director 3</option></select>
+            </div>
+            <div class="field"><label>VAT Code</label>
+              <select id="rule-vat">
+                <option value="T1">T1 — Standard Rate (20%)</option>
+                <option value="T0">T0 — Zero Rated</option>
+                <option value="T2">T2 — Exempt</option>
+                <option value="T9">T9 — Outside Scope</option>
+              </select>
+            </div>
+            <div class="field"><label>Category</label>
+              <select id="rule-cat">
+                <option value="expense">Business Expense</option>
+                <option value="dividend">Dividend</option>
+                <option value="personal">Personal — Flag</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="addRule()">+ Add Rule</button>
+        </div>
+      </div>
+      <div id="rules-list"></div>
+    </div>
+
+    <!-- ── VAT ── -->
+    <div class="page" id="page-vat">
+      <div class="page-hdr">
+        <div class="page-title">VAT Summary</div>
+        <div class="page-sub">Input tax breakdown for current period — approved transactions only</div>
+      </div>
+      <div class="vat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+        <div class="vat-box"><div class="vat-code" style="color:var(--blue);font-size:22px">T1</div><div class="vat-amt" id="vp-T1-net">£0.00</div><div class="vat-lbl">Net (Standard Rate)</div><div style="font-size:13px;font-weight:600;margin-top:4px;color:var(--blue)" id="vp-T1-vat">VAT: £0.00</div></div>
+        <div class="vat-box"><div class="vat-code" style="color:var(--green);font-size:22px">T0</div><div class="vat-amt" id="vp-T0-net">£0.00</div><div class="vat-lbl">Net (Zero Rated)</div><div style="font-size:13px;font-weight:600;margin-top:4px;color:var(--green)" id="vp-T0-vat">VAT: £0.00</div></div>
+        <div class="vat-box"><div class="vat-code" style="color:var(--gold);font-size:22px">T2</div><div class="vat-amt" id="vp-T2-net">£0.00</div><div class="vat-lbl">Net (Exempt)</div><div style="font-size:13px;font-weight:600;margin-top:4px;color:var(--gold)" id="vp-T2-vat">VAT: N/A</div></div>
+        <div class="vat-box"><div class="vat-code" style="color:var(--text3);font-size:22px">T9</div><div class="vat-amt" id="vp-T9-net">£0.00</div><div class="vat-lbl">Outside Scope</div><div style="font-size:13px;font-weight:600;margin-top:4px;color:var(--text3)" id="vp-T9-vat">VAT: N/A</div></div>
+      </div>
+      <div class="card" style="background:var(--accent);border:none">
+        <div class="card-body" style="display:flex;align-items:center;gap:24px">
+          <div style="color:#fff">
+            <div style="font-size:10px;opacity:.7;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Total Reclaimable Input VAT (Box 4)</div>
+            <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:#fff" id="vp-total">£0.00</div>
+          </div>
+          <div style="color:rgba(255,255,255,.6);font-size:12px;line-height:1.7;border-left:1px solid rgba(255,255,255,.2);padding-left:24px">
+            Only T1 transactions generate reclaimable VAT.<br>
+            T0 and T2 are zero / exempt — no VAT to reclaim.<br>
+            T9 transactions are outside the scope of VAT.
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="card-hdr"><div class="card-title">Dividend Transactions — Director Review Required</div></div>
+        <div class="card-body" style="padding:0">
+          <table class="tx-table" id="dividend-table">
+            <thead><tr><th>Date</th><th>Description</th><th>Source</th><th style="text-align:right">Amount</th><th>Status</th></tr></thead>
+            <tbody id="dividend-body"></tbody>
+          </table>
+          <div class="empty" id="dividend-empty" style="padding:20px"><div class="empty-sub">No dividend transactions</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EXPORT ── -->
+    <div class="page" id="page-export">
+      <div class="page-hdr">
+        <div class="page-title">Sage 50 Export</div>
+        <div class="page-sub">Export approved transactions in Sage 50 transaction import format (CSV)</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="card">
+          <div class="card-hdr"><div class="card-icon" style="background:var(--gbg)">&#10003;</div><div><div class="card-title">Export Summary</div><div class="card-sub">Ready for Sage import</div></div></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text3)">Approved transactions</span><span style="font-weight:600" id="ex-count">0</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text3)">Total net value</span><span style="font-weight:600;font-family:'DM Mono',monospace" id="ex-net">£0.00</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text3)">Total VAT (T1)</span><span style="font-weight:600;font-family:'DM Mono',monospace" id="ex-vat">£0.00</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0"><span style="color:var(--text3)">Gross total</span><span style="font-weight:700;font-family:'DM Mono',monospace;font-size:15px" id="ex-gross">£0.00</span></div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;margin-top:14px" onclick="exportSage()">&#8613; Download Sage 50 CSV</button>
+            <button class="btn btn-secondary btn-sm" style="width:100%;margin-top:8px" onclick="exportRaw()">&#8613; Download Full Export (All)</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-icon" style="background:var(--bbg)">&#128196;</div><div><div class="card-title">Sage 50 Format Guide</div><div class="card-sub">Import via File > Import</div></div></div>
+          <div class="card-body">
+            <div style="font-size:12px;line-height:1.7;color:var(--text2)">
+              <p style="margin-bottom:8px">The export file is formatted for <strong>Sage 50 Accounts — Audit Trail import</strong>.</p>
+              <p style="margin-bottom:8px">In Sage 50: <strong>File → Import → Audit Trail Transactions</strong></p>
+              <p style="margin-bottom:8px">Each row contains: Type, Account Ref, Nominal, Date, Ref, Details, Net, Tax Code, VAT Amount</p>
+              <p>Bank payments are coded as <strong>BP</strong> (Bank Payment). Credits/refunds as <strong>BR</strong> (Bank Receipt).</p>
+            </div>
+            <div class="export-preview" id="export-preview" style="margin-top:12px">— No data to preview —</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">Transactions Queued for Export</div></div>
+        <div class="card-body" style="padding:0">
+          <table class="tx-table">
+            <thead><tr><th>Date</th><th>Description</th><th>Source</th><th>Nominal</th><th>VAT</th><th style="text-align:right">Net</th><th style="text-align:right">VAT Amt</th><th style="text-align:right">Gross</th></tr></thead>
+            <tbody id="export-body"></tbody>
+          </table>
+          <div class="empty" id="export-empty" style="padding:24px">
+            <div class="empty-icon">&#8613;</div>
+            <div class="empty-title">No approved transactions</div>
+            <div class="empty-sub">Approve transactions in Review & Code first</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var NOMINALS = [{"code": "0020", "name": "Plant & Machinery", "category": "Fixed Assets"}, {"code": "0030", "name": "Office Equipment", "category": "Fixed Assets"}, {"code": "0040", "name": "Furniture & Fixtures", "category": "Fixed Assets"}, {"code": "0050", "name": "Motor Vehicles", "category": "Fixed Assets"}, {"code": "1100", "name": "Debtors Control", "category": "Current Assets"}, {"code": "1200", "name": "Bank Current Account", "category": "Current Assets"}, {"code": "1210", "name": "Bank Deposit Account", "category": "Current Assets"}, {"code": "1220", "name": "Petty Cash", "category": "Current Assets"}, {"code": "1230", "name": "Directors Card \u2014 JC", "category": "Current Assets"}, {"code": "1231", "name": "Directors Card \u2014 SF", "category": "Current Assets"}, {"code": "1232", "name": "Directors Card \u2014 Director 3", "category": "Current Assets"}, {"code": "2100", "name": "Creditors Control", "category": "Liabilities"}, {"code": "2200", "name": "VAT Liability", "category": "Liabilities"}, {"code": "2210", "name": "PAYE & NI Liability", "category": "Liabilities"}, {"code": "2300", "name": "Directors Loan Account \u2014 JC", "category": "Liabilities"}, {"code": "2301", "name": "Directors Loan Account \u2014 SF", "category": "Liabilities"}, {"code": "3000", "name": "Ordinary Share Capital", "category": "Capital"}, {"code": "3200", "name": "Profit & Loss Account", "category": "Capital"}, {"code": "4000", "name": "Wind Farm Services \u2014 Onshore", "category": "Sales"}, {"code": "4001", "name": "Wind Farm Services \u2014 Offshore", "category": "Sales"}, {"code": "4002", "name": "Inspection & LOLER Services", "category": "Sales"}, {"code": "4003", "name": "PPE Supply & Service", "category": "Sales"}, {"code": "4004", "name": "Calibration Services", "category": "Sales"}, {"code": "4009", "name": "Other Income", "category": "Sales"}, {"code": "5000", "name": "Materials & Parts", "category": "Direct Costs"}, {"code": "5001", "name": "Replacement Parts \u2014 Hoists", "category": "Direct Costs"}, {"code": "5002", "name": "Wire Rope & Assemblies", "category": "Direct Costs"}, {"code": "5003", "name": "PPE & Safety Equipment", "category": "Direct Costs"}, {"code": "5004", "name": "Site Consumables", "category": "Direct Costs"}, {"code": "5010", "name": "Subcontractor Costs", "category": "Direct Costs"}, {"code": "6000", "name": "Direct Labour \u2014 Engineers", "category": "Labour"}, {"code": "6001", "name": "Offshore Allowances", "category": "Labour"}, {"code": "6002", "name": "Overtime", "category": "Labour"}, {"code": "7001", "name": "Directors Salaries", "category": "Overheads"}, {"code": "7002", "name": "Staff Salaries", "category": "Overheads"}, {"code": "7003", "name": "Employers NI", "category": "Overheads"}, {"code": "7004", "name": "Employers Pension", "category": "Overheads"}, {"code": "7010", "name": "Rent & Rates", "category": "Overheads"}, {"code": "7011", "name": "Business Rates", "category": "Overheads"}, {"code": "7012", "name": "Utilities \u2014 Electric & Gas", "category": "Overheads"}, {"code": "7013", "name": "Cleaning & Maintenance", "category": "Overheads"}, {"code": "7100", "name": "Telephone & Broadband", "category": "Overheads"}, {"code": "7200", "name": "IT & Computing", "category": "Overheads"}, {"code": "7201", "name": "Software Subscriptions", "category": "Overheads"}, {"code": "7300", "name": "Motor & Vehicle Expenses", "category": "Overheads"}, {"code": "7301", "name": "Fuel", "category": "Overheads"}, {"code": "7302", "name": "Vehicle Hire & Lease", "category": "Overheads"}, {"code": "7303", "name": "Vehicle Insurance", "category": "Overheads"}, {"code": "7304", "name": "Road Tax & MOT", "category": "Overheads"}, {"code": "7305", "name": "Vehicle Repairs", "category": "Overheads"}, {"code": "7400", "name": "Travel & Accommodation", "category": "Overheads"}, {"code": "7401", "name": "Hotel & Accommodation", "category": "Overheads"}, {"code": "7402", "name": "Subsistence & Meals", "category": "Overheads"}, {"code": "7403", "name": "Rail & Air Travel", "category": "Overheads"}, {"code": "7404", "name": "Parking & Tolls", "category": "Overheads"}, {"code": "7500", "name": "Stationery & Office Supplies", "category": "Overheads"}, {"code": "7501", "name": "Postage & Courier", "category": "Overheads"}, {"code": "7502", "name": "Printing", "category": "Overheads"}, {"code": "7600", "name": "Legal & Professional Fees", "category": "Overheads"}, {"code": "7601", "name": "Accountancy & Audit", "category": "Overheads"}, {"code": "7602", "name": "Bank Charges & Fees", "category": "Overheads"}, {"code": "7603", "name": "Insurance \u2014 General", "category": "Overheads"}, {"code": "7604", "name": "Insurance \u2014 Professional Indemnity", "category": "Overheads"}, {"code": "7700", "name": "Equipment Hire & Lease", "category": "Overheads"}, {"code": "7701", "name": "Tool & Equipment Purchase", "category": "Overheads"}, {"code": "7800", "name": "Repairs & Maintenance \u2014 Office", "category": "Overheads"}, {"code": "7900", "name": "Marketing & Advertising", "category": "Overheads"}, {"code": "7901", "name": "Memberships & Subscriptions", "category": "Overheads"}, {"code": "7902", "name": "Training & Development", "category": "Overheads"}, {"code": "7903", "name": "Entertainment \u2014 Client", "category": "Overheads"}, {"code": "8000", "name": "Bank Interest Paid", "category": "Finance"}, {"code": "8001", "name": "Loan Interest", "category": "Finance"}, {"code": "8100", "name": "Depreciation", "category": "Finance"}, {"code": "9000", "name": "Directors Dividends \u2014 JC", "category": "Dividends"}, {"code": "9001", "name": "Directors Dividends \u2014 SF", "category": "Dividends"}, {"code": "9002", "name": "Directors Dividends \u2014 Director 3", "category": "Dividends"}];
+var RULES = [{"pattern": "bp|british petrol|esso|shell|texaco|asda fuel|tesco fuel|morrisons fuel", "nominal": "7301", "vat": "T1", "category": "expense", "label": "Fuel"}, {"pattern": "premier inn|travelodge|ibis|holiday inn|marriott|hilton|hotel|b&b|airbnb", "nominal": "7401", "vat": "T1", "category": "expense", "label": "Accommodation"}, {"pattern": "mcdonalds|greggs|costa|starbucks|subway|pret|kfc|burger king|nandos|deliveroo|uber eats|just eat", "nominal": "7402", "vat": "T1", "category": "expense", "label": "Subsistence"}, {"pattern": "trainline|avanti|scotrail|lner|gwr|southeastern|thameslink|tfl|london underground", "nominal": "7403", "vat": "T0", "category": "expense", "label": "Rail Travel"}, {"pattern": "easyjet|ryanair|ba |british airways|flybe|loganair|jet2", "nominal": "7403", "vat": "T0", "category": "expense", "label": "Air Travel"}, {"pattern": "enterprise|hertz|europcar|avis|sixt|zipcar|enterprise rent", "nominal": "7302", "vat": "T1", "category": "expense", "label": "Vehicle Hire"}, {"pattern": "halfords|kwikfit|arnold clark|mr tyre|autocentre", "nominal": "7305", "vat": "T1", "category": "expense", "label": "Vehicle Repairs"}, {"pattern": "amazon|argos|screwfix|toolstation|travis perkins|jewsons|wickes|b&q|homebase", "nominal": "7701", "vat": "T1", "category": "expense", "label": "Tools & Equipment"}, {"pattern": "microsoft|adobe|google|apple|aws|zoom|slack|dropbox|o365|office 365", "nominal": "7201", "vat": "T1", "category": "expense", "label": "Software Subscriptions"}, {"pattern": "bt |sky |virgin media|vodafone|o2 |three |ee |talktalk", "nominal": "7100", "vat": "T1", "category": "expense", "label": "Telephone & Broadband"}, {"pattern": "royal mail|parcelforce|dhl|fedex|ups |dpd |hermes", "nominal": "7501", "vat": "T1", "category": "expense", "label": "Postage & Courier"}, {"pattern": "currys|pc world|apple store|box.co.uk|scan.co.uk", "nominal": "7200", "vat": "T1", "category": "expense", "label": "IT Equipment"}, {"pattern": "irata|leea|cpcs|citb|highfield|first aid", "nominal": "7902", "vat": "T1", "category": "expense", "label": "Training"}, {"pattern": "linkedin|indeed|reed|totaljobs", "nominal": "7900", "vat": "T1", "category": "expense", "label": "Recruitment/Marketing"}, {"pattern": "dividend|divid", "nominal": "9000", "vat": "T9", "category": "dividend", "label": "Dividend \u2014 Review Required"}];
+
+// ── STATE ────────────────────────────────────────────────────
+var transactions = JSON.parse(localStorage.getItem("sf_txns") || "[]");
+var customRules  = JSON.parse(localStorage.getItem("sf_rules") || "[]");
+var allRules     = RULES.concat(customRules);
+var previewData  = [];
+var previewSource = "";
+
+// ── INIT ─────────────────────────────────────────────────────
+window.addEventListener("load", function(){
+  buildNominals();
+  buildRules();
+  renderAll();
+  var today = new Date();
+  document.getElementById("me-date").value = today.toISOString().split("T")[0];
+  document.getElementById("period-badge").textContent = today.toLocaleString("en-GB",{month:"long",year:"numeric"});
+});
+
+function save(){ localStorage.setItem("sf_txns", JSON.stringify(transactions)); }
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function nav(page){
+  document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");});
+  document.querySelectorAll(".sb-item").forEach(function(i){i.classList.remove("active");});
+  document.getElementById("page-"+page).classList.add("active");
+  event.currentTarget.classList.add("active");
+  renderAll();
+}
+
+// ── RENDER ALL ───────────────────────────────────────────────
+function renderAll(){
+  updateStats();
+  renderDash();
+  renderReview();
+  renderExport();
+  renderVAT();
+}
+
+function updateStats(){
+  var total    = transactions.length;
+  var pending  = transactions.filter(function(t){return t.status==="pending";}).length;
+  var flagged  = transactions.filter(function(t){return t.status==="flagged";}).length;
+  var approved = transactions.filter(function(t){return t.status==="approved";}).length;
+  document.getElementById("d-total").textContent    = total;
+  document.getElementById("d-pending").textContent  = pending;
+  document.getElementById("d-flagged").textContent  = flagged;
+  document.getElementById("d-approved").textContent = approved;
+  document.getElementById("d-total-sub").textContent = total+" transactions this period";
+  document.getElementById("pending-badge").textContent = pending + flagged;
+  document.getElementById("export-badge").textContent  = approved;
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────
+function renderDash(){
+  var recent = transactions.slice(-10).reverse();
+  var tbody  = document.getElementById("dash-recent");
+  var empty  = document.getElementById("dash-empty");
+  tbody.innerHTML = "";
+  if(!recent.length){ tbody.parentElement.style.display="none"; empty.style.display="block"; return; }
+  tbody.parentElement.style.display=""; empty.style.display="none";
+  recent.forEach(function(t){
+    var tr=document.createElement("tr");
+    tr.className = t.status;
+    tr.innerHTML="<td>"+fmtDate(t.date)+"</td>"
+      +"<td style='max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>"+esc(t.description)+"</td>"
+      +"<td><span style='font-size:10px;color:var(--text3)'>"+esc(t.source||"")+"</span></td>"
+      +"<td class='amount "+(t.type==="debit"?"debit":"credit")+"'>"+(t.type==="debit"?"-":"+")+fmtAmt(t.amount)+"</td>"
+      +"<td>"+statusPill(t.status)+"</td>";
+    tbody.appendChild(tr);
+  });
+
+  // VAT dash
+  var vatAmts = {T1:0,T0:0,T2:0,T9:0};
+  transactions.filter(function(t){return t.status==="approved";}).forEach(function(t){
+    var net = parseFloat(t.amount)||0;
+    vatAmts[t.vatCode||"T1"] = (vatAmts[t.vatCode||"T1"]||0) + net;
+  });
+  var t1vat = vatAmts.T1 - (vatAmts.T1/1.2);
+  ["T1","T0","T2","T9"].forEach(function(code){
+    document.getElementById("vat-"+code+"-dash").textContent = "£"+vatAmts[code].toFixed(0);
+  });
+  document.getElementById("vat-reclaimable").textContent = "£"+t1vat.toFixed(2);
+}
+
+// ── IMPORT ───────────────────────────────────────────────────
+function dzOver(e,id){ e.preventDefault(); document.getElementById(id).classList.add("drag-over"); }
+function dzLeave(id){ document.getElementById(id).classList.remove("drag-over"); }
+function dzDrop(e,type){ e.preventDefault(); dzLeave("dz-"+type); var files=e.dataTransfer.files; if(files[0]) parseCSV(files[0],type); }
+function handleFile(input,type){ if(input.files[0]) parseCSV(input.files[0],type); }
+
+function parseCSV(file, type){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var text = e.target.result;
+    var lines = text.split("\n").filter(function(l){return l.trim();});
+    var parsed = [];
+    var srcLabel = type==="bos" ? document.getElementById("src-bos").value : document.getElementById("mc-holder").value;
+
+    lines.slice(1).forEach(function(line){
+      var cols = parseCSVLine(line);
+      if(!cols || cols.length < 3) return;
+      var date = "", desc = "", debit = 0, credit = 0;
+
+      if(type === "bos"){
+        // BOS format: Date, Entry, Debits, Credits, Balance
+        date   = parseDate(cols[0]);
+        desc   = (cols[1]||"").trim();
+        debit  = parseFloat((cols[2]||"").replace(/[^0-9.-]/g,"")) || 0;
+        credit = parseFloat((cols[3]||"").replace(/[^0-9.-]/g,"")) || 0;
+      } else {
+        // Mastercard format: Date, Description, Amount (positive=debit)
+        date   = parseDate(cols[0]);
+        desc   = (cols[1]||"").trim();
+        var amt = parseFloat((cols[2]||"").replace(/[^0-9.-]/g,"")) || 0;
+        if(amt > 0) debit = amt; else credit = Math.abs(amt);
+      }
+      if(!date || (!debit && !credit) || !desc) return;
+      parsed.push({date:date, description:desc, source:srcLabel,
+        amount: debit||credit, type: debit?"debit":"credit"});
+    });
+
+    if(!parsed.length){ showToast("Could not parse any transactions — check the CSV format","err"); return; }
+    previewData   = parsed;
+    previewSource = srcLabel;
+    showPreview(parsed, srcLabel);
+  };
+  reader.readAsText(file);
+}
+
+function parseCSVLine(line){
+  var result=[], current="", inQuotes=false;
+  for(var i=0;i<line.length;i++){
+    if(line[i]==="\"" && inQuotes && line[i+1]==="\"") { current+="\""; i++; }
+    else if(line[i]==="\"") { inQuotes=!inQuotes; }
+    else if(line[i]==="," && !inQuotes) { result.push(current); current=""; }
+    else current+=line[i];
+  }
+  result.push(current);
+  return result;
+}
+
+function parseDate(d){
+  if(!d) return "";
+  d = d.trim().replace(/"/g,"");
+  // Try DD/MM/YYYY
+  var m = d.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/);
+  if(m){
+    var yr = m[3].length===2?"20"+m[3]:m[3];
+    return yr+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0");
+  }
+  // Try YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+  return "";
+}
+
+function showPreview(rows, source){
+  document.getElementById("import-preview-card").style.display = "block";
+  document.getElementById("preview-title").textContent = "Import Preview — "+source;
+  document.getElementById("preview-sub").textContent = rows.length+" transactions found";
+  var tbody = document.getElementById("preview-body");
+  tbody.innerHTML = "";
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML="<td>"+fmtDate(r.date)+"</td>"
+      +"<td>"+esc(r.description)+"</td>"
+      +"<td><span style='font-size:10px;color:var(--text3)'>"+esc(r.source)+"</span></td>"
+      +"<td class='amount debit'>"+(r.type==="debit"?fmtAmt(r.amount):"")+"</td>"
+      +"<td class='amount credit'>"+(r.type==="credit"?fmtAmt(r.amount):"")+"</td>";
+    tbody.appendChild(tr);
+  });
+}
+
+function clearPreview(){
+  previewData = [];
+  document.getElementById("import-preview-card").style.display="none";
+  document.getElementById("preview-body").innerHTML="";
+}
+
+function confirmImport(){
+  if(!previewData.length) return;
+  var imported = 0;
+  previewData.forEach(function(r){
+    var txn = {
+      id: "tx-"+Date.now()+"-"+Math.random().toString(36).substr(2,6),
+      date: r.date, description: r.description, source: r.source,
+      amount: r.amount, type: r.type,
+      nominal: "", nominalName: "", vatCode: "T1",
+      status: "pending", notes: ""
+    };
+    // Auto-apply rules
+    txn = applyRules(txn);
+    transactions.push(txn);
+    imported++;
+  });
+  save();
+  clearPreview();
+  renderAll();
+  showToast(imported+" transactions imported. Auto-coding applied where rules match.","ok");
+}
+
+function addManual(){
+  var date   = document.getElementById("me-date").value;
+  var desc   = document.getElementById("me-desc").value.trim();
+  var amount = parseFloat(document.getElementById("me-amount").value)||0;
+  var type   = document.getElementById("me-type").value;
+  var source = document.getElementById("me-source").value.trim();
+  if(!date||!desc||!amount){ showToast("Please fill in date, description and amount","err"); return; }
+  var txn = {id:"tx-"+Date.now(),date:date,description:desc,source:source,
+    amount:amount,type:type,nominal:"",nominalName:"",vatCode:"T1",status:"pending",notes:""};
+  txn = applyRules(txn);
+  transactions.push(txn);
+  save(); renderAll();
+  document.getElementById("me-desc").value="";
+  document.getElementById("me-amount").value="";
+  showToast("Transaction added","ok");
+}
+
+// ── RULES ENGINE ─────────────────────────────────────────────
+function applyRules(txn){
+  allRules = RULES.concat(customRules);
+  var d = txn.description.toLowerCase();
+  for(var i=0;i<allRules.length;i++){
+    var r = allRules[i];
+    var patterns = r.pattern.split("|");
+    for(var j=0;j<patterns.length;j++){
+      if(d.indexOf(patterns[j].trim())>-1){
+        var nom = NOMINALS.find(function(n){return n.code===r.nominal;});
+        txn.nominal     = r.nominal;
+        txn.nominalName = nom?nom.name:"";
+        txn.vatCode     = r.vat;
+        txn.status      = r.category==="expense"?"pending":"flagged";
+        if(r.category==="dividend") txn.status="flagged";
+        return txn;
+      }
+    }
+  }
+  return txn;
+}
+
+function autoCode(){
+  var count=0;
+  transactions.forEach(function(t,i){
+    if(t.status==="pending"&&!t.nominal){
+      transactions[i]=applyRules(t);
+      if(transactions[i].nominal) count++;
+    }
+  });
+  save(); renderAll();
+  showToast(count+" transactions auto-coded","ok");
+}
+
+// ── REVIEW ───────────────────────────────────────────────────
+function renderReview(){
+  var search = (document.getElementById("review-search").value||"").toLowerCase();
+  var filter = document.getElementById("review-filter").value;
+  var filtered = transactions.filter(function(t){
+    if(filter && t.status!==filter) return false;
+    if(search){
+      var h=(t.description+" "+t.source+" "+(t.nominalName||"")).toLowerCase();
+      if(h.indexOf(search)===-1) return false;
+    }
+    return true;
+  });
+  document.getElementById("review-count").textContent = filtered.length+" transactions";
+  var tbody = document.getElementById("review-body");
+  var empty = document.getElementById("review-empty");
+  tbody.innerHTML = "";
+  if(!filtered.length){ empty.style.display="block"; return; }
+  empty.style.display="none";
+
+  filtered.forEach(function(t){
+    var tr=document.createElement("tr");
+    tr.className = t.status;
+    tr.id="tx-row-"+t.id;
+
+    // Build nominal select
+    var nomOpts='<option value="">— Select —</option>';
+    var cats={};
+    NOMINALS.forEach(function(n){
+      if(!cats[n.category]) cats[n.category]="";
+      cats[n.category]+="<option value=\""+n.code+"\" "+(t.nominal===n.code?"selected":"")+">"+n.code+" — "+n.name+"</option>";
+    });
+    Object.keys(cats).forEach(function(cat){
+      nomOpts+="<optgroup label=\""+cat+"\">"+cats[cat]+"</optgroup>";
+    });
+
+    tr.innerHTML="<td style='font-size:11px;color:var(--text3);font-family:"DM Mono",monospace'>"+fmtDate(t.date)+"</td>"
+      +"<td style='max-width:180px'><div style='overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px'>"+esc(t.description)+"</div></td>"
+      +"<td><span style='font-size:10px;color:var(--text3)'>"+esc(t.source||"")+"</span></td>"
+      +"<td><select class='mini-sel' data-id='"+t.id+"' onchange='setNominal(this)'>"+nomOpts+"</select></td>"
+      +"<td><select class='mini-sel' data-id='"+t.id+"' onchange='setVAT(this)'>"
+        +"<option value='T1' "+(t.vatCode==="T1"?"selected":"")+">T1 — 20%</option>"
+        +"<option value='T0' "+(t.vatCode==="T0"?"selected":"")+">T0 — 0%</option>"
+        +"<option value='T2' "+(t.vatCode==="T2"?"selected":"")+">T2 — Exempt</option>"
+        +"<option value='T9' "+(t.vatCode==="T9"?"selected":"")+">T9 — N/A</option>"
+      +"</select></td>"
+      +"<td class='amount "+(t.type==="debit"?"debit":"credit")+"'>"+(t.type==="debit"?"-":"+")+fmtAmt(t.amount)+"</td>"
+      +"<td>"+statusPill(t.status)+"</td>"
+      +"<td style='display:flex;gap:4px'>"
+        +(t.status!=="approved"?"<button class='btn btn-success btn-sm' onclick='approveTx(\""+t.id+"\")'>&#10003;</button>":"")
+        +"<button class='btn btn-danger btn-sm' onclick='deleteTx(\""+t.id+"\")'>&#215;</button>"
+      +"</td>";
+    tbody.appendChild(tr);
+  });
+}
+
+function setNominal(sel){
+  var id=sel.dataset.id; var code=sel.value;
+  var nom=NOMINALS.find(function(n){return n.code===code;});
+  transactions.forEach(function(t,i){
+    if(t.id===id){ transactions[i].nominal=code; transactions[i].nominalName=nom?nom.name:""; }
+  });
+  save(); updateStats();
+}
+
+function setVAT(sel){
+  var id=sel.dataset.id;
+  transactions.forEach(function(t,i){ if(t.id===id) transactions[i].vatCode=sel.value; });
+  save();
+}
+
+function approveTx(id){
+  transactions.forEach(function(t,i){
+    if(t.id===id){
+      if(!transactions[i].nominal){ showToast("Please assign a nominal code first","err"); return; }
+      transactions[i].status="approved";
+    }
+  });
+  save(); renderAll();
+}
+
+function approveAll(){
+  var count=0;
+  transactions.forEach(function(t,i){
+    if(t.status==="pending"&&t.nominal){ transactions[i].status="approved"; count++; }
+  });
+  save(); renderAll();
+  showToast(count+" transactions approved","ok");
+}
+
+function deleteTx(id){
+  transactions = transactions.filter(function(t){return t.id!==id;});
+  save(); renderAll();
+}
+
+// ── NOMINALS ─────────────────────────────────────────────────
+function buildNominals(){
+  var container = document.getElementById("nominals-container");
+  container.innerHTML="";
+  var cats={};
+  NOMINALS.forEach(function(n){
+    if(!cats[n.category]) cats[n.category]=[];
+    cats[n.category].push(n);
+  });
+  Object.keys(cats).forEach(function(cat){
+    var div=document.createElement("div");
+    div.innerHTML="<div class='cat-header'>"+cat+"</div>";
+    var grid=document.createElement("div"); grid.className="nom-grid";
+    cats[cat].forEach(function(n){
+      var card=document.createElement("div"); card.className="nom-card";
+      card.innerHTML="<div class='nom-code'>"+n.code+"</div><div class='nom-name'>"+n.name+"</div>";
+      grid.appendChild(card);
+    });
+    div.appendChild(grid);
+    container.appendChild(div);
+  });
+}
+
+// ── RULES ────────────────────────────────────────────────────
+function buildRules(){
+  var list=document.getElementById("rules-list");
+  list.innerHTML="";
+  var allR=RULES.concat(customRules);
+  allR.forEach(function(r,i){
+    var nom=NOMINALS.find(function(n){return n.code===r.nominal;});
+    var div=document.createElement("div"); div.className="rule-row";
+    div.innerHTML="<span class='rule-pattern'>"+r.pattern.replace(/\|/g," | ")+"</span>"
+      +"<span class='rule-arrow'>&#8594;</span>"
+      +"<span class='rule-nominal'>"+r.nominal+" — "+(nom?nom.name:"")+"</span>"
+      +"<span class='vat vat-"+r.vat+"'>"+r.vat+"</span>"
+      +(i>=RULES.length?"<button class='btn btn-danger btn-sm' onclick='delRule("+(i-RULES.length)+")'>&#215;</button>":"<span style='font-size:10px;color:var(--text3)'>built-in</span>");
+    list.appendChild(div);
+  });
+}
+
+function addRule(){
+  var pattern = document.getElementById("rule-pattern").value.trim().toLowerCase();
+  var nominal = document.getElementById("rule-nominal").value;
+  var vat     = document.getElementById("rule-vat").value;
+  var cat     = document.getElementById("rule-cat").value;
+  if(!pattern||!nominal){ showToast("Please enter a pattern and nominal code","err"); return; }
+  customRules.push({pattern:pattern,nominal:nominal,vat:vat,category:cat});
+  localStorage.setItem("sf_rules",JSON.stringify(customRules));
+  allRules=RULES.concat(customRules);
+  document.getElementById("rule-pattern").value="";
+  buildRules();
+  showToast("Rule added","ok");
+}
+
+function delRule(i){
+  customRules.splice(i,1);
+  localStorage.setItem("sf_rules",JSON.stringify(customRules));
+  allRules=RULES.concat(customRules);
+  buildRules();
+}
+
+// ── VAT ──────────────────────────────────────────────────────
+function renderVAT(){
+  var approved=transactions.filter(function(t){return t.status==="approved";});
+  var nets={T1:0,T0:0,T2:0,T9:0};
+  approved.forEach(function(t){
+    var net=(parseFloat(t.amount)||0)/(t.vatCode==="T1"?1.2:1);
+    nets[t.vatCode||"T1"]+=(t.vatCode==="T1"?(parseFloat(t.amount)||0)/1.2:(parseFloat(t.amount)||0));
+  });
+  var t1vat = approved.filter(function(t){return t.vatCode==="T1";}).reduce(function(s,t){return s+((parseFloat(t.amount)||0)-(parseFloat(t.amount)||0)/1.2);},0);
+  ["T1","T0","T2","T9"].forEach(function(c){
+    document.getElementById("vp-"+c+"-net").textContent="£"+nets[c].toFixed(2);
+  });
+  document.getElementById("vp-T1-vat").textContent="VAT: £"+t1vat.toFixed(2);
+  document.getElementById("vp-total").textContent="£"+t1vat.toFixed(2);
+
+  // Dividends
+  var divTxns=transactions.filter(function(t){return t.status==="flagged";});
+  var dbody=document.getElementById("dividend-body");
+  var dempty=document.getElementById("dividend-empty");
+  dbody.innerHTML="";
+  if(!divTxns.length){dempty.style.display="block";return;}
+  dempty.style.display="none";
+  divTxns.forEach(function(t){
+    var tr=document.createElement("tr"); tr.className="flagged";
+    tr.innerHTML="<td>"+fmtDate(t.date)+"</td><td>"+esc(t.description)+"</td><td>"+esc(t.source||"")+"</td>"
+      +"<td class='amount "+(t.type==="debit"?"debit":"credit")+"'>"+fmtAmt(t.amount)+"</td>"
+      +"<td>"+statusPill(t.status)+"</td>";
+    dbody.appendChild(tr);
+  });
+}
+
+// ── EXPORT ───────────────────────────────────────────────────
+function renderExport(){
+  var approved=transactions.filter(function(t){return t.status==="approved";});
+  var empty=document.getElementById("export-empty");
+  var tbody=document.getElementById("export-body");
+  tbody.innerHTML="";
+  if(!approved.length){empty.style.display="block";}else{empty.style.display="none";}
+  var totalNet=0,totalVAT=0;
+  approved.forEach(function(t){
+    var gross=parseFloat(t.amount)||0;
+    var net=t.vatCode==="T1"?gross/1.2:gross;
+    var vat=t.vatCode==="T1"?gross-net:0;
+    totalNet+=net; totalVAT+=vat;
+    var tr=document.createElement("tr");
+    tr.innerHTML="<td>"+fmtDate(t.date)+"</td><td>"+esc(t.description)+"</td>"
+      +"<td style='font-size:10px;color:var(--text3)'>"+esc(t.source||"")+"</td>"
+      +"<td style='font-size:10px;font-family:"DM Mono",monospace'>"+t.nominal+" "+esc(t.nominalName||"")+"</td>"
+      +"<td><span class='vat vat-"+t.vatCode+"'>"+t.vatCode+"</span></td>"
+      +"<td class='amount'>"+fmtAmt(net)+"</td>"
+      +"<td class='amount'>"+fmtAmt(vat)+"</td>"
+      +"<td class='amount'>"+fmtAmt(gross)+"</td>";
+    tbody.appendChild(tr);
+  });
+  document.getElementById("ex-count").textContent=approved.length;
+  document.getElementById("ex-net").textContent="£"+totalNet.toFixed(2);
+  document.getElementById("ex-vat").textContent="£"+totalVAT.toFixed(2);
+  document.getElementById("ex-gross").textContent="£"+(totalNet+totalVAT).toFixed(2);
+
+  // Preview first 5 lines
+  var previewLines=["Type,Account Ref,Nominal,Date,Ref,Details,Net,Tax Code,VAT Amount"];
+  approved.slice(0,5).forEach(function(t){
+    var gross=parseFloat(t.amount)||0;
+    var net=t.vatCode==="T1"?gross/1.2:gross;
+    var vat=t.vatCode==="T1"?gross-net:0;
+    var type=t.type==="debit"?"BP":"BR";
+    var d=t.date.replace(/-/g,"/");
+    previewLines.push([type,"",t.nominal||"",d,"","""+t.description.replace(/"/g,"")+""",net.toFixed(2),t.vatCode,vat.toFixed(2)].join(","));
+  });
+  document.getElementById("export-preview").textContent=previewLines.join("\n")+(approved.length>5?"\n...(+"+(approved.length-5)+" more rows)":"");
+}
+
+function exportSage(){
+  var approved=transactions.filter(function(t){return t.status==="approved";});
+  if(!approved.length){showToast("No approved transactions to export","err");return;}
+  var rows=["Type,Account Ref,Nominal,Date,Ref,Details,Net,Tax Code,VAT Amount"];
+  approved.forEach(function(t){
+    var gross=parseFloat(t.amount)||0;
+    var net=t.vatCode==="T1"?gross/1.2:gross;
+    var vat=t.vatCode==="T1"?gross-net:0;
+    var type=t.type==="debit"?"BP":"BR";
+    var d=t.date.split("-").reverse().join("/");
+    rows.push([type,"1200",t.nominal||"9999",d,"PL","""+t.description.replace(/"/g,"\"")+""",net.toFixed(2),t.vatCode,vat.toFixed(2)].join(","));
+  });
+  download("skyform_sage50_"+new Date().toISOString().split("T")[0]+".csv", rows.join("\r\n"));
+  showToast("Sage 50 CSV exported — "+approved.length+" transactions","ok");
+}
+
+function exportRaw(){
+  var rows=["Date,Description,Source,Amount,Type,Nominal,NominalName,VATCode,Status"];
+  transactions.forEach(function(t){
+    rows.push([t.date,"\""+t.description.replace(/"/g,"")+""",t.source,t.amount,t.type,t.nominal,t.nominalName||"",t.vatCode,t.status].join(","));
+  });
+  download("skyform_transactions_"+new Date().toISOString().split("T")[0]+".csv", rows.join("\r\n"));
+  showToast("Full export downloaded","ok");
+}
+
+// ── HELPERS ──────────────────────────────────────────────────
+function fmtDate(d){
+  if(!d) return "—";
+  var parts=d.split("-");
+  if(parts.length!==3) return d;
+  return parts[2]+"/"+parts[1]+"/"+parts[0].slice(2);
+}
+function fmtAmt(n){ return "£"+(parseFloat(n)||0).toFixed(2); }
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function statusPill(s){
+  if(s==="approved") return "<span class='pill pill-approved'>Approved</span>";
+  if(s==="flagged")  return "<span class='pill pill-flagged'>&#9888; Flagged</span>";
+  return "<span class='pill pill-pending'>Pending</span>";
+}
+function download(filename, content){
+  var a=document.createElement("a");
+  a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(content);
+  a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+function showToast(msg,type){
+  var t=document.getElementById("toast"); t.textContent=msg;
+  t.className="toast show"+(type?" "+type:"");
+  setTimeout(function(){t.className="toast";},3500);
+}
+</script>
+</body>
+</html>

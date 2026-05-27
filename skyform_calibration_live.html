@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Skyform — Calibration Live View</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#2d333b;--bg5:#444c56;
+  --border:#30363d;--border2:#444c56;
+  --text:#e6edf3;--text2:#c9d1d9;--text3:#8b949e;
+  --accent:#1f6feb;--green:#3fb950;--gbg:rgba(63,185,80,.12);
+  --amber:#d29922;--abg:rgba(210,153,34,.12);
+  --red:#f85149;--rbg:rgba(248,81,73,.10);
+  --blue:#58a6ff;--purple:#a371f7;--pbg:rgba(163,113,247,.12);
+  --r:8px;--rl:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;}
+
+/* ── HEADER ── */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;height:56px;gap:16px;position:sticky;top:0;z-index:100;}
+.hdr img{height:32px;border-radius:4px;}
+.hdr-title{font-size:14px;font-weight:600;color:var(--text);}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.live-badge{display:flex;align-items:center;gap:6px;background:var(--gbg);border:1px solid rgba(63,185,80,.3);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--green);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.pause-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:6px 14px;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;}
+.pause-btn:hover{border-color:var(--accent);color:var(--blue);}
+.pause-btn.paused{background:var(--abg);border-color:var(--amber);color:var(--amber);}
+
+/* ── LAYOUT ── */
+.wrap{max-width:1100px;margin:0 auto;padding:24px 20px;}
+
+/* ── STATS BAR ── */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:600px){.stats-bar{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px 20px;}
+.stat-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.stat-val{font-size:28px;font-weight:600;font-family:"DM Mono",monospace;line-height:1;}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:6px;}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.toolbar-title{font-size:15px;font-weight:600;color:var(--text);}
+.toolbar-count{font-size:12px;color:var(--text3);background:var(--bg3);border-radius:20px;padding:2px 10px;}
+.spacer{flex:1;}
+.filter-select{background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:7px 12px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text2);outline:none;cursor:pointer;}
+.filter-select:focus{border-color:var(--accent);}
+.search-input{background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:7px 12px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text2);outline:none;width:180px;}
+.search-input:focus{border-color:var(--accent);}
+.search-input::placeholder{color:var(--text3);}
+
+/* ── FEED ── */
+.feed{display:flex;flex-direction:column;gap:10px;}
+.entry{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;transition:border-color .2s;animation:slideIn .3s ease-out;}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.entry:hover{border-color:var(--border2);}
+.entry.new-flash{border-color:var(--green);animation:newFlash .8s ease-out;}
+@keyframes newFlash{0%{border-color:var(--green);box-shadow:0 0 0 2px rgba(63,185,80,.2);}100%{border-color:var(--border);box-shadow:none;}}
+.entry-top{padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.entry-type-badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:6px;background:var(--pbg);color:var(--purple);white-space:nowrap;flex-shrink:0;}
+.entry-name{font-size:14px;font-weight:600;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.entry-id{font-size:11px;font-family:"DM Mono",monospace;color:var(--text3);flex-shrink:0;}
+.state-pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.sp-g{background:var(--gbg);color:var(--green);}
+.sp-a{background:var(--abg);color:var(--amber);}
+.sp-r{background:var(--rbg);color:var(--red);}
+.sp-u{background:var(--bg3);color:var(--text3);}
+.entry-time{font-size:11px;color:var(--text3);white-space:nowrap;flex-shrink:0;}
+.chevron{color:var(--text3);font-size:12px;transition:transform .2s;flex-shrink:0;}
+.entry.open .chevron{transform:rotate(180deg);}
+
+/* ── ENTRY DETAIL ── */
+.entry-detail{display:none;padding:0 18px 16px;border-top:1px solid var(--border);}
+.entry.open .entry-detail{display:block;}
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+@media(max-width:600px){.detail-grid{grid-template-columns:1fr 1fr;}}
+.detail-field{background:var(--bg3);border-radius:6px;padding:10px 12px;}
+.df-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+.df-val{font-size:13px;color:var(--text);word-break:break-word;}
+.df-val.unknown{color:var(--amber);font-style:italic;}
+.df-val.empty{color:var(--text3);font-style:italic;}
+.tag-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.tag-chip{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;}
+.tc-loc{background:rgba(31,111,235,.12);color:var(--blue);}
+.tc-eng{background:var(--gbg);color:var(--green);}
+.tc-by{background:var(--pbg);color:var(--purple);}
+.detail-notes{margin-top:10px;background:var(--bg3);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--text2);line-height:1.6;}
+.detail-notes .dn-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:60px 20px;color:var(--text3);}
+.empty-icon{font-size:48px;margin-bottom:16px;display:block;opacity:.4;}
+.empty-title{font-size:16px;font-weight:600;color:var(--text2);margin-bottom:8px;}
+.empty-sub{font-size:13px;line-height:1.6;}
+
+/* ── LAST UPDATED ── */
+.last-updated{font-size:11px;color:var(--text3);text-align:center;margin-top:20px;}
+
+/* ── UNKNOWN BANNER ── */
+.unknown-banner{background:var(--abg);border:1px solid rgba(210,153,34,.3);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;display:none;align-items:center;gap:10px;}
+.unknown-banner.show{display:flex;}
+.ub-icon{font-size:18px;}
+.ub-text{font-size:13px;color:var(--amber);flex:1;}
+.ub-count{font-size:20px;font-weight:700;font-family:"DM Mono",monospace;color:var(--amber);}
+</style>
+<!-- build:1777564249 -->
+</head>
+<body>
+
+<header class="hdr">
+  <img src="logo.png" alt="Skyform">
+  <span class="hdr-title">Calibration Equipment — Live View</span>
+  <div class="hdr-right">
+    <span class="live-badge" id="live-badge"><span class="live-dot" id="live-dot"></span><span id="live-label">Live</span></span>
+    <button class="pause-btn" id="pause-btn">&#9646;&#9646; Pause</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">Total Entries</div>
+      <div class="stat-val" id="stat-total" style="color:var(--blue)">—</div>
+      <div class="stat-sub" id="stat-sub-total">Loading...</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">In Date</div>
+      <div class="stat-val" id="stat-ok" style="color:var(--green)">—</div>
+      <div class="stat-sub">Calibration current</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Action Needed</div>
+      <div class="stat-val" id="stat-warn" style="color:var(--amber)">—</div>
+      <div class="stat-sub">Due soon or unknown</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Out of Date</div>
+      <div class="stat-val" id="stat-bad" style="color:var(--red)">—</div>
+      <div class="stat-sub">Needs immediate action</div>
+    </div>
+  </div>
+
+  <!-- UNKNOWN HSEQ BANNER -->
+  <div class="unknown-banner" id="unk-banner">
+    <span class="ub-icon">&#9888;</span>
+    <span class="ub-text"><strong>HSEQ Action Required</strong> — items submitted with unknown calibration details need verification</span>
+    <span class="ub-count" id="unk-count">0</span>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <span class="toolbar-title">Submissions</span>
+    <span class="toolbar-count" id="toolbar-count">0 entries</span>
+    <div class="spacer"></div>
+    <input class="search-input" id="search-input" type="text" placeholder="&#128269; Search name, ID, engineer...">
+    <select class="filter-select" id="filter-state">
+      <option value="">All states</option>
+      <option value="In Date">In Date</option>
+      <option value="Due Soon">Due Soon</option>
+      <option value="Out of Date">Out of Date</option>
+      <option value="Unknown">Unknown</option>
+    </select>
+    <select class="filter-select" id="filter-type">
+      <option value="">All types</option>
+      <option>Callipers</option>
+      <option>Torque Screwdrivers</option>
+      <option>Scales</option>
+      <option>Tachometers</option>
+      <option>Tech Kits</option>
+      <option>Torque Wrenches</option>
+      <option>Load Cells</option>
+      <option>Lifting Accessories</option>
+      <option>Other</option>
+    </select>
+  </div>
+
+  <!-- FEED -->
+  <div class="feed" id="feed"></div>
+
+  <!-- EMPTY -->
+  <div class="empty" id="empty" style="display:none">
+    <span class="empty-icon">&#128203;</span>
+    <div class="empty-title">Waiting for submissions</div>
+    <div class="empty-sub">Share the calibration form with your engineers.<br>Entries will appear here the moment they submit.</div>
+  </div>
+
+  <div class="last-updated" id="last-updated"></div>
+
+</div>
+
+<script>
+var SUPA_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co";
+var SUPA_KEY = "sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK";
+
+var allData = [];
+var paused = false;
+var refreshInterval = null;
+var knownIds = {};
+var openEntries = {};
+
+/* ── INIT ── */
+window.addEventListener("load", function() {
+  fetchData();
+  startRefresh();
+  document.getElementById("pause-btn").addEventListener("click", togglePause);
+  document.getElementById("search-input").addEventListener("input", renderFeed);
+  document.getElementById("filter-state").addEventListener("change", renderFeed);
+  document.getElementById("filter-type").addEventListener("change", renderFeed);
+});
+
+/* ── FETCH ── */
+function fetchData() {
+  fetch(SUPA_URL + "/rest/v1/calibration_equipment?order=created_at.desc&limit=200", {
+    headers: {"apikey": SUPA_KEY, "Authorization": "Bearer " + SUPA_KEY}
+  }).then(function(r) { return r.json(); }).then(function(rows) {
+    if (!rows || !Array.isArray(rows)) return;
+    var prevCount = allData.length;
+    var newIds = {};
+    rows.forEach(function(r) { newIds[r.id] = true; });
+    // Flag new entries for flash animation
+    rows.forEach(function(r) {
+      if (allData.length > 0 && !knownIds[r.id]) r._isNew = true;
+    });
+    allData = rows;
+    knownIds = newIds;
+    renderStats();
+    renderFeed();
+    var now = new Date();
+    document.getElementById("last-updated").textContent =
+      "Last refreshed: " + now.toLocaleTimeString("en-GB");
+  }).catch(function() {});
+}
+
+function startRefresh() {
+  refreshInterval = setInterval(function() {
+    if (!paused) fetchData();
+  }, 5000);
+}
+
+function togglePause() {
+  paused = !paused;
+  var btn = document.getElementById("pause-btn");
+  var badge = document.getElementById("live-badge");
+  var dot = document.getElementById("live-dot");
+  var lbl = document.getElementById("live-label");
+  if (paused) {
+    btn.textContent = "\u25b6 Resume"; btn.classList.add("paused");
+    dot.style.animation = "none"; dot.style.opacity = "0.3";
+    lbl.textContent = "Paused";
+    badge.style.background = "var(--abg)";
+    badge.style.borderColor = "rgba(210,153,34,.3)";
+    badge.style.color = "var(--amber)";
+  } else {
+    btn.innerHTML = "&#9646;&#9646; Pause"; btn.classList.remove("paused");
+    dot.style.animation = "pulse 1.4s ease-in-out infinite"; dot.style.opacity = "";
+    lbl.textContent = "Live";
+    badge.style.background = ""; badge.style.borderColor = ""; badge.style.color = "";
+    fetchData();
+  }
+}
+
+/* ── STATS ── */
+function renderStats() {
+  var total = allData.length;
+  var ok = allData.filter(function(r){return r.state==="In Date";}).length;
+  var warn = allData.filter(function(r){return r.state==="Due Soon"||r.state==="Unknown"||!r.state;}).length;
+  var bad = allData.filter(function(r){return r.state==="Out of Date";}).length;
+  var unkCount = allData.filter(function(r){
+    return r.state==="Unknown"||r.serial_number==="Unknown"||r.next_check_date==="Unknown"||r.last_check_date==="Unknown";
+  }).length;
+  document.getElementById("stat-total").textContent = total;
+  document.getElementById("stat-sub-total").textContent = total===1?"1 tool registered":total+" tools registered";
+  document.getElementById("stat-ok").textContent = ok;
+  document.getElementById("stat-warn").textContent = warn;
+  document.getElementById("stat-bad").textContent = bad;
+  var unkBanner = document.getElementById("unk-banner");
+  if (unkCount > 0) { unkBanner.classList.add("show"); document.getElementById("unk-count").textContent = unkCount; }
+  else { unkBanner.classList.remove("show"); }
+}
+
+/* ── FEED ── */
+function renderFeed() {
+  var search = document.getElementById("search-input").value.toLowerCase();
+  var filterState = document.getElementById("filter-state").value;
+  var filterType = document.getElementById("filter-type").value;
+
+  var filtered = allData.filter(function(r) {
+    if (filterState && r.state !== filterState) return false;
+    if (filterType && r.equipment_type !== filterType) return false;
+    if (search) {
+      var hay = ((r.name||"")+" "+(r.identifier||"")+" "+(r.tagged_engineer||"")+" "+(r.tagged_location||"")+" "+(r.submitted_by||"")+" "+(r.equipment_type||"")).toLowerCase();
+      if (hay.indexOf(search) === -1) return false;
+    }
+    return true;
+  });
+
+  document.getElementById("toolbar-count").textContent = filtered.length + " entr" + (filtered.length===1?"y":"ies");
+
+  var feed = document.getElementById("feed");
+  var empty = document.getElementById("empty");
+
+  if (!filtered.length) {
+    feed.innerHTML = "";
+    empty.style.display = allData.length === 0 ? "block" : "none";
+    if (allData.length > 0) {
+      empty.style.display = "block";
+      document.querySelector(".empty-title").textContent = "No results";
+      document.querySelector(".empty-sub").textContent = "Try adjusting your search or filters.";
+    }
+    return;
+  }
+  empty.style.display = "none";
+
+  // Rebuild only if needed
+  var existingIds = [];
+  feed.querySelectorAll(".entry").forEach(function(el) { existingIds.push(el.dataset.id); });
+  var filteredIds = filtered.map(function(r) { return r.id; });
+  var needRebuild = JSON.stringify(existingIds) !== JSON.stringify(filteredIds);
+
+  if (!needRebuild) return;
+
+  feed.innerHTML = "";
+  filtered.forEach(function(r) {
+    var el = buildEntry(r);
+    feed.appendChild(el);
+    if (r._isNew) {
+      setTimeout(function() { el.classList.add("new-flash"); }, 50);
+    }
+    if (openEntries[r.id]) { el.classList.add("open"); }
+  });
+}
+
+function statePill(state) {
+  var cls = "sp-u", label = state || "Unknown";
+  if (state === "In Date") { cls = "sp-g"; }
+  else if (state === "Due Soon") { cls = "sp-a"; }
+  else if (state === "Out of Date") { cls = "sp-r"; label = "Out of Date"; }
+  return "<span class=\"state-pill " + cls + "\">" + label + "</span>";
+}
+
+function timeAgo(ts) {
+  if (!ts) return "";
+  var d = new Date(ts);
+  var diff = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (diff < 60) return "just now";
+  if (diff < 3600) return Math.floor(diff/60) + "m ago";
+  if (diff < 86400) return Math.floor(diff/3600) + "h ago";
+  return d.toLocaleDateString("en-GB");
+}
+
+function fv(val, fallback) {
+  if (!val || val === "" || val === null) return fallback || "";
+  return val;
+}
+
+function buildEntry(r) {
+  var el = document.createElement("div");
+  el.className = "entry"; el.dataset.id = r.id;
+
+  var top = document.createElement("div"); top.className = "entry-top";
+
+  var typeBadge = document.createElement("span"); typeBadge.className = "entry-type-badge";
+  typeBadge.textContent = r.equipment_type || "Equipment";
+
+  var name = document.createElement("span"); name.className = "entry-name";
+  name.textContent = r.name || "Unnamed";
+
+  var idSpan = document.createElement("span"); idSpan.className = "entry-id";
+  idSpan.textContent = r.identifier || "—";
+
+  var pill = document.createElement("span");
+  pill.className = "state-pill " + (r.state==="In Date"?"sp-g":r.state==="Due Soon"?"sp-a":r.state==="Out of Date"?"sp-r":"sp-u");
+  pill.textContent = r.state || "Unknown";
+
+  var time = document.createElement("span"); time.className = "entry-time";
+  time.textContent = timeAgo(r.created_at);
+
+  var chev = document.createElement("span"); chev.className = "chevron"; chev.textContent = "\u25bc";
+
+  top.appendChild(typeBadge); top.appendChild(name); top.appendChild(idSpan);
+  top.appendChild(pill); top.appendChild(time); top.appendChild(chev);
+
+  // Detail panel
+  var detail = document.createElement("div"); detail.className = "entry-detail";
+
+  // Tag chips row
+  var chips = document.createElement("div"); chips.className = "tag-chips"; chips.style.marginTop = "14px";
+  if (r.tagged_location) {
+    var lc = document.createElement("span"); lc.className = "tag-chip tc-loc";
+    lc.textContent = "\uD83D\uDCCD " + r.tagged_location; chips.appendChild(lc);
+  }
+  if (r.tagged_engineer) {
+    var ec = document.createElement("span"); ec.className = "tag-chip tc-eng";
+    ec.textContent = "\uD83D\uDC64 " + r.tagged_engineer; chips.appendChild(ec);
+  }
+  if (r.submitted_by) {
+    var sc = document.createElement("span"); sc.className = "tag-chip tc-by";
+    sc.textContent = "Submitted by " + r.submitted_by; chips.appendChild(sc);
+  }
+
+  // Detail grid
+  var grid = document.createElement("div"); grid.className = "detail-grid";
+  var fields = [
+    ["Serial Number", r.serial_number],
+    ["Quantity", r.quantity],
+    ["Operating Range", r.operating_range],
+    ["Next Check", r.next_check_date],
+    ["Last Check", r.last_check_date],
+    ["Tags", r.tags],
+    ["Image", r.image_data ? "Photo attached" : null],
+    ["Certificate", r.cert_data ? "Certificate attached" : null],
+    ["Submitted", r.created_at ? new Date(r.created_at).toLocaleString("en-GB") : null],
+  ];
+  fields.forEach(function(f) {
+    var card = document.createElement("div"); card.className = "detail-field";
+    var lbl = document.createElement("div"); lbl.className = "df-label"; lbl.textContent = f[0];
+    var val = document.createElement("div");
+    if (!f[1] || f[1] === "") { val.className = "df-val empty"; val.textContent = "Not provided"; }
+    else if (f[1] === "Unknown") { val.className = "df-val unknown"; val.textContent = "Unknown — HSEQ to verify"; }
+    else { val.className = "df-val"; val.textContent = f[1]; }
+    card.appendChild(lbl); card.appendChild(val); grid.appendChild(card);
+  });
+
+  // Notes
+  var hasNotes = r.last_inspection_comments || r.additional_comments;
+  if (hasNotes) {
+    var notes = document.createElement("div"); notes.className = "detail-notes";
+    if (r.last_inspection_comments) {
+      var nl = document.createElement("div"); nl.className = "dn-label"; nl.textContent = "Inspection comments";
+      notes.appendChild(nl);
+      notes.appendChild(document.createTextNode(r.last_inspection_comments));
+    }
+    if (r.additional_comments) {
+      var nl2 = document.createElement("div"); nl2.className = "dn-label"; nl2.style.marginTop = r.last_inspection_comments?"10px":"0"; nl2.textContent = "Additional comments";
+      notes.appendChild(nl2);
+      notes.appendChild(document.createTextNode(r.additional_comments));
+    }
+    detail.appendChild(chips); detail.appendChild(grid); detail.appendChild(notes);
+  } else {
+    detail.appendChild(chips); detail.appendChild(grid);
+  }
+
+  top.addEventListener("click", function() {
+    var isOpen = el.classList.contains("open");
+    if (isOpen) { el.classList.remove("open"); delete openEntries[r.id]; }
+    else { el.classList.add("open"); openEntries[r.id] = true; }
+  });
+
+  el.appendChild(top); el.appendChild(detail);
+  return el;
+}
+</script>
+</body>
+</html>

@@ -1,17 +1,15 @@
-// IP Allowlist Gate — blocks all access except listed IPs
-// Update ALLOWED_IPS to add/remove access
+// IP Allowlist Gate — staging environment only
+// Only listed IPs can access this site. Everyone else gets a blank 403.
+// To add a new location: visit /my-ip from that connection, send IP to admin.
 
 const ALLOWED_IPS: string[] = [
-  // Add IPs here — one per line
-  // "86.123.45.67",  // James - home
-  // "82.xxx.xxx.xxx", // James - office
-  "PLACEHOLDER"  // will be replaced
+  "90.219.148.78",   // James Campbell
 ]
 
 export default async function gate(request: Request) {
   const url = new URL(request.url)
 
-  // /my-ip — always allowed, shows your current IP (useful for adding new locations)
+  // /my-ip — always accessible, shows current IP for adding new locations
   if (url.pathname === '/my-ip') {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
       ?? request.headers.get('x-real-ip')
@@ -22,7 +20,7 @@ export default async function gate(request: Request) {
        .ip{font-size:32px;font-weight:700;color:#3fb950;margin:20px 0;}</style></head>
        <body><p>Your current IP address is:</p>
        <div class="ip">${ip}</div>
-       <p style="color:#8b949e;font-size:14px;">Send this to your administrator to get access to the staging site.</p>
+       <p style="color:#8b949e;font-size:14px;">Send this to your administrator to get access.</p>
        </body></html>`,
       { status: 200, headers: { 'Content-Type': 'text/html' } }
     )
@@ -33,17 +31,14 @@ export default async function gate(request: Request) {
     ?? request.headers.get('x-real-ip')
     ?? ''
 
-  // Check allowlist
-  const allowed = ALLOWED_IPS.some(ip => ip !== 'PLACEHOLDER' && visitorIp.startsWith(ip))
-
-  if (!allowed) {
+  if (!ALLOWED_IPS.includes(visitorIp)) {
     return new Response(
-      '<!DOCTYPE html><html><head><title>Access Restricted</title></head><body style="background:#0d1117;"></body></html>',
+      '<!DOCTYPE html><html><head><title> </title></head><body style="background:#000;"></body></html>',
       { status: 403, headers: { 'Content-Type': 'text/html' } }
     )
   }
 
-  // Allowed — continue to site
+  // IP allowed — pass through to site
   return
 }
 

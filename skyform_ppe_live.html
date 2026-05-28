@@ -288,6 +288,10 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 <header class="hdr">
   <img src="logo.png" alt="Skyform" style="height:28px;object-fit:contain;">
   <span class="hdr-title">Skyform Wind Portal</span>
+  <div style="display:flex;gap:4px;margin-left:4px;">
+    <a href="skyform_dashboard.html" style="padding:5px 12px;border-radius:6px;font-size:13px;font-weight:600;color:var(--text3);text-decoration:none;transition:all .15s;" onmouseover="this.style.background='var(--bg3)';this.style.color='var(--text)'" onmouseout="this.style.background='';this.style.color='var(--text3)'">Dashboard</a>
+    <a href="skyform_ppe_live.html" style="padding:5px 12px;border-radius:6px;font-size:13px;font-weight:600;background:var(--accent);color:#fff;text-decoration:none;">PPE Register</a>
+  </div>
   <div class="hdr-right">
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">&#9728;</button>
     <span class="live-badge"><span class="live-dot" id="live-dot"></span><span id="live-lbl">Live</span></span>
@@ -755,7 +759,7 @@ async function serverLogin(username, password) {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + AUTH_KEY
       },
-      body: JSON.stringify({username: username.trim(), password: password})
+      body: JSON.stringify({action: 'login', username: username.trim(), password: password})
     });
     return await res.json();
   } catch(e) {
@@ -780,6 +784,28 @@ async function doMgmtLogin() {
   if(btn){btn.disabled=false;btn.textContent='Access Dashboard →';}
   if(!result.success){err.textContent=result.error||'Username not recognised or password incorrect';return;}
   setMgmtLoggedIn(username,result.name);
+}
+
+
+// ── PRIVILEGED OPERATIONS (via Edge Function with session token) ─────
+function getSessionToken() {
+  try {
+    var s = sessionStorage.getItem('skyform_mgmt_session');
+    return s ? (JSON.parse(s).token || '') : '';
+  } catch(e) { return ''; }
+}
+
+async function privOp(action, params) {
+  var token = getSessionToken();
+  if(!token) { showToast('Session expired — please sign in again', 'err'); return null; }
+  try {
+    var res = await fetch(AUTH_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+AUTH_KEY},
+      body: JSON.stringify(Object.assign({action: action, token: token}, params))
+    });
+    return await res.json();
+  } catch(e) { return {success: false, error: 'Connection error'}; }
 }
 
 function buildMgmtLogin() {
@@ -1235,31 +1261,18 @@ function promptVerifierName(callback) {
 
 
 function updateVerification(id, status, verifiedBy, rejectionReason) {
-  var payload = { verification_status: status };
-  if(status === 'verified') {
-    payload.verified_by = verifiedBy;
-    payload.verified_at = new Date().toISOString();
-    payload.rejection_reason = null;
-  } else if(status === 'rejected') {
-    payload.rejection_reason = rejectionReason;
-    payload.verified_by = null;
-    payload.verified_at = null;
-  } else {
-    payload.verified_by = null;
-    payload.verified_at = null;
-    payload.rejection_reason = null;
-  }
-  fetch(SUPA_URL + '/rest/v1/ppe_register?id=eq.' + id, {
-    method: 'PATCH',
-    headers: {'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
-    body: JSON.stringify(payload)
-  }).then(function(r){
-    if(r.ok){
-      var msg = status==='verified' ? '✓ Certificate approved by '+verifiedBy : status==='rejected' ? '✗ Certificate rejected' : 'Status updated';
+  // Routes through Edge Function — anon can no longer write verification fields directly
+  var action = status === 'verified' ? 'verify_ppe' : status === 'rejected' ? 'reject_ppe' : 'verify_ppe';
+  var params = { id: id };
+  if(status === 'verified') params.verifiedBy = verifiedBy;
+  if(status === 'rejected') params.reason = rejectionReason;
+  privOp(action, params).then(function(res){
+    if(res && res.success){
+      var msg = status==='verified' ? '✓ Approved by '+verifiedBy : status==='rejected' ? '✗ Rejected' : 'Status updated';
       showToast(msg, status==='verified'?'ok':'warn');
       fetchData();
-    } else showToast('Update failed','err');
-  }).catch(function(){ showToast('Connection error','err'); });
+    } else showToast((res&&res.error)||'Update failed','err');
+  });
 }
 
 
@@ -1496,13 +1509,10 @@ function confirmDelete(id, itemType) {
   del.style.background='#f85149'; del.textContent='Delete';
   del.addEventListener('click',function(){
     m.remove();
-    fetch(SUPA_URL+'/rest/v1/ppe_register?id=eq.'+id,{
-      method:'DELETE',
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=minimal'}
-    }).then(function(res){
-      if(res.ok){showToast('Record deleted','warn');fetchData();}
-      else showToast('Delete failed','err');
-    }).catch(function(){showToast('Connection error','err');});
+    privOp('delete_ppe', {id: id}).then(function(res){
+      if(res && res.success){showToast('Record deleted','warn');fetchData();}
+      else showToast((res && res.error)||'Delete failed','err');
+    });
   });
   btns.appendChild(cancel); btns.appendChild(del); inner.appendChild(btns);
   m.appendChild(inner); document.body.appendChild(m);

@@ -1003,7 +1003,7 @@ async function serverLogin(username, password) {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + AUTH_KEY
       },
-      body: JSON.stringify({username: username.trim(), password: password})
+      body: JSON.stringify({action: 'login', username: username.trim(), password: password})
     });
     return await res.json();
   } catch(e) {

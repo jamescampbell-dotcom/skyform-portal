@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Skyform Wind — Compliance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ──────────────────────────────────────────────────── */
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#2d333b;
+  --border:#30363d;--border2:#444c56;
+  --text:#e6edf3;--text2:#c9d1d9;--text3:#8b949e;
+  --accent:#1f6feb;--blue:#58a6ff;
+  --green:#3fb950;--gbg:rgba(63,185,80,.12);
+  --amber:#d29922;--abg:rgba(210,153,34,.14);
+  --red:#f85149;--rbg:rgba(248,81,73,.10);
+  --purple:#a371f7;--pbg:rgba(163,113,247,.12);
+  --r:8px;--rl:12px;
+}
+[data-theme="light"]{
+  --bg:#f0f2f5;--bg2:#ffffff;--bg3:#f6f8fa;--bg4:#eaedf0;
+  --border:#d0d7de;--border2:#b8c0cc;
+  --text:#1c2128;--text2:#373e47;--text3:#636c76;
+  --accent:#0969da;--blue:#0969da;
+  --green:#1a7f37;--gbg:rgba(26,127,55,.1);
+  --amber:#9a6700;--abg:rgba(154,103,0,.1);
+  --red:#cf222e;--rbg:rgba(207,34,46,.08);
+  --purple:#6e40c9;--pbg:rgba(110,64,201,.1);
+}
+
+/* ── RESET ───────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;font-size:14px;}
+
+/* ── HEADER ─────────────────────────────────────────────────── */
+.hdr{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;padding:0 16px;height:54px;
+}
+.hdr-logo{height:26px;object-fit:contain;}
+.hdr-title{font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;}
+.hdr-sep{width:1px;height:20px;background:var(--border2);margin:0 4px;}
+.hdr-nav{display:flex;gap:4px;margin-left:4px;}
+.hdr-nav a{
+  padding:5px 12px;border-radius:6px;font-size:13px;font-weight:600;
+  color:var(--text3);text-decoration:none;transition:all .15s;
+}
+.hdr-nav a:hover{background:var(--bg3);color:var(--text);}
+.hdr-nav a.active{background:var(--accent);color:#fff;}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.live-badge{
+  display:flex;align-items:center;gap:5px;padding:4px 10px;
+  border:1px solid var(--border2);border-radius:20px;font-size:11px;font-weight:600;color:var(--text3);
+}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);
+  animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.theme-toggle{
+  background:var(--bg3);border:1px solid var(--border2);border-radius:20px;
+  padding:4px 10px;font-size:13px;cursor:pointer;color:var(--text3);
+  font-family:"DM Sans",sans-serif;transition:all .15s;
+}
+.theme-toggle:hover{border-color:var(--accent);color:var(--text);}
+.hdr-signout{
+  background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.25);
+  color:var(--red);border-radius:6px;padding:5px 12px;
+  font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;cursor:pointer;
+  white-space:nowrap;
+}
+.hdr-signout:hover{background:rgba(248,81,73,.2);}
+
+/* ── PAGE ────────────────────────────────────────────────────── */
+.page{max-width:1200px;margin:0 auto;padding:20px 16px 60px;}
+
+/* ── HERO STATS ─────────────────────────────────────────────── */
+.hero{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
+@media(min-width:640px){.hero{grid-template-columns:repeat(4,1fr);}}
+.stat{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);
+  padding:16px;position:relative;overflow:hidden;
+}
+.stat-label{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--text3);text-transform:uppercase;margin-bottom:8px;}
+.stat-val{font-size:32px;font-weight:700;line-height:1;margin-bottom:4px;}
+.stat-sub{font-size:12px;color:var(--text3);}
+.stat-accent{position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px;}
+.stat.green .stat-val{color:var(--green);}
+.stat.green .stat-accent{background:var(--green);}
+.stat.amber .stat-val{color:var(--amber);}
+.stat.amber .stat-accent{background:var(--amber);}
+.stat.red .stat-val{color:var(--red);}
+.stat.red .stat-accent{background:var(--red);}
+.stat.blue .stat-val{color:var(--blue);}
+.stat.blue .stat-accent{background:var(--blue);}
+.stat-ring{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  width:52px;height:52px;
+}
+
+/* ── MAIN GRID ───────────────────────────────────────────────── */
+.main-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;}
+@media(min-width:900px){.main-grid{grid-template-columns:1fr 340px;}}
+
+/* ── CARDS ───────────────────────────────────────────────────── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;}
+.card-hdr{
+  display:flex;align-items:center;gap:8px;padding:14px 16px;
+  border-bottom:1px solid var(--border);
+}
+.card-title{font-size:14px;font-weight:700;flex:1;}
+.card-sub{font-size:11px;color:var(--text3);}
+.card-body{padding:0;}
+
+/* ── ENGINEER TABLE ─────────────────────────────────────────── */
+.eng-table{width:100%;border-collapse:collapse;}
+.eng-table th{
+  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--text3);padding:8px 14px;text-align:left;
+  border-bottom:1px solid var(--border);background:var(--bg3);
+  cursor:pointer;user-select:none;white-space:nowrap;
+}
+.eng-table th:hover{color:var(--text);}
+.eng-table th .sort-arrow{opacity:.4;margin-left:4px;}
+.eng-table th.sorted .sort-arrow{opacity:1;color:var(--accent);}
+.eng-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.eng-table tr:last-child td{border-bottom:none;}
+.eng-table tr:hover td{background:var(--bg3);}
+.eng-name{font-weight:600;font-size:13px;}
+.eng-loc{font-size:11px;color:var(--text3);margin-top:2px;}
+.bar-wrap{height:6px;background:var(--bg4);border-radius:3px;width:80px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width .4s;}
+.pct-lbl{font-size:12px;font-weight:700;min-width:36px;text-align:right;}
+.pill{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;
+}
+.pill.g{background:var(--gbg);color:var(--green);}
+.pill.a{background:var(--abg);color:var(--amber);}
+.pill.r{background:var(--rbg);color:var(--red);}
+.pill.b{background:rgba(31,111,235,.12);color:var(--blue);}
+.pill.p{background:var(--pbg);color:var(--purple);}
+.no-data{padding:32px;text-align:center;color:var(--text3);}
+
+/* ── RIGHT COLUMN ────────────────────────────────────────────── */
+.right-col{display:flex;flex-direction:column;gap:16px;}
+
+/* ── EXPIRY TIMELINE ─────────────────────────────────────────── */
+.expiry-band{
+  display:flex;align-items:center;padding:10px 14px;gap:10px;
+  border-bottom:1px solid var(--border);
+}
+.expiry-band:last-child{border-bottom:none;}
+.expiry-dot{
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;
+}
+.expiry-info{flex:1;}
+.expiry-label{font-size:12px;font-weight:600;}
+.expiry-detail{font-size:11px;color:var(--text3);margin-top:1px;}
+.expiry-count{font-size:20px;font-weight:700;min-width:32px;text-align:right;}
+
+/* ── SITE BREAKDOWN ─────────────────────────────────────────── */
+.site-row{display:flex;flex-direction:column;gap:4px;padding:10px 14px;border-bottom:1px solid var(--border);}
+.site-row:last-child{border-bottom:none;}
+.site-top{display:flex;align-items:center;justify-content:space-between;}
+.site-name{font-size:13px;font-weight:600;}
+.site-pct{font-size:13px;font-weight:700;}
+.site-bar-wrap{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.site-bar-fill{height:100%;border-radius:3px;transition:width .5s;}
+.site-meta{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* ── ACTIVITY FEED ───────────────────────────────────────────── */
+.activity-grid{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:640px){.activity-grid{grid-template-columns:1fr 1fr;}}
+.activity-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 14px;border-bottom:1px solid var(--border);
+}
+.activity-item:last-child{border-bottom:none;}
+.activity-icon{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;flex-shrink:0;margin-top:1px;
+}
+.activity-icon.submit{background:var(--gbg);}
+.activity-icon.verify{background:var(--gbg);}
+.activity-icon.reject{background:var(--rbg);}
+.activity-icon.pending{background:var(--abg);}
+.activity-body{flex:1;}
+.activity-text{font-size:12px;font-weight:500;line-height:1.4;}
+.activity-time{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* ── OUTSTANDING ACTIONS ─────────────────────────────────────── */
+.action-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .12s;
+}
+.action-item:last-child{border-bottom:none;}
+.action-item:hover{background:var(--bg3);}
+.action-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.action-text{flex:1;font-size:12px;font-weight:500;}
+.action-eng{font-size:11px;color:var(--text3);margin-top:2px;}
+.action-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;}
+
+/* ── SPINNER ─────────────────────────────────────────────────── */
+.spinner{
+  width:32px;height:32px;border-radius:50%;
+  border:3px solid var(--border2);border-top-color:var(--accent);
+  animation:spin .6s linear infinite;margin:0 auto;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-wrap{padding:48px;display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--text3);}
+
+/* ── SECTION HEADER ─────────────────────────────────────────── */
+.section-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 0 10px;
+}
+.section-title{font-size:16px;font-weight:700;}
+.section-meta{font-size:12px;color:var(--text3);}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <img src="logo.png" alt="Skyform Wind" class="hdr-logo">
+  <div class="hdr-sep"></div>
+  <span class="hdr-title">Skyform Wind Portal</span>
+  <nav class="hdr-nav">
+    <a href="skyform_dashboard.html" class="active">Dashboard</a>
+    <a href="skyform_ppe_live.html">PPE Register</a>
+  </nav>
+  <div class="hdr-right">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">&#9728;</button>
+    <div class="live-badge"><span class="live-dot"></span><span id="live-lbl">Live</span></div>
+    <button class="hdr-signout" id="signout-btn">&#8594; Sign Out</button>
+  </div>
+</header>
+
+<div class="page" id="page" style="display:none">
+
+  <!-- HERO STATS -->
+  <div class="hero" id="hero">
+    <div class="stat green"><div class="stat-accent"></div><div class="stat-label">Overall Compliance</div><div class="stat-val" id="stat-overall">—</div><div class="stat-sub" id="stat-overall-sub">Loading...</div></div>
+    <div class="stat blue"><div class="stat-accent"></div><div class="stat-label">Engineers Active</div><div class="stat-val" id="stat-engineers">—</div><div class="stat-sub" id="stat-eng-sub">Loading...</div></div>
+    <div class="stat amber"><div class="stat-accent"></div><div class="stat-label">Expiring (90 days)</div><div class="stat-val" id="stat-expiring">—</div><div class="stat-sub" id="stat-exp-sub">Loading...</div></div>
+    <div class="stat red"><div class="stat-accent"></div><div class="stat-label">Pending Review</div><div class="stat-val" id="stat-pending">—</div><div class="stat-sub" id="stat-pend-sub">Loading...</div></div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- Engineer Compliance Table -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title">Engineer Compliance</span>
+        <span class="card-sub" id="eng-table-meta">—</span>
+      </div>
+      <div class="card-body">
+        <div id="eng-table-wrap">
+          <div class="loading-wrap"><div class="spinner"></div><span>Loading engineers...</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="right-col">
+
+      <!-- Expiry Timeline -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Expiry Timeline</span>
+          <span class="card-sub">Items by renewal window</span>
+        </div>
+        <div class="card-body" id="expiry-wrap">
+          <div class="loading-wrap"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+      <!-- Site Breakdown -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Compliance by Site</span>
+          <span class="card-sub" id="site-meta">—</span>
+        </div>
+        <div class="card-body" id="site-wrap">
+          <div class="loading-wrap"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BOTTOM ROW: Outstanding Actions + Activity Feed -->
+  <div class="activity-grid">
+
+    <!-- Outstanding Actions -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title">Outstanding Actions</span>
+        <span class="card-sub" id="actions-meta">—</span>
+      </div>
+      <div class="card-body" id="actions-wrap">
+        <div class="loading-wrap"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title">Recent Activity</span>
+        <span class="card-sub">Last 14 days</span>
+      </div>
+      <div class="card-body" id="activity-wrap">
+        <div class="loading-wrap"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="auth-wall" style="display:none;padding:80px 16px;text-align:center;color:var(--text3);">
+  <p style="font-size:32px;margin-bottom:12px;">🔒</p>
+  <p style="font-weight:600;margin-bottom:8px;">Management access required</p>
+  <a href="/" style="color:var(--accent);">Return to portal</a>
+</div>
+
+<script>
+(function(){var t=localStorage.getItem('skyform_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+
+var SUPA_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co";
+var SUPA_KEY = "sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK";
+var AUTH_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co/functions/v1/skyform-auth";
+var AUTH_KEY = SUPA_KEY;
+
+// ── PPE CATEGORIES ────────────────────────────────────────────
+var PPE_CATS = [
+  {key:"baseline",title:"Baseline PPE",required:true,
+   items:["Safety Helmet","Hi-Vis Workwear","Safety Boots","Cut Resistant Gloves","Noise Protection","Safety Glasses","Head Lamp"]},
+  {key:"height",title:"Working at Height",required:true,
+   items:["Full Body Harness","Fall Arrest Lanyard (Twin)","Work Restraint Lanyard","Fall Arrest Glider","Transfer Connector"]},
+  {key:"offshore",title:"Offshore Additional",required:false,
+   items:["Immersion Suit","Lifejacket 275N","Personal Locator Beacon"]},
+  {key:"hv",title:"HV / Electrical",required:false,
+   items:["Arc / FR Clothing","Electrical Gloves","Arc Face & Head Protection"]},
+  {key:"hotworks",title:"Hot Works",required:false,
+   items:["FR Hot Works Clothing","Hot Works Gloves","Face & Eye Protection","Respiratory Protection"]}
+];
+var REQUIRED_ITEMS = PPE_CATS.filter(function(c){return c.required;}).flatMap(function(c){return c.items;});
+
+// ── AUTH ──────────────────────────────────────────────────────
+var _session = null;
+function getSession() {
+  if(_session) return _session;
+  try{
+    var s = sessionStorage.getItem('skyform_mgmt_session');
+    if(s){_session=JSON.parse(s);return _session;}
+  }catch(e){}
+  return null;
+}
+
+// ── SESSION SECURITY (45-min idle) ────────────────────────────
+var _lastActivity=Date.now();
+['click','keydown','mousemove','touchstart'].forEach(function(e){
+  document.addEventListener(e,function(){_lastActivity=Date.now();},{passive:true});
+});
+setInterval(function(){
+  if(Date.now()-_lastActivity > 45*60*1000){
+    alert('Session expired due to inactivity.');
+    sessionStorage.clear();
+    window.location.replace('/');
+  }
+},60000);
+
+// ── THEME ─────────────────────────────────────────────────────
+function toggleTheme(){
+  var t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('skyform_theme',t);
+  updateThemeBtn();
+}
+function updateThemeBtn(){
+  var t=document.documentElement.getAttribute('data-theme');
+  var b=document.querySelector('.theme-toggle');
+  if(b) b.innerHTML=t==='dark'?'&#9728; <span style="font-size:11px;font-weight:600">Light</span>':'&#9790; <span style="font-size:11px;font-weight:600">Dark</span>';
+}
+
+// ── DB FETCH ──────────────────────────────────────────────────
+function dbFetch(table, params) {
+  var url = SUPA_URL + '/rest/v1/' + table + (params ? '?' + params : '');
+  return fetch(url, {headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}}).then(function(r){return r.json();});
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function pctColor(p){return p>=80?'var(--green)':p>=50?'var(--amber)':'var(--red)';}
+function pctClass(p){return p>=80?'g':p>=50?'a':'r';}
+function timeAgo(dateStr){
+  if(!dateStr) return '';
+  var d=new Date(dateStr), now=new Date(), diff=Math.floor((now-d)/1000);
+  if(diff<60) return 'just now';
+  if(diff<3600) return Math.floor(diff/60)+'m ago';
+  if(diff<86400) return Math.floor(diff/3600)+'h ago';
+  return Math.floor(diff/86400)+'d ago';
+}
+function daysUntil(dateStr){
+  if(!dateStr) return Infinity;
+  return Math.ceil((new Date(dateStr)-new Date())/86400000);
+}
+function escHtml(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── SORT STATE ────────────────────────────────────────────────
+var _sortField = 'pct';
+var _sortAsc   = true;
+
+// ── MAIN DATA LOAD ────────────────────────────────────────────
+var _engineers=[], _ppe=[];
+
+function loadDashboard(){
+  Promise.all([
+    dbFetch('engineers','select=id,name,username,tagged_location,department&order=name'),
+    dbFetch('ppe_register','select=*&order=created_at.desc')
+  ]).then(function(results){
+    _engineers = Array.isArray(results[0]) ? results[0] : [];
+    _ppe = Array.isArray(results[1]) ? results[1] : [];
+    renderAll();
+    document.getElementById('page').style.display='';
+    document.getElementById('live-lbl').textContent='Live';
+  }).catch(function(e){
+    console.error(e);
+    document.getElementById('live-lbl').textContent='Error';
+  });
+}
+
+function renderAll(){
+  var stats = buildStats();
+  renderHero(stats);
+  renderEngineerTable(stats.engData);
+  renderExpiry();
+  renderSites(stats.engData);
+  renderActions();
+  renderActivity();
+}
+
+// ── STATS ─────────────────────────────────────────────────────
+function buildStats(){
+  var engData = _engineers.map(function(eng){
+    var records = _ppe.filter(function(r){return r.submitted_by && r.submitted_by.toLowerCase()===eng.username.toLowerCase();});
+    var verified = records.filter(function(r){return r.verification_status==='verified';}).length;
+    var pending  = records.filter(function(r){return r.verification_status==='pending';}).length;
+    var rejected = records.filter(function(r){return r.verification_status==='rejected';}).length;
+    var total    = records.length;
+    var missing  = REQUIRED_ITEMS.filter(function(item){
+      return !records.some(function(r){return r.item_type===item;});
+    }).length;
+    var pct = total>0 ? Math.round((verified/total)*100) : 0;
+    var reqPct = REQUIRED_ITEMS.length>0 ? Math.round(((REQUIRED_ITEMS.length-missing)/REQUIRED_ITEMS.length)*100) : 0;
+    return {eng:eng, records:records, verified:verified, pending:pending,
+            rejected:rejected, total:total, missing:missing, pct:pct, reqPct:reqPct};
+  });
+
+  var totalVerified = engData.reduce(function(s,e){return s+e.verified;},0);
+  var totalItems    = engData.reduce(function(s,e){return s+e.total;},0);
+  var totalPending  = engData.reduce(function(s,e){return s+e.pending;},0);
+  var overallPct    = totalItems>0 ? Math.round((totalVerified/totalItems)*100) : 0;
+
+  var now=new Date();
+  var expiring90 = _ppe.filter(function(r){
+    var d=daysUntil(r.next_inspection_date||r.expiry_date);
+    return d>=0 && d<=90;
+  }).length;
+
+  var activeEngs = engData.filter(function(e){return e.total>0;}).length;
+
+  return {engData:engData, overallPct:overallPct, totalVerified:totalVerified,
+          totalItems:totalItems, totalPending:totalPending, expiring90:expiring90,
+          activeEngs:activeEngs};
+}
+
+// ── HERO ──────────────────────────────────────────────────────
+function renderHero(stats){
+  document.getElementById('stat-overall').textContent = stats.overallPct+'%';
+  document.getElementById('stat-overall-sub').textContent = stats.totalVerified+' of '+stats.totalItems+' items verified';
+  document.getElementById('stat-engineers').textContent = stats.activeEngs;
+  document.getElementById('stat-eng-sub').textContent = 'of '+_engineers.length+' total engineers';
+  document.getElementById('stat-expiring').textContent = stats.expiring90;
+  document.getElementById('stat-exp-sub').textContent = 'items due within 90 days';
+  document.getElementById('stat-pending').textContent = stats.totalPending;
+  document.getElementById('stat-pend-sub').textContent = 'certificates awaiting sign-off';
+
+  // Colour the hero stats dynamically
+  var overallCard = document.querySelector('.stat.green');
+  overallCard.className = 'stat '+(stats.overallPct>=80?'green':stats.overallPct>=50?'amber':'red');
+  var pendCard = document.querySelector('.stat.red');
+  pendCard.className = 'stat '+(stats.totalPending===0?'green':stats.totalPending<5?'amber':'red');
+}
+
+// ── ENGINEER TABLE ────────────────────────────────────────────
+function renderEngineerTable(engData){
+  var sorted = engData.slice().sort(function(a,b){
+    var av = _sortField==='name' ? a.eng.name : _sortField==='pct' ? a.pct :
+             _sortField==='pending' ? a.pending : _sortField==='loc' ? (a.eng.tagged_location||'') : a.pct;
+    var bv = _sortField==='name' ? b.eng.name : _sortField==='pct' ? b.pct :
+             _sortField==='pending' ? b.pending : _sortField==='loc' ? (b.eng.tagged_location||'') : b.pct;
+    if(av<bv) return _sortAsc?-1:1;
+    if(av>bv) return _sortAsc?1:-1;
+    return 0;
+  });
+
+  var compliant = engData.filter(function(e){return e.pct>=80 && e.total>0;}).length;
+  document.getElementById('eng-table-meta').textContent =
+    compliant+' of '+engData.filter(function(e){return e.total>0;}).length+' engineers compliant';
+
+  var html = '<table class="eng-table"><thead><tr>';
+  var cols = [
+    {key:'name',  label:'Engineer'},
+    {key:'loc',   label:'Location'},
+    {key:'pct',   label:'Compliance'},
+    {key:'pending',label:'Pending'},
+  ];
+  cols.forEach(function(col){
+    var sorted_cls = _sortField===col.key?' sorted':'';
+    var arrow = _sortField===col.key ? (_sortAsc?'↑':'↓') : '↕';
+    html += '<th class="'+sorted_cls+'" onclick="sortTable(\''+col.key+'\')">'+escHtml(col.label)+' <span class="sort-arrow">'+arrow+'</span></th>';
+  });
+  html += '<th>Status</th></tr></thead><tbody>';
+
+  sorted.forEach(function(d){
+    var color = pctColor(d.pct);
+    var noData = d.total===0;
+    html += '<tr>';
+    html += '<td><div class="eng-name">'+escHtml(d.eng.name)+'</div></td>';
+    html += '<td><span style="font-size:11px;color:var(--text3);">'+escHtml(d.eng.tagged_location||'—')+'</span></td>';
+    if(noData){
+      html += '<td colspan="3"><span style="color:var(--text3);font-size:12px;">No PPE registered</span></td>';
+    } else {
+      html += '<td><div style="display:flex;align-items:center;gap:8px;">';
+      html += '<div class="bar-wrap"><div class="bar-fill" style="width:'+d.pct+'%;background:'+color+';"></div></div>';
+      html += '<span class="pct-lbl" style="color:'+color+'">'+d.pct+'%</span></div></td>';
+      html += '<td>'+(d.pending>0?'<span class="pill a">⏳ '+d.pending+'</span>':'<span style="color:var(--text3);font-size:12px;">—</span>')+'</td>';
+      var status = d.pct>=80&&d.pending===0 ? '<span class="pill g">✓ Compliant</span>' :
+                   d.pending>0 ? '<span class="pill a">Review needed</span>' :
+                   d.missing>0 ? '<span class="pill r">'+d.missing+' missing</span>' :
+                   d.rejected>0 ? '<span class="pill r">'+d.rejected+' rejected</span>' :
+                   '<span class="pill a">In progress</span>';
+      html += '<td>'+status+'</td>';
+    }
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('eng-table-wrap').innerHTML = html;
+}
+
+function sortTable(field){
+  if(_sortField===field) _sortAsc=!_sortAsc;
+  else { _sortField=field; _sortAsc=true; }
+  var stats=buildStats();
+  renderEngineerTable(stats.engData);
+}
+
+// ── EXPIRY TIMELINE ───────────────────────────────────────────
+function renderExpiry(){
+  var bands = [
+    {label:'Overdue',color:'var(--red)',min:-Infinity,max:-1},
+    {label:'Within 30 days',color:'var(--red)',min:0,max:30},
+    {label:'31 – 60 days',color:'var(--amber)',min:31,max:60},
+    {label:'61 – 90 days',color:'var(--amber)',min:61,max:90},
+    {label:'3 – 6 months',color:'var(--green)',min:91,max:180},
+  ];
+
+  var html = '';
+  bands.forEach(function(band){
+    var items = _ppe.filter(function(r){
+      var d=daysUntil(r.next_inspection_date||r.expiry_date);
+      return d>=band.min && d<=band.max;
+    });
+    var cnt = items.length;
+    if(cnt===0 && band.min>0) return;
+    var engineers = [...new Set(items.map(function(r){return r.submitted_by;}))]
+      .filter(Boolean).length;
+    html += '<div class="expiry-band">';
+    html += '<div class="expiry-dot" style="background:'+band.color+'"></div>';
+    html += '<div class="expiry-info"><div class="expiry-label">'+escHtml(band.label)+'</div>';
+    if(cnt>0) html += '<div class="expiry-detail">'+engineers+' engineer'+(engineers!==1?'s':'')+' affected</div>';
+    html += '</div>';
+    html += '<div class="expiry-count" style="color:'+(cnt>0?band.color:'var(--text3)')+'">'+cnt+'</div>';
+    html += '</div>';
+  });
+
+  if(!html) html = '<div class="no-data">No expiry data found.<br><span style="font-size:11px">Add inspection dates when registering PPE items.</span></div>';
+  document.getElementById('expiry-wrap').innerHTML = html;
+}
+
+// ── SITE BREAKDOWN ────────────────────────────────────────────
+function renderSites(engData){
+  var sites = {};
+  engData.forEach(function(d){
+    var loc = d.eng.tagged_location || 'Unknown';
+    if(!sites[loc]) sites[loc]={verified:0,total:0,engineers:0};
+    sites[loc].verified += d.verified;
+    sites[loc].total    += d.total;
+    if(d.total>0) sites[loc].engineers++;
+  });
+
+  var siteList = Object.keys(sites).map(function(loc){
+    var s=sites[loc];
+    return {loc:loc, pct:s.total>0?Math.round((s.verified/s.total)*100):0,
+            verified:s.verified, total:s.total, engineers:s.engineers};
+  }).sort(function(a,b){return b.engineers-a.engineers;});
+
+  document.getElementById('site-meta').textContent = siteList.filter(function(s){return s.engineers>0;}).length+' active sites';
+
+  var html='';
+  siteList.forEach(function(s){
+    var color=pctColor(s.pct);
+    html+='<div class="site-row">';
+    html+='<div class="site-top"><span class="site-name">'+escHtml(s.loc)+'</span>';
+    html+='<span class="site-pct" style="color:'+color+'">'+s.pct+'%</span></div>';
+    html+='<div class="site-bar-wrap"><div class="site-bar-fill" style="width:'+s.pct+'%;background:'+color+';"></div></div>';
+    html+='<div class="site-meta">'+s.engineers+' engineer'+(s.engineers!==1?'s':'')+' · '+s.verified+' of '+s.total+' items verified</div>';
+    html+='</div>';
+  });
+
+  if(!siteList.length) html='<div class="no-data">No site data available.</div>';
+  document.getElementById('site-wrap').innerHTML = html;
+}
+
+// ── OUTSTANDING ACTIONS ───────────────────────────────────────
+function renderActions(){
+  var actions=[];
+
+  // Pending verifications
+  var pendingItems = _ppe.filter(function(r){return r.verification_status==='pending';});
+  pendingItems.slice(0,5).forEach(function(r){
+    var engName = (_engineers.find(function(e){return e.username.toLowerCase()===(r.submitted_by||'').toLowerCase()})||{}).name || r.submitted_by;
+    actions.push({color:'var(--amber)',text:escHtml(r.item_type)+' awaiting verification',eng:escHtml(engName),badge:'<span class="action-badge" style="background:var(--abg);color:var(--amber);">Pending</span>',link:'skyform_ppe_live.html'});
+  });
+  if(pendingItems.length>5) actions.push({color:'var(--amber)',text:(pendingItems.length-5)+' more items pending verification',eng:'',badge:'',link:'skyform_ppe_live.html'});
+
+  // Missing required items (up to 5 most critical)
+  var missing=[];
+  _engineers.forEach(function(eng){
+    var records=_ppe.filter(function(r){return r.submitted_by&&r.submitted_by.toLowerCase()===eng.username.toLowerCase();});
+    REQUIRED_ITEMS.forEach(function(item){
+      if(!records.some(function(r){return r.item_type===item;})){
+        missing.push({eng:eng.name,item:item});
+      }
+    });
+  });
+  missing.slice(0,4).forEach(function(m){
+    actions.push({color:'var(--red)',text:escHtml(m.item)+' not registered',eng:escHtml(m.eng),badge:'<span class="action-badge" style="background:var(--rbg);color:var(--red);">Missing</span>',link:'skyform_ppe_live.html'});
+  });
+  if(missing.length>4) actions.push({color:'var(--red)',text:(missing.length-4)+' more required items missing',eng:'',badge:'',link:'skyform_ppe_live.html'});
+
+  document.getElementById('actions-meta').textContent = (pendingItems.length+missing.length)+' items need attention';
+
+  var html='';
+  if(!actions.length){
+    html='<div class="no-data" style="padding:24px">✅ No outstanding actions</div>';
+  } else {
+    actions.forEach(function(a){
+      html+='<div class="action-item" onclick="window.location=\''+a.link+'\'">';
+      html+='<div class="action-dot" style="background:'+a.color+'"></div>';
+      html+='<div style="flex:1"><div class="action-text">'+a.text+'</div>';
+      if(a.eng) html+='<div class="action-eng">'+a.eng+'</div>';
+      html+='</div>'+a.badge+'</div>';
+    });
+  }
+  document.getElementById('actions-wrap').innerHTML = html;
+}
+
+// ── RECENT ACTIVITY ───────────────────────────────────────────
+function renderActivity(){
+  var cutoff = new Date(); cutoff.setDate(cutoff.getDate()-14);
+  var recent = _ppe.filter(function(r){
+    var d = new Date(r.verified_at || r.created_at);
+    return d >= cutoff;
+  }).slice(0,12);
+
+  var html='';
+  if(!recent.length){
+    html='<div class="no-data">No activity in the last 14 days.</div>';
+  } else {
+    recent.forEach(function(r){
+      var status = r.verification_status;
+      var icon = status==='verified'?'✓':status==='rejected'?'✗':'📋';
+      var iconClass = status==='verified'?'verify':status==='rejected'?'reject':'submit';
+      var engName = (_engineers.find(function(e){return e.username.toLowerCase()===(r.submitted_by||'').toLowerCase()})||{}).name || r.submitted_by;
+      var actionDate = r.verified_at || r.created_at;
+      var desc = status==='verified' ? escHtml(r.item_type)+' verified' :
+                 status==='rejected' ? escHtml(r.item_type)+' rejected' :
+                 escHtml(r.item_type)+' submitted';
+      html+='<div class="activity-item">';
+      html+='<div class="activity-icon '+iconClass+'">'+icon+'</div>';
+      html+='<div class="activity-body"><div class="activity-text">'+desc+'<br><span style="color:var(--text3)">'+escHtml(engName||'Unknown')+'</span></div>';
+      html+='<div class="activity-time">'+timeAgo(actionDate)+'</div></div>';
+      html+='</div>';
+    });
+  }
+  document.getElementById('activity-wrap').innerHTML = html;
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+window.addEventListener('load', function(){
+  updateThemeBtn();
+
+  var sess = getSession();
+  if(!sess){
+    // Check if redirected from portal with a fresh session
+    document.getElementById('page').style.display='none';
+    document.getElementById('auth-wall').style.display='';
+    return;
+  }
+
+  // Sign out
+  document.getElementById('signout-btn').addEventListener('click', function(){
+    sessionStorage.clear();
+    window.location.replace('/');
+  });
+
+  loadDashboard();
+
+  // Auto-refresh every 60 seconds
+  setInterval(loadDashboard, 60000);
+});
+</script>
+</body>
+</html>

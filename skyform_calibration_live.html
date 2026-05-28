@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -15,6 +15,15 @@
   --red:#f85149;--rbg:rgba(248,81,73,.10);
   --blue:#58a6ff;--purple:#a371f7;--pbg:rgba(163,113,247,.12);
   --r:8px;--rl:12px;
+}
+[data-theme="light"]{
+  --bg:#f0f2f5;--bg2:#ffffff;--bg3:#f6f8fa;--bg4:#eaedf0;--bg5:#dde1e7;
+  --border:#d0d7de;--border2:#b8c0cc;
+  --text:#1c2128;--text2:#373e47;--text3:#636c76;
+  --accent:#0969da;--green:#1a7f37;--gbg:rgba(26,127,55,.10);
+  --amber:#9a6700;--abg:rgba(154,103,0,.10);
+  --red:#cf222e;--rbg:rgba(207,34,46,.08);
+  --blue:#0969da;--purple:#8250df;--pbg:rgba(130,80,223,.10);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;}
@@ -108,6 +117,12 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 .ub-count{font-size:20px;font-weight:700;font-family:"DM Mono",monospace;color:var(--amber);}
 </style>
 <!-- build:1777564249 -->
+<script>
+(function(){
+  var t = localStorage.getItem('skyform_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
 </head>
 <body>
 
@@ -118,9 +133,11 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
     <a href="skyform_dashboard.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text3);text-decoration:none;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">Dashboard</a>
     <a href="skyform_ppe_live.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text3);text-decoration:none;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">PPE Register</a>
     <a href="skyform_training_live.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text3);text-decoration:none;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">Training</a>
+    <a href="skyform_data_status.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text3);text-decoration:none;">Data Status</a>
     <a href="skyform_calibration_live.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--accent);color:#fff;text-decoration:none;">Calibration</a>
   </div>
   <div class="hdr-right">
+    <button id="theme-btn" onclick="toggleTheme()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;font-size:12px;cursor:pointer;color:var(--text3);font-family:'DM Sans',sans-serif;">☀</button>
     <span class="live-badge" id="live-badge"><span class="live-dot" id="live-dot"></span><span id="live-label">Live</span></span>
     <button class="pause-btn" id="pause-btn">&#9646;&#9646; Pause</button>
   </div>
@@ -460,6 +477,14 @@ function buildEntry(r) {
 
   el.appendChild(top); el.appendChild(detail);
   return el;
+}
+
+function toggleTheme(){
+  var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('skyform_theme', t);
+  var btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? '☀' : '🌙';
 }
 </script>
 </body>

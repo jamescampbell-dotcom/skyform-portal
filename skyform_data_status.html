@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Skyform Wind — Data Status</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>(function(){var t=localStorage.getItem('skyform_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#2d333b;--border:#30363d;--border2:#444c56;--text:#e6edf3;--text2:#c9d1d9;--text3:#8b949e;--accent:#1f6feb;--green:#3fb950;--gbg:rgba(63,185,80,.12);--amber:#d29922;--abg:rgba(210,153,34,.12);--red:#f85149;--rbg:rgba(248,81,73,.10);--blue:#58a6ff;--r:8px;--rl:12px;}
+[data-theme="light"]{--bg:#f0f2f5;--bg2:#fff;--bg3:#f6f8fa;--bg4:#eaedf0;--border:#d0d7de;--border2:#b8c0cc;--text:#1c2128;--text2:#373e47;--text3:#636c76;--accent:#0969da;--green:#1a7f37;--gbg:rgba(26,127,55,.1);--amber:#9a6700;--abg:rgba(154,103,0,.1);--red:#cf222e;--rbg:rgba(207,34,46,.08);--blue:#0969da;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;padding-bottom:60px;}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;height:50px;gap:12px;position:sticky;top:0;z-index:100;}
+.hdr img{height:28px;border-radius:4px;}
+.hdr-title{font-size:13px;font-weight:600;color:var(--text2);}
+.hdr-nav{display:flex;gap:3px;margin-left:8px;}
+.hdr-nav a{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text3);text-decoration:none;transition:all .15s;}
+.hdr-nav a:hover{background:var(--bg3);color:var(--text);}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.theme-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;font-size:12px;cursor:pointer;color:var(--text3);font-family:"DM Sans",sans-serif;}
+.wrap{max-width:960px;margin:0 auto;padding:24px 16px;}
+h1{font-size:22px;font-weight:700;margin-bottom:6px;}
+.subtitle{font-size:13px;color:var(--text3);line-height:1.5;margin-bottom:24px;}
+
+/* STATUS PILLS */
+.live-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--gbg);color:var(--green);border:1px solid rgba(63,185,80,.3);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+.demo-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--abg);color:var(--amber);border:1px solid rgba(210,153,34,.3);}
+.demo-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);}
+.planned-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--bg3);color:var(--text3);border:1px solid var(--border);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* LEGEND */
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);}
+
+/* SECTION */
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:16px;}
+.section-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.section-icon{font-size:18px;}
+.section-title{font-size:15px;font-weight:700;flex:1;}
+.section-count{font-size:12px;color:var(--text3);}
+
+/* DATA TABLE */
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:8px 16px;text-align:left;background:var(--bg3);border-bottom:1px solid var(--border);}
+.data-table td{padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:top;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:var(--bg3);}
+.data-name{font-size:13px;font-weight:600;}
+.data-desc{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4;}
+.data-source{font-size:11px;color:var(--text2);}
+.data-count{font-size:13px;font-weight:700;text-align:right;}
+
+/* NOTE BOX */
+.note-box{margin:16px;padding:12px;border-radius:var(--r);font-size:12px;line-height:1.5;}
+.note-box.blue{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);color:var(--blue);}
+.note-box.amber{background:var(--abg);border:1px solid rgba(210,153,34,.2);color:var(--amber);}
+.note-box.green{background:var(--gbg);border:1px solid rgba(63,185,80,.2);color:var(--green);}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <img src="logo.png" alt="Skyform Wind">
+  <span class="hdr-title">Skyform Wind Portal</span>
+  <nav class="hdr-nav">
+    <a href="skyform_dashboard.html">Dashboard</a>
+    <a href="skyform_ppe_live.html">PPE</a>
+    <a href="skyform_training_live.html">Training</a>
+    <a href="skyform_calibration_live.html">Calibration</a>
+    <a href="skyform_data_status.html" style="background:var(--accent);color:#fff;">Data Status</a>
+  </nav>
+  <div class="hdr-right">
+    <button class="theme-btn" onclick="toggleTheme()">☀</button>
+    <a href="skyform_dashboard.html" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--text2);text-decoration:none">← Dashboard</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <h1>Portal Data Status</h1>
+  <p class="subtitle">This page shows exactly what data in the portal is real (from actual Skyform records) and what has been simulated for demonstration and testing purposes. Before going live, simulated data should be replaced with real records.</p>
+
+  <div class="legend">
+    <div class="legend-item"><span class="live-pill"><span class="live-dot"></span>LIVE</span> Real data from actual Skyform records</div>
+    <div class="legend-item"><span class="demo-pill"><span class="demo-dot"></span>DEMO</span> Simulated or example data for testing</div>
+    <div class="legend-item"><span class="planned-pill">◷ PLANNED</span> Integration planned, not yet connected</div>
+  </div>
+
+  <!-- ENGINEERS -->
+  <div class="section">
+    <div class="section-hdr">
+      <span class="section-icon">👷</span>
+      <span class="section-title">Engineers</span>
+      <span class="live-pill"><span class="live-dot"></span>LIVE</span>
+    </div>
+    <div class="note-box green">✓ All 9 active field engineers imported from training matrix. Roles confirmed against Inspector Competency Witness Plan 2025–2027. Paul McLaughlin added as new Inspector per current plan.</div>
+    <table class="data-table">
+      <thead><tr><th>Data Point</th><th>Source</th><th>Status</th><th>Records</th></tr></thead>
+      <tbody>
+        <tr><td><div class="data-name">Engineer profiles</div><div class="data-desc">Names, usernames, WINDA IDs, roles, sites</div></td><td class="data-source">Training Matrix (PPE Training Matrix Revision 2025.xlsx)</td><td><span class="live-pill"><span class="live-dot"></span>LIVE</span></td><td class="data-count">9</td></tr>
+        <tr><td><div class="data-name">Inspector / Maintainer roles</div><div class="data-desc">Billy Allison &amp; Ryan Anderson updated to Inspector per witness plan</div></td><td class="data-source">Inspector Competency Witness Plan 2025–2027</td><td><span class="live-pill"><span class="live-dot"></span>LIVE</span></td><td class="data-count">9</td></tr>
+        <tr><td><div class="data-name">WINDA IDs</div><div class="data-desc">GWO WINDA reference numbers per engineer</div></td><td class="data-source">Training Matrix</td><td><span class="live-pill"><span class="live-dot"></span>LIVE</span></td><td class="data-count">9</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TRAINING -->
+  <div class="section">
+    <div class="section-hdr">
+      <span class="section-icon">✅</span>
+      <span class="section-title">Training &amp; Certifications</span>
+      <span class="live-pill" style="margin-right:6px"><span class="live-dot"></span>LIVE</span>
+      <span class="demo-pill"><span class="demo-dot"></span>DEMO (some)</span>
+    </div>
+    <div class="note-box green">✓ Training cert dates extracted from the actual training matrix. Witness assessment dates from signed-off Witness Plan 2025–2027.</div>
+    <table class="data-table">
+      <thead><tr><th>Data Point</th><th>Source</th><th>Status</th><th>Records</th></tr></thead>
+      <tbody>
+        <tr><td><div class="data-name">GWO BST Mandatory certs</div><div class="data-desc">Working at Heights, First Aid, Manual Handling, Fire Awareness, Sea Survival — real expiry dates per engineer</div></td><td class="data-source">Training Matrix (P1 sheet)</td><td><span class="live-pill"><span class="live-dot"></span>LIVE</span></td><td class="data-count">~45</td></tr>
+        <tr><td><div class="data-name">Medical &amp; Chester Step Test</div><div class="data-desc">Real dates from matrix where available</div></td><td class="data-source">Training Matrix (P1 sheet)</td><td><span class="live-pill"><span class="live-dot"></span>LIVE</span></td><td class="data-count">~18</td></tr>
+        <tr><td><div class="data-name">Equipment certs (Towerhoists, Cranes, TMSE)</div><div class="data-desc">Real cert dates from P2 sheet of training matrix</div></td><td class="data-source">Training Matrix (P2 sheet)</td><td><span class="live-pill"><span class="live-dot"></span>LIVE</span></td><td class="data-count">~59</td></tr>
+        <tr><td><div class="data-name">Inspector Witness Assessments</div><div class="data-desc">PUWER, LOLER, TMSE, PSSR assessment dates per inspector — auditor: John Wilson (JW)</div></td><td class="data-source">Inspector Competency Witness Plan 2025–2027</td><td><span class="live-pill"><span class="live-dot"></span>LIVE</span></td><td class="data-count">28</td></tr>
+        <tr><td><div class="data-name">CCNSG, HUET, GEA certs</div><div class="data-desc">Dates from training matrix where present</div></td><td class="data-source">Training Matrix</td><td><span class="live-pill"><span class="live-dot"></span>LIVE</span></td><td class="data-count">~8</td></tr>
+        <tr><td><div class="data-name">Pending verification certs</div><div class="data-desc">None currently pending — all matrix data inserted as pre-verified by Suzanne Thomson</div></td><td class="data-source">Simulation (admin pre-verification)</td><td><span class="demo-pill"><span class="demo-dot"></span>DEMO</span></td><td class="data-count">0</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PPE -->
+  <div class="section">
+    <div class="section-hdr">
+      <span class="section-icon">🔴</span>
+      <span class="section-title">PPE Register</span>
+      <span class="demo-pill"><span class="demo-dot"></span>DEMO</span>
+    </div>
+    <div class="note-box amber">⚠ All 91 PPE records are simulated for testing. They use real engineer names and realistic item types, brands and serial formats — but none of these are actual Skyform PPE inspection records. Replace with real data before going live.</div>
+    <table class="data-table">
+      <thead><tr><th>Data Point</th><th>Source</th><th>Status</th><th>Records</th></tr></thead>
+      <tbody>
+        <tr><td><div class="data-name">PPE items per engineer</div><div class="data-desc">Helmets, harnesses, lanyards, boots, hi-vis, gloves — realistic mix with some pending</div></td><td class="data-source">Simulated for testing (May 2026)</td><td><span class="demo-pill"><span class="demo-dot"></span>DEMO</span></td><td class="data-count">91</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CALIBRATION -->
+  <div class="section">
+    <div class="section-hdr">
+      <span class="section-icon">🔧</span>
+      <span class="section-title">Calibration Equipment</span>
+      <span class="demo-pill"><span class="demo-dot"></span>DEMO</span>
+    </div>
+    <div class="note-box amber">⚠ Calibration records are example data. Real calibration records should be imported from Papertrail when Phase 2 API integration is complete.</div>
+    <table class="data-table">
+      <thead><tr><th>Data Point</th><th>Source</th><th>Status</th><th>Records</th></tr></thead>
+      <tbody>
+        <tr><td><div class="data-name">Calibrated equipment items</div><div class="data-desc">Torque wrenches, multimeters, load cells, pressure gauges, insulation testers</div></td><td class="data-source">Example data (some with Papertrail Asset IDs as placeholder)</td><td><span class="demo-pill"><span class="demo-dot"></span>DEMO</span></td><td class="data-count">6</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- DEPLOYMENTS -->
+  <div class="section">
+    <div class="section-hdr">
+      <span class="section-icon">📅</span>
+      <span class="section-title">Deployments / Planner</span>
+      <span class="demo-pill"><span class="demo-dot"></span>DEMO</span>
+    </div>
+    <div class="note-box amber">⚠ 5 seed deployments created for planner demonstration. Real jobs should be entered via the Planner tab on the dashboard.</div>
+    <table class="data-table">
+      <thead><tr><th>Data Point</th><th>Source</th><th>Status</th><th>Records</th></tr></thead>
+      <tbody>
+        <tr><td><div class="data-name">Upcoming deployments</div><div class="data-desc">Beatrice Offshore, Whitelee, Clyde East, London Array, Glasgow Training Day</div></td><td class="data-source">Seeded for testing (real site names, simulated job dates)</td><td><span class="demo-pill"><span class="demo-dot"></span>DEMO</span></td><td class="data-count">5</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- WORK SCOPES -->
+  <div class="section">
+    <div class="section-hdr">
+      <span class="section-icon">⚙</span>
+      <span class="section-title">Work Scopes &amp; Certifications Catalogue</span>
+      <span class="live-pill"><span class="live-dot"></span>LIVE</span>
+    </div>
+    <div class="note-box green">✓ Work scope types and certification requirements built from Skyform's company brochure, UKAS Type C accreditation scope, and confirmed by James Campbell in setup sessions.</div>
+    <table class="data-table">
+      <thead><tr><th>Data Point</th><th>Source</th><th>Status</th><th>Records</th></tr></thead>
+      <tbody>
+        <tr><td><div class="data-name">Work scope types (active)</div><div class="data-desc">Towerhoists, cranes, hoists, TMSE, PSSR, LOLER, PPE Inspection, Offshore Annual Inspection</div></td><td class="data-source">Company brochure + UKAS accreditation scope + confirmed by management</td><td><span class="live-pill"><span class="live-dot"></span>LIVE</span></td><td class="data-count">20</td></tr>
+        <tr><td><div class="data-name">Work scope types (inactive/planned)</div><div class="data-desc">Blade Access, Grouting — hidden from planner until activated</div></td><td class="data-source">Company brochure — deferred</div></td><td><span class="planned-pill">◷ PLANNED</span></td><td class="data-count">4</td></tr>
+        <tr><td><div class="data-name">Certification catalogue</div><div class="data-desc">44 cert types: GWO, Medical, CCNSG, HUET, Offshore Medical, equipment certs, IRATA, Witness Assessments</div></td><td class="data-source">Training matrix + UKAS scope + confirmed by management</td><td><span class="live-pill"><span class="live-dot"></span>LIVE</span></td><td class="data-count">44</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- INTEGRATIONS -->
+  <div class="section">
+    <div class="section-hdr">
+      <span class="section-icon">🔗</span>
+      <span class="section-title">Integrations &amp; Data Sources</span>
+      <span class="planned-pill">◷ PLANNED</span>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Integration</th><th>What it provides</th><th>Status</th><th>Action Required</th></tr></thead>
+      <tbody>
+        <tr><td><div class="data-name">Papertrail.io API</div><div class="data-desc">Asset management — calibration records, inspection history, training certs</div></td><td class="data-source">Phase 1: Manual CSV export<br>Phase 2: REST API sync 3× daily<br>Phase 3: Webhooks + write-back</td><td><span class="planned-pill">◷ PLANNED</span></td><td class="data-source"><strong>Action:</strong> Get API token from Papertrail rep</td></tr>
+        <tr><td><div class="data-name">GWO WINDA</div><div class="data-desc">Definitive GWO certificate expiry dates via WINDA ID</div></td><td class="data-source">Manual cross-check available at winda.globalwindhub.org</div></td><td><span class="planned-pill">◷ PLANNED</span></td><td class="data-source"><strong>Action:</strong> Verify cert dates against WINDA for accuracy</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="section">
+    <div class="section-hdr">
+      <span class="section-icon">📊</span>
+      <span class="section-title">Summary — What needs replacing before go-live</span>
+    </div>
+    <div class="note-box blue">
+      <strong>To move from staging to production:</strong><br><br>
+      1. <strong>PPE records</strong> — 91 simulated records should be replaced with real PPE inspection data. Engineers can submit via the PPE form, management verifies.<br>
+      2. <strong>Calibration records</strong> — Import real records from Papertrail CSV export (Phase 1) or API (Phase 2).<br>
+      3. <strong>Deployments</strong> — Delete or archive the 5 demo deployments and start entering real job schedules via the Planner.<br>
+      4. <strong>Additional engineers</strong> — Any engineers not in the 9 from the training matrix need adding via the portal.<br>
+      5. <strong>Missing cert dates</strong> — Some engineers are missing CST, GWO Sea Survival and other dates — fill via Training module.<br>
+      6. <strong>Sean Agnew witness assessment</strong> — Not on the 2025–2027 witness plan — confirm with JW.
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleTheme(){
+  var t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('skyform_theme',t);
+}
+</script>
+</body>
+</html>

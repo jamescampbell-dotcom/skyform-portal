@@ -73,6 +73,31 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min
 .status-dot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);
   animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+/* ── ROLE PICKER ─────────────────────────────── */
+.role-btn{
+  width:100%;display:flex;align-items:center;gap:14px;
+  padding:14px 16px;margin-bottom:10px;
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:var(--r);cursor:pointer;
+  font-family:"DM Sans",sans-serif;transition:all .15s;text-align:left;
+}
+.role-btn:hover{border-color:var(--accent);background:var(--bg2);}
+.role-btn-eng:hover{border-color:var(--green);}
+.role-btn-mgmt:hover{border-color:#58a6ff;}
+.role-icon{font-size:24px;flex-shrink:0;}
+.role-info{flex:1;display:flex;flex-direction:column;gap:2px;}
+.role-label{font-size:14px;font-weight:600;color:var(--text);}
+.role-desc{font-size:11px;color:var(--text3);}
+.role-arrow{font-size:16px;color:var(--text3);}
+.role-back-btn{
+  background:none;border:none;color:var(--text3);
+  font-family:"DM Sans",sans-serif;font-size:12px;
+  cursor:pointer;padding:8px 0;width:100%;text-align:center;
+  margin-top:4px;
+}
+.role-back-btn:hover{color:var(--text);}
+
 </style>
 </head>
 <body>
@@ -163,38 +188,38 @@ async function doPortalLogin() {
   btn.disabled = true;
   btn.textContent = 'Signing in...';
 
-  // Re-load if not yet loaded
   if(!_loaded) {
     document.getElementById('p-loading').textContent = 'Loading...';
     await loadUsers();
+    document.getElementById('p-loading').textContent = '';
   }
 
   var key  = username.toLowerCase();
   var hash = await sha256hex(password);
 
-  // Check management first
   var mgmt = _mgmtMap[key];
+  var eng  = _engMap[key];
+
+  // ── DUAL ROLE: found in both tables ──────────────────────────────
+  if(mgmt && eng && hash === mgmt.hash) {
+    btn.disabled = false; btn.textContent = 'Sign In →';
+    showRolePicker(username, mgmt, eng);
+    return;
+  }
+
+  // ── MANAGEMENT ONLY ───────────────────────────────────────────────
   if(mgmt) {
     if(hash !== mgmt.hash){ err.textContent = 'Incorrect password — please try again'; btn.disabled=false; btn.textContent='Sign In →'; return; }
-    // Store management session and redirect
-    sessionStorage.setItem('skyform_mgmt_session', JSON.stringify({
-      username: username,
-      name: mgmt.name
-    }));
+    sessionStorage.setItem('skyform_mgmt_session', JSON.stringify({ username: username, name: mgmt.name }));
     window.location.href = 'skyform_ppe_live.html';
     return;
   }
 
-  // Check engineers
-  var eng = _engMap[key];
+  // ── ENGINEER ONLY ─────────────────────────────────────────────────
   if(eng) {
     if(hash !== eng.hash){ err.textContent = 'Incorrect password — please try again'; btn.disabled=false; btn.textContent='Sign In →'; return; }
-    // Store engineer session and redirect
     var displayName = username.slice(0,2).toUpperCase() + username.slice(2);
-    sessionStorage.setItem('skyform_eng_session', JSON.stringify({
-      username: displayName,
-      name: eng.name
-    }));
+    sessionStorage.setItem('skyform_eng_session', JSON.stringify({ username: displayName, name: eng.name }));
     window.location.href = 'skyform_ppe.html';
     return;
   }
@@ -202,6 +227,53 @@ async function doPortalLogin() {
   err.textContent = 'Username not recognised — please check and try again';
   btn.disabled = false;
   btn.textContent = 'Sign In →';
+}
+
+function showRolePicker(username, mgmt, eng) {
+  var card = document.querySelector('.portal-card');
+  card.innerHTML = [
+    '<div class="portal-header">',
+      '<img class="portal-logo" src="logo.png" alt="Skyform Wind">',
+      '<div class="portal-title">Welcome, ' + mgmt.name.split(' ')[0] + '</div>',
+      '<div class="portal-sub">Select how you want to sign in today</div>',
+    '</div>',
+    '<div class="portal-body">',
+      '<p style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:18px;">',
+        'You have access to both areas. Choose one to continue.',
+      '</p>',
+      '<button class="role-btn role-btn-eng" onclick="pickRole(\'engineer\', \''+username+'\')">',
+        '<span class="role-icon">🦺</span>',
+        '<span class="role-info">',
+          '<span class="role-label">PPE Register</span>',
+          '<span class="role-desc">Submit &amp; manage your PPE items</span>',
+        '</span>',
+        '<span class="role-arrow">→</span>',
+      '</button>',
+      '<button class="role-btn role-btn-mgmt" onclick="pickRole(\'management\', \''+username+'\')">',
+        '<span class="role-icon">📊</span>',
+        '<span class="role-info">',
+          '<span class="role-label">Management Dashboard</span>',
+          '<span class="role-desc">Live view, verification &amp; team oversight</span>',
+        '</span>',
+        '<span class="role-arrow">→</span>',
+      '</button>',
+      '<button class="role-back-btn" onclick="location.reload()">← Back</button>',
+    '</div>',
+  ].join('');
+
+  // Store both sessions ready for use
+  window._dualMgmt = { username: username, name: mgmt.name };
+  window._dualEng  = { username: username.slice(0,2).toUpperCase()+username.slice(2), name: eng.name };
+}
+
+function pickRole(role, username) {
+  if(role === 'engineer') {
+    sessionStorage.setItem('skyform_eng_session', JSON.stringify(window._dualEng));
+    window.location.href = 'skyform_ppe.html';
+  } else {
+    sessionStorage.setItem('skyform_mgmt_session', JSON.stringify(window._dualMgmt));
+    window.location.href = 'skyform_ppe_live.html';
+  }
 }
 
 // Wire up Enter key

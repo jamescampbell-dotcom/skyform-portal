@@ -406,18 +406,45 @@ function renderByEng(items){
 
       // ── PHOTO STRIP ──────────────────────────────────
       var photos = [];
-      if(r.image_data && r.image_data.length > 50) photos.push({data:r.image_data, label:'Item Photo', type:'item'});
-      if(r.label_image_data && r.label_image_data.length > 50) photos.push({data:r.label_image_data, label:'Label', type:'label'});
-      // cert handled separately via View Cert btn
+      if(r.image_data && r.image_data.length > 50)
+        photos.push({data:r.image_data, label:'Item Photo', type:'item', verified:false});
+      if(r.label_image_data && r.label_image_data.length > 50)
+        photos.push({data:r.label_image_data, label:'Label', type:'label', verified:false});
+
+      // Always include cert in strip if present — pending or verified
+      var vStatusForPhoto = r.verification_status || 'pending';
+      if(r.cert_image_data && r.cert_image_data.length > 50)
+        photos.push({data:r.cert_image_data, label:'Certificate', type:'cert', verified: vStatusForPhoto==='verified'});
+      else if(r.cert_outstanding === 'cert_outstanding')
+        photos.push({data:null, label:'Cert Outstanding', type:'cert-outstanding', verified:false});
 
       if(photos.length > 0) {
         var photoStrip = document.createElement('div'); photoStrip.className = 'detail-photos';
         photos.forEach(function(ph){
           var thumb = document.createElement('div'); thumb.className = 'detail-photo-thumb';
-          var img = document.createElement('img'); img.src = ph.data;
+          if(ph.data) {
+            var img = document.createElement('img'); img.src = ph.data;
+            thumb.appendChild(img);
+          } else {
+            // No image — show placeholder
+            thumb.style.cssText += ';display:flex;align-items:center;justify-content:center;background:var(--bg3);';
+            var icon = document.createElement('span'); icon.textContent = '📄'; icon.style.fontSize='24px';
+            thumb.appendChild(icon);
+          }
           var lbl = document.createElement('div'); lbl.className = 'photo-label'; lbl.textContent = ph.label;
-          thumb.appendChild(img); thumb.appendChild(lbl);
-          thumb.addEventListener('click', function(e){ e.stopPropagation(); openPhotoViewer(ph.data, ph.label, null); });
+          thumb.appendChild(lbl);
+          if(ph.verified) {
+            var vbadge = document.createElement('div'); vbadge.className = 'verified-badge'; vbadge.textContent = '✓';
+            thumb.appendChild(vbadge);
+          }
+          if(ph.data) {
+            (function(data, label, isVerif){
+              thumb.addEventListener('click', function(e){
+                e.stopPropagation();
+                openPhotoViewer(data, label, isVerif);
+              });
+            })(ph.data, ph.label, ph.verified);
+          }
           photoStrip.appendChild(thumb);
         });
         det.appendChild(photoStrip);
@@ -438,15 +465,7 @@ function renderByEng(items){
         vRow.appendChild(vMeta);
       }
 
-      // View Certificate button
-      var hasCert = (r.cert_image_data && r.cert_image_data.length > 10) || r.cert_outstanding === 'cert_outstanding';
-      if(hasCert) {
-        var certBtn = document.createElement('button');
-        certBtn.className = 'cert-view-btn';
-        certBtn.innerHTML = '&#128196; View Cert';
-        (function(rid, vstatus){ certBtn.addEventListener('click', function(e){ e.stopPropagation(); viewCertificate(rid, vstatus, true); }); })(r.id, vStatus);
-        vRow.appendChild(certBtn);
-      }
+      // (Cert image now shown in photo strip above)
 
       // Approve / Reject / Remove button
       var vBtn = document.createElement('button');
@@ -756,8 +775,226 @@ function viewCertificate(recordId, currentStatus, hasCertData) {
   approveBtn.addEventListener('click', function(){
     if(currentStatus === 'verified') return;
     if(!canVerify()) { showNoPermissionMsg(); return; }
+    overlay.remove();
     promptVerifierName(function(name){
+      updateVerification(_certRecordId, 'verified', name);
+    });
+  });
+
+  var rejectBtn = document.createElement('button');
+  rejectBtn.className = 'cert-reject-btn';
+  rejectBtn.textContent = '✗ Reject';
+  rejectBtn.addEventListener('click', function(){
+    if(!canVerify()) { showNoPermissionMsg(); return; }
+    promptRejectionReason(function(reason){
       overlay.remove();
+      updateVerification(_certRecordId, 'rejected', null, reason);
+    });
+  });
+
+  actions.appendChild(approveBtn);
+  actions.appendChild(rejectBtn);
+  box.appendChild(actions);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  // Load cert image
+  if(hasCertData) {
+    fetch(SUPA_URL + '/rest/v1/ppe_register?id=eq.' + recordId + '&select=cert_image_data,cert_outstanding', {
+      headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}
+    }).then(function(r){ return r.json(); }).then(function(rows){
+      if(!rows || !rows[0]) return;
+      var certData = rows[0].cert_image_data;
+      var outstanding = rows[0].cert_outstanding;
+      if(certData && certData.length > 50) {
+        var isVerif = (window._certRecordStatus === 'verified');
+        if(isVerif) {
+          // Draw verified watermark on canvas
+          var canvas = document.createElement('canvas');
+          var imgEl = new Image();
+          imgEl.onload = function() {
+            canvas.width = imgEl.naturalWidth; canvas.height = imgEl.naturalHeight;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(imgEl, 0, 0);
+            ctx.save();
+            ctx.globalAlpha = 0.2; ctx.fillStyle = '#3fb950';
+            ctx.font = 'bold ' + Math.floor(canvas.width/7) + 'px sans-serif';
+            ctx.translate(canvas.width/2, canvas.height/2);
+            ctx.rotate(-0.4); ctx.textAlign = 'center';
+            ctx.fillText('✓ VERIFIED', 0, 0);
+            ctx.restore();
+            canvas.style.cssText = 'max-width:100%;max-height:60vh;border-radius:6px;display:block;';
+            imgArea.innerHTML = ''; imgArea.appendChild(canvas);
+          };
+          imgEl.src = certData;
+          imgArea.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:20px;">Loading...</div>';
+        } else {
+          var img = document.createElement('img');
+          img.src = certData;
+          img.onerror = function(){ imgArea.innerHTML = '<div class="cert-viewer-no-img">&#128196; Could not display certificate.<br>The file may not be a supported image format.</div>'; };
+          img.style.cssText = 'max-width:100%;max-height:60vh;border-radius:6px;object-fit:contain;';
+          imgArea.innerHTML = ''; imgArea.appendChild(img);
+        }
+      } else if(outstanding === 'cert_outstanding') {
+        imgArea.innerHTML = '<div class="cert-viewer-no-img">&#128203; Engineer marked certificate as not available.<br>Follow up required.</div>';
+      } else {
+        imgArea.innerHTML = '<div class="cert-viewer-no-img">&#128196; No certificate image on file.</div>';
+      }
+    }).catch(function(){
+      imgArea.innerHTML = '<div class="cert-viewer-no-img">Could not load certificate data.</div>';
+    });
+  } else {
+    imgArea.innerHTML = '<div class="cert-viewer-no-img">&#128196; No certificate uploaded for this item.</div>';
+  }
+}
+
+function promptVerifierName(callback) {
+  if(!canVerify()) { showNoPermissionMsg(); return; }
+  var verifierName = _currentMgmt ? _currentMgmt.name : 'Unknown';
+  var old = document.getElementById('_vmodal'); if(old) old.remove();
+  var m = document.createElement('div'); m.id='_vmodal'; m.className='modal-overlay';
+  var inner = document.createElement('div'); inner.className='modal-box';
+  var h3 = document.createElement('h3'); h3.textContent = '✓ Approve'; inner.appendChild(h3);
+  var info = document.createElement('div');
+  info.style.cssText = 'background:var(--gbg);border:1px solid rgba(63,185,80,.25);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:13px;display:flex;align-items:center;gap:8px;';
+  info.innerHTML = '<span>&#128274;</span><span>Approving as <strong>' + verifierName + '</strong></span>';
+  inner.appendChild(info);
+  var p = document.createElement('p'); p.style.cssText='font-size:12px;color:var(--text3);margin-bottom:14px;';
+  p.textContent='Confirm you have reviewed and are satisfied this certificate is valid.';
+  inner.appendChild(p);
+  var chkWrap = document.createElement('label');
+  chkWrap.style.cssText = 'display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:18px;font-size:13px;color:var(--text2);';
+  var chk = document.createElement('input'); chk.type='checkbox';
+  chk.style.cssText = 'width:16px;height:16px;margin-top:2px;flex-shrink:0;accent-color:var(--green);cursor:pointer;';
+  chkWrap.appendChild(chk);
+  chkWrap.appendChild(document.createTextNode('I confirm I have checked this certificate and it is approved'));
+  inner.appendChild(chkWrap);
+  var btns = document.createElement('div'); btns.className='modal-btns';
+  var cancel = document.createElement('button'); cancel.className='modal-cancel'; cancel.textContent='Cancel';
+  cancel.addEventListener('click', function(){ m.remove(); });
+  var confirmBtn = document.createElement('button'); confirmBtn.className='modal-confirm'; confirmBtn.textContent='Approve ✓';
+  confirmBtn.addEventListener('click', function(){
+    if(!chk.checked){ chk.style.outline='2px solid #f85149'; return; }
+    m.remove(); callback(verifierName);
+  });
+  btns.appendChild(cancel); btns.appendChild(confirmBtn); inner.appendChild(btns);
+  m.appendChild(inner); document.body.appendChild(m);
+}
+
+function promptRejectionReason(callback) {
+  if(!canVerify()) { showNoPermissionMsg(); return; }
+  var verifierName = _currentMgmt ? _currentMgmt.name : 'Unknown';
+  var old = document.getElementById('_vmodal'); if(old) old.remove();
+  var m = document.createElement('div'); m.id='_vmodal'; m.className='modal-overlay';
+  var inner = document.createElement('div'); inner.className='modal-box';
+  var h3 = document.createElement('h3'); h3.textContent = '✗ Reject'; inner.appendChild(h3);
+  var info = document.createElement('div');
+  info.style.cssText = 'background:var(--rbg);border:1px solid rgba(248,81,73,.2);border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:13px;display:flex;align-items:center;gap:8px;';
+  info.innerHTML = '<span>&#128274;</span><span>Rejecting as <strong>' + verifierName + '</strong></span>';
+  inner.appendChild(info);
+  var p = document.createElement('p'); p.style.cssText='font-size:12px;color:var(--text3);margin-bottom:8px;';
+  p.textContent='Select a reason or type one below.'; inner.appendChild(p);
+  var chipWrap = document.createElement('div');
+  chipWrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;';
+  ['Certificate expired','Wrong item','Illegible','Missing details','Not applicable'].forEach(function(r){
+    var chip = document.createElement('button');
+    chip.style.cssText = 'padding:3px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);font-size:11px;cursor:pointer;font-family:"DM Sans",sans-serif;color:var(--text3);';
+    chip.textContent = r;
+    chip.addEventListener('click', function(){ inp.value = r; inp.focus(); });
+    chipWrap.appendChild(chip);
+  });
+  inner.appendChild(chipWrap);
+  var inp = document.createElement('input');
+  inp.placeholder = 'Reason for rejection...'; inp.autocomplete='off';
+  inp.style.cssText='width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;margin-bottom:14px;box-sizing:border-box;';
+  inner.appendChild(inp);
+  var btns = document.createElement('div'); btns.className='modal-btns';
+  var cancel = document.createElement('button'); cancel.className='modal-cancel'; cancel.textContent='Cancel';
+  cancel.addEventListener('click', function(){ m.remove(); });
+  var confirmBtn = document.createElement('button'); confirmBtn.className='modal-confirm';
+  confirmBtn.style.background='#f85149'; confirmBtn.textContent='Reject ✗';
+  confirmBtn.addEventListener('click', function(){
+    if(!inp.value.trim()){ inp.style.borderColor='#f85149'; return; }
+    m.remove(); callback(inp.value.trim());
+  });
+  inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ confirmBtn.click(); }});
+  btns.appendChild(cancel); btns.appendChild(confirmBtn); inner.appendChild(btns);
+  m.appendChild(inner); document.body.appendChild(m);
+  setTimeout(function(){ inp.focus(); }, 80);
+}
+
+function canVerify() {
+  return !!(_currentMgmt && VERIFY_ALLOWED.indexOf(_currentMgmt.name) > -1);
+}
+
+function showNoPermissionMsg() {
+  var old = document.getElementById('_vmodal'); if(old) old.remove();
+  var m = document.createElement('div'); m.id='_vmodal'; m.className='modal-overlay';
+  var inner = document.createElement('div'); inner.className='modal-box';
+  var h3 = document.createElement('h3'); h3.textContent = 'Access Restricted'; inner.appendChild(h3);
+  var p = document.createElement('p');
+  p.style.cssText = 'font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.6;';
+  p.innerHTML = 'Only <strong>James Campbell</strong>, <strong>Steven Cox</strong> and <strong>Andrew Maxwell</strong> are authorised to verify or reject certificates.';
+  inner.appendChild(p);
+  var btns = document.createElement('div'); btns.className = 'modal-btns';
+  var ok = document.createElement('button'); ok.className = 'modal-confirm'; ok.textContent = 'OK';
+  ok.addEventListener('click', function(){ m.remove(); });
+  btns.appendChild(ok); inner.appendChild(btns); m.appendChild(inner);
+  document.body.appendChild(m);
+}
+
+
+// ── CERTIFICATE VIEWER ──────────────────────────────────────────────
+var _certRecordId = null;
+var _certRecordStatus = null;
+
+function viewCertificate(recordId, currentStatus, hasCertData) {
+  _certRecordId = recordId;
+  _certRecordStatus = currentStatus;
+
+  var old = document.getElementById('_cert_viewer');
+  if(old) old.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = '_cert_viewer';
+  overlay.className = 'cert-viewer-overlay';
+
+  var box = document.createElement('div');
+  box.className = 'cert-viewer-box';
+
+  // Header
+  var hdr = document.createElement('div');
+  hdr.className = 'cert-viewer-hdr';
+  var h3 = document.createElement('h3');
+  h3.textContent = 'Certificate / Test Report';
+  var closeBtn = document.createElement('button');
+  closeBtn.className = 'cert-viewer-close';
+  closeBtn.innerHTML = '&times;';
+  closeBtn.addEventListener('click', function(){ overlay.remove(); });
+  hdr.appendChild(h3);
+  hdr.appendChild(closeBtn);
+  box.appendChild(hdr);
+
+  // Image area
+  var imgArea = document.createElement('div');
+  imgArea.className = 'cert-viewer-img';
+  imgArea.innerHTML = '<div class="cert-viewer-no-img">Loading certificate...</div>';
+  box.appendChild(imgArea);
+
+  // Actions
+  var actions = document.createElement('div');
+  actions.className = 'cert-viewer-actions';
+
+  var approveBtn = document.createElement('button');
+  approveBtn.className = 'cert-approve-btn';
+  approveBtn.textContent = currentStatus === 'verified' ? '✓ Already Verified' : '✓ Approve & Verify';
+  if(currentStatus === 'verified') approveBtn.style.opacity = '0.5';
+  approveBtn.addEventListener('click', function(){
+    if(currentStatus === 'verified') return;
+    if(!canVerify()) { showNoPermissionMsg(); return; }
+    overlay.remove();
+    promptVerifierName(function(name){
       updateVerification(_certRecordId, 'verified', name);
     });
   });

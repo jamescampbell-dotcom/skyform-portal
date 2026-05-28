@@ -184,7 +184,7 @@ async function serverLogin(username, password) {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + AUTH_KEY
       },
-      body: JSON.stringify({username: username.trim(), password: password})
+      body: JSON.stringify({action: 'login', username: username.trim(), password: password})
     });
     return await res.json();
   } catch(e) {
@@ -264,7 +264,8 @@ function showRolePicker(username, mgmt, eng) {
 
   // Store both sessions ready for use
   window._dualMgmt = { username: username, name: mgmt.name };
-  window._dualEng  = { username: username.slice(0,2).toUpperCase()+username.slice(2), name: eng.name };
+  window._dualMgmt = { username: username, name: result.name, token: result.token };
+  window._dualEng  = { username: username.slice(0,2).toUpperCase()+username.slice(2), name: result.name, token: result.token };
 }
 
 function pickRole(role, username) {
@@ -273,7 +274,7 @@ function pickRole(role, username) {
     window.location.href = 'skyform_ppe.html';
   } else {
     sessionStorage.setItem('skyform_mgmt_session', JSON.stringify(window._dualMgmt));
-    window.location.href = 'skyform_ppe_live.html';
+    window.location.href = 'skyform_dashboard.html';
   }
 }
 

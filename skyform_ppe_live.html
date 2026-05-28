@@ -129,6 +129,46 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 .comp-pill.cp-p{background:rgba(230,126,0,.14);color:#e67e00;}
 .comp-pill.cp-m{background:rgba(248,81,73,.10);color:#f85149;}
 
+
+/* ── MANAGEMENT LOGIN ───────────────────────────────── */
+.mgmt-login-screen{position:fixed;inset:0;background:var(--bg);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;}
+.mgmt-login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);padding:28px 24px;width:100%;max-width:360px;}
+.mgmt-login-logo{text-align:center;margin-bottom:18px;}
+.mgmt-login-logo img{height:36px;object-fit:contain;}
+.mgmt-login-title{font-size:17px;font-weight:600;text-align:center;margin-bottom:4px;}
+.mgmt-login-sub{font-size:12px;color:var(--text3);text-align:center;margin-bottom:20px;}
+.mgmt-field{margin-bottom:12px;}
+.mgmt-field label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:5px;}
+.mgmt-field input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:10px 12px;font-family:"DM Sans",sans-serif;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;}
+.mgmt-field input:focus{border-color:var(--accent);}
+.mgmt-login-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),#0a58ca);border:none;border-radius:var(--r);font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;color:#fff;cursor:pointer;margin-top:4px;}
+.mgmt-login-err{font-size:12px;color:var(--red);text-align:center;margin-top:8px;min-height:18px;}
+.mgmt-user-bar{display:flex;align-items:center;gap:8px;background:rgba(31,111,235,.1);border:1px solid rgba(31,111,235,.2);border-radius:var(--r);padding:6px 14px;margin-bottom:12px;font-size:12px;}
+.mgmt-user-name{font-weight:600;color:var(--blue);flex:1;}
+.mgmt-signout{background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;font-family:"DM Sans",sans-serif;text-decoration:underline;}
+
+
+/* ── CERT VIEWER ─────────────────────────────────── */
+.cert-viewer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9500;display:flex;align-items:center;justify-content:center;padding:16px;}
+.cert-viewer-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
+.cert-viewer-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.cert-viewer-hdr h3{font-size:14px;font-weight:600;flex:1;margin:0;}
+.cert-viewer-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1;}
+.cert-viewer-img{flex:1;overflow:auto;padding:12px;display:flex;align-items:center;justify-content:center;background:var(--bg3);}
+.cert-viewer-img img{max-width:100%;max-height:60vh;border-radius:6px;object-fit:contain;}
+.cert-viewer-no-img{text-align:center;color:var(--text3);font-size:13px;padding:40px;}
+.cert-viewer-actions{padding:14px 18px;border-top:1px solid var(--border);display:flex;gap:10px;}
+.cert-approve-btn{flex:1;padding:10px;background:rgba(63,185,80,.2);border:1px solid rgba(63,185,80,.4);color:#3fb950;border-radius:6px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.cert-approve-btn:hover{background:rgba(63,185,80,.35);}
+.cert-reject-btn{flex:1;padding:10px;background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.28);color:#f85149;border-radius:6px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.cert-reject-btn:hover{background:rgba(248,81,73,.25);}
+.cert-view-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(88,166,255,.12);border:1px solid rgba(88,166,255,.25);color:#58a6ff;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;white-space:nowrap;}
+.cert-view-btn:hover{background:rgba(88,166,255,.22);}
+/* rejected status */
+.tl-dot.tl-rejected{background:rgba(248,81,73,.12);color:#f85149;border:1px solid rgba(248,81,73,.25);}
+.tl-dot.tl-rejected::before{background:#f85149;}
+.rejection-note{font-size:11px;color:#f85149;font-style:italic;margin-top:4px;}
+
 </style>
 <!-- build:1777564249 -->
 </head>
@@ -139,6 +179,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
   <div class="hdr-right">
     <span class="live-badge"><span class="live-dot" id="live-dot"></span><span id="live-lbl">Live</span></span>
     <button class="pause-btn" id="pause-btn">&#9646;&#9646; Pause</button>
+    <button id="signout-btn" style="background:rgba(248,81,73,.15);border:1px solid rgba(248,81,73,.3);color:#f85149;border-radius:6px;padding:5px 12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;margin-left:6px;">&#x2192; Sign Out</button>
   </div>
 </header>
 <div class="wrap">
@@ -177,7 +218,8 @@ var PPE_LIFESPAN = {"Safety Helmet":5,"Full Body Harness":10,"Fall Arrest Lanyar
 var allData=[], paused=false, viewMode="eng", knownIds={}, openItems={};
 
 window.addEventListener("load",function(){
-  buildTypeFilter(); fetchData(); startRefresh();
+  buildTypeFilter(); buildMgmtLogin();
+  var sob=document.getElementById('signout-btn'); if(sob) sob.addEventListener('click', mgmtSignOut);
   document.getElementById("pause-btn").addEventListener("click",togglePause);
   document.getElementById("srch").addEventListener("input",render);
   document.getElementById("f-cond").addEventListener("change",render);
@@ -348,6 +390,52 @@ function renderByEng(items){
         fc.appendChild(fl); fc.appendChild(fv); pg.appendChild(fc);
       });
       det.appendChild(pg);
+
+      // ── VERIFICATION ROW ──────────────────────────────
+      var vStatus = r.verification_status || 'pending';
+      var vRow = document.createElement('div'); vRow.className='verif-row';
+
+      // Status dot
+      var vDot = document.createElement('span'); vDot.innerHTML = tlDot(vStatus); vRow.appendChild(vDot);
+
+      // Verified-by meta
+      if(vStatus==='verified' && r.verified_by) {
+        var vMeta = document.createElement('span'); vMeta.className='verif-meta';
+        vMeta.textContent = 'by ' + r.verified_by + (r.verified_at ? ' on ' + new Date(r.verified_at).toLocaleDateString('en-GB') : '');
+        vRow.appendChild(vMeta);
+      }
+
+      // View Certificate button
+      var hasCert = (r.cert_image_data && r.cert_image_data.length > 10) || r.cert_outstanding === 'cert_outstanding';
+      if(hasCert) {
+        var certBtn = document.createElement('button');
+        certBtn.className = 'cert-view-btn';
+        certBtn.innerHTML = '&#128196; View Cert';
+        (function(rid, vstatus){ certBtn.addEventListener('click', function(e){ e.stopPropagation(); viewCertificate(rid, vstatus, true); }); })(r.id, vStatus);
+        vRow.appendChild(certBtn);
+      }
+
+      // Approve / Reject / Remove button
+      var vBtn = document.createElement('button');
+      if(vStatus === 'verified') {
+        vBtn.className = 'unverify-btn'; vBtn.textContent = 'Remove';
+        (function(rid){ vBtn.addEventListener('click', function(e){ e.stopPropagation(); if(!canVerify()){showNoPermissionMsg();return;} showVerifyModal(rid, 'verified'); }); })(r.id);
+      } else {
+        vBtn.className = 'verify-btn'; vBtn.textContent = vStatus === 'rejected' ? '&#8635; Re-review' : '&#10003; Verify';
+        (function(rid, vstatus){ vBtn.addEventListener('click', function(e){ e.stopPropagation(); if(!canVerify()){showNoPermissionMsg();return;} showVerifyModal(rid, vstatus); }); })(r.id, vStatus);
+      }
+      vRow.appendChild(vBtn);
+
+      // Rejection reason
+      if(vStatus === 'rejected' && r.rejection_reason) {
+        var rNote = document.createElement('div'); rNote.className='rejection-note';
+        rNote.textContent = 'Rejected: ' + r.rejection_reason;
+        det.appendChild(rNote);
+      }
+
+      det.appendChild(vRow);
+      // ── END VERIFICATION ROW ─────────────────────────
+
       var pillDiv=document.createElement("div"); pillDiv.style.display="flex"; pillDiv.style.gap="6px"; pillDiv.style.alignItems="center";
       pillDiv.innerHTML=condPill(r.condition)+" "+retirePill(r);
       row.appendChild(tp); row.appendChild(sr); row.appendChild(pillDiv);
@@ -377,9 +465,10 @@ var _pendingId = null;
 
 function tlDot(status) {
   var cfg = {
-    'verified': ['tl-verified', '✓ Verified'],
-    'pending':  ['tl-pending',  '⏳ Pending Verification'],
-    'missing':  ['tl-missing',  '○ Not Submitted']
+    'verified': ['tl-verified',  '✓ Verified'],
+    'pending':  ['tl-pending',   '⏳ Pending'],
+    'rejected': ['tl-rejected',  '✗ Rejected'],
+    'missing':  ['tl-missing',   '○ Not Submitted']
   };
   var c = cfg[status] || cfg['pending'];
   return '<span class="tl-dot ' + c[0] + '">' + c[1] + '</span>';
@@ -388,15 +477,57 @@ function tlDot(status) {
 function showVerifyModal(id, currentStatus) {
   _pendingId = id;
   var isVerified = (currentStatus === 'verified');
-  var old = document.getElementById('_vmodal'); if(old) old.remove();
-  var m = document.createElement('div'); m.id = '_vmodal'; m.className = 'modal-overlay';
-  if(isVerified) {
-    m.innerHTML = '<div class="modal-box"><h3>Remove Verification</h3><p>This will reset the record to Pending Verification. Are you sure?</p><div class="modal-btns"><button class="modal-cancel" onclick="document.getElementById('_vmodal').remove()">Cancel</button><button class="modal-confirm" style="background:#f85149" onclick="_doVerify(false)">Remove</button></div></div>';
-  } else {
-    m.innerHTML = '<div class="modal-box"><h3>Verify Certificate</h3><p>Confirm you have reviewed and approved this certificate/entry.</p><input id="_vname" placeholder="Your name (e.g. Suzanne Thomson)" autocomplete="off" onkeydown="if(event.key==='Enter')_doVerify(true)"><div class="modal-btns"><button class="modal-cancel" onclick="document.getElementById('_vmodal').remove()">Cancel</button><button class="modal-confirm" onclick="_doVerify(true)">Verify ✓</button></div></div>';
+  var old = document.getElementById('_vmodal');
+  if(old) old.remove();
+  var m = document.createElement('div');
+  m.id = '_vmodal';
+  m.className = 'modal-overlay';
+
+  var inner = document.createElement('div');
+  inner.className = 'modal-box';
+
+  var h3 = document.createElement('h3');
+  h3.textContent = isVerified ? 'Remove Verification' : 'Verify Certificate';
+  inner.appendChild(h3);
+
+  var p = document.createElement('p');
+  p.style.cssText = 'font-size:13px;color:var(--text3);margin-bottom:14px;line-height:1.5';
+  p.textContent = isVerified
+    ? 'This will reset the record to Pending Verification. Are you sure?'
+    : 'Confirm you have reviewed and approved this certificate or entry.';
+  inner.appendChild(p);
+
+  var nameInput = null;
+  if(!isVerified) {
+    nameInput = document.createElement('input');
+    nameInput.id = '_vname';
+    nameInput.placeholder = 'Your name (e.g. Suzanne Thomson)';
+    nameInput.autocomplete = 'off';
+    nameInput.style.cssText = 'width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;margin-bottom:14px;box-sizing:border-box;';
+    nameInput.addEventListener('keydown', function(e){ if(e.key==='Enter') _doVerify(true); });
+    inner.appendChild(nameInput);
   }
+
+  var btns = document.createElement('div');
+  btns.className = 'modal-btns';
+
+  var cancelBtn = document.createElement('button');
+  cancelBtn.className = 'modal-cancel';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', function(){ m.remove(); });
+  btns.appendChild(cancelBtn);
+
+  var confirmBtn = document.createElement('button');
+  confirmBtn.className = 'modal-confirm';
+  confirmBtn.textContent = isVerified ? 'Remove' : 'Verify';
+  if(isVerified) confirmBtn.style.background = '#f85149';
+  confirmBtn.addEventListener('click', function(){ _doVerify(!isVerified); });
+  btns.appendChild(confirmBtn);
+
+  inner.appendChild(btns);
+  m.appendChild(inner);
   document.body.appendChild(m);
-  setTimeout(function(){ var el=document.getElementById('_vname'); if(el) el.focus(); },100);
+  if(nameInput) setTimeout(function(){ nameInput.focus(); }, 80);
 }
 
 function _doVerify(verify) {
@@ -406,7 +537,8 @@ function _doVerify(verify) {
     name = el ? el.value.trim() : '';
     if(!name) { alert('Please enter your name'); return; }
   }
-  document.getElementById('_vmodal').remove();
+  var m = document.getElementById('_vmodal');
+  if(m) m.remove();
   var payload = { verification_status: verify ? 'verified' : 'pending' };
   if(verify) { payload.verified_by = name; payload.verified_at = new Date().toISOString(); }
   else { payload.verified_by = null; payload.verified_at = null; }
@@ -415,8 +547,293 @@ function _doVerify(verify) {
     headers: {'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
     body: JSON.stringify(payload)
   }).then(function(r){
-    if(r.ok){ showToast(verify ? '✓ Verified by ' + name : 'Verification removed', verify?'ok':'warn'); loadData(); }
+    if(r.ok){ showToast(verify ? 'Verified by ' + name : 'Verification removed', verify?'ok':'warn'); fetchData(); }
     else showToast('Update failed','err');
+  }).catch(function(){ showToast('Connection error','err'); });
+}
+
+
+
+
+var MGMT_MAP = {};
+var _currentMgmt = null;
+
+function buildMgmtLogin() {
+  var saved = sessionStorage.getItem('skyform_mgmt_session');
+  if(saved) {
+    try { var s=JSON.parse(saved); setMgmtLoggedIn(s.username, s.name); return; }
+    catch(e){ sessionStorage.removeItem('skyform_mgmt_session'); }
+  }
+  var screen = document.createElement('div');
+  screen.id = 'mgmt-login-screen';
+  screen.className = 'mgmt-login-screen';
+  screen.innerHTML =
+    '<div class="mgmt-login-box">'
+    + '<div class="mgmt-login-logo"><img src="logo.png" alt="Skyform"></div>'
+    + '<div class="mgmt-login-title">PPE Live View</div>'
+    + '<div class="mgmt-login-sub">Management access — enter your credentials</div>'
+    + '<div class="mgmt-field"><label>Username</label>'
+    + '<input type="text" id="ml-user" placeholder="Admin name" autocapitalize="off" autocorrect="off"></div>'
+    + '<div class="mgmt-field"><label>Password</label>'
+    + '<input type="password" id="ml-pass" placeholder="Your password"></div>'
+    + '<button class="mgmt-login-btn" onclick="doMgmtLogin()">Access Dashboard &#8594;</button>'
+    + '<div class="mgmt-login-err" id="ml-err"></div>'
+    + '</div>';
+  document.body.appendChild(screen);
+
+  fetch(SUPA_URL + '/rest/v1/management_users?select=name,username,pw_hash', {
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  }).then(function(r){return r.json();}).then(function(rows){
+    MGMT_MAP = {};
+    rows.forEach(function(r){ if(r.username) MGMT_MAP[r.username.toLowerCase()]={name:r.name,hash:r.pw_hash}; });
+  }).catch(function(){});
+
+  var pass = document.getElementById('ml-pass');
+  if(pass) pass.addEventListener('keydown', function(e){ if(e.key==='Enter') doMgmtLogin(); });
+}
+
+async function sha256hex(str) {
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+async function doMgmtLogin() {
+  var username = ((document.getElementById('ml-user')||{}).value||'').trim();
+  var password = (document.getElementById('ml-pass')||{}).value||'';
+  var err = document.getElementById('ml-err');
+  if(!username){ err.textContent='Please enter your username'; return; }
+  if(!password){ err.textContent='Please enter your password'; return; }
+  var eng = MGMT_MAP[username.toLowerCase()];
+  if(!eng){ err.textContent='Username not recognised'; return; }
+  var hash = await sha256hex(password);
+  if(hash !== eng.hash){ err.textContent='Incorrect password'; return; }
+  err.textContent='';
+  sessionStorage.setItem('skyform_mgmt_session', JSON.stringify({username:username, name:eng.name}));
+  setMgmtLoggedIn(username, eng.name);
+}
+
+function setMgmtLoggedIn(username, name) {
+  _currentMgmt = {username:username, name:name};
+  var screen = document.getElementById('mgmt-login-screen');
+  if(screen) screen.remove();
+  // Show user bar at top of page
+  var existing = document.getElementById('mgmt-user-bar');
+  if(existing) existing.remove();
+  var bar = document.createElement('div');
+  bar.id = 'mgmt-user-bar';
+  bar.className = 'mgmt-user-bar';
+  bar.innerHTML = '<span style="font-size:14px">&#128274;</span>'
+    + '<span class="mgmt-user-name">'+name+'</span>'
+    + '<button class="mgmt-signout" onclick="mgmtSignOut()">Sign out</button>';
+  document.body.insertBefore(bar, document.body.firstChild);
+  // Now load data
+  fetchData(); startRefresh();
+}
+
+function mgmtSignOut() {
+  sessionStorage.removeItem('skyform_mgmt_session');
+  location.reload();
+}
+
+
+
+// ── VERIFICATION PERMISSIONS ─────────────────────────────────────────
+var VERIFY_ALLOWED = ['James Campbell', 'Steven Cox', 'Andrew Maxwell'];
+
+function canVerify() {
+  return !!(_currentMgmt && VERIFY_ALLOWED.indexOf(_currentMgmt.name) > -1);
+}
+
+function showNoPermissionMsg() {
+  var old = document.getElementById('_vmodal'); if(old) old.remove();
+  var m = document.createElement('div'); m.id='_vmodal'; m.className='modal-overlay';
+  var inner = document.createElement('div'); inner.className='modal-box';
+  var h3 = document.createElement('h3'); h3.textContent = 'Access Restricted'; inner.appendChild(h3);
+  var p = document.createElement('p');
+  p.style.cssText = 'font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.6;';
+  p.innerHTML = 'Only <strong>James Campbell</strong>, <strong>Steven Cox</strong> and <strong>Andrew Maxwell</strong> are authorised to verify or reject certificates.';
+  inner.appendChild(p);
+  var btns = document.createElement('div'); btns.className = 'modal-btns';
+  var ok = document.createElement('button'); ok.className = 'modal-confirm'; ok.textContent = 'OK';
+  ok.addEventListener('click', function(){ m.remove(); });
+  btns.appendChild(ok); inner.appendChild(btns); m.appendChild(inner);
+  document.body.appendChild(m);
+}
+
+
+// ── CERTIFICATE VIEWER ──────────────────────────────────────────────
+var _certRecordId = null;
+var _certRecordStatus = null;
+
+function viewCertificate(recordId, currentStatus, hasCertData) {
+  _certRecordId = recordId;
+  _certRecordStatus = currentStatus;
+
+  var old = document.getElementById('_cert_viewer');
+  if(old) old.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = '_cert_viewer';
+  overlay.className = 'cert-viewer-overlay';
+
+  var box = document.createElement('div');
+  box.className = 'cert-viewer-box';
+
+  // Header
+  var hdr = document.createElement('div');
+  hdr.className = 'cert-viewer-hdr';
+  var h3 = document.createElement('h3');
+  h3.textContent = 'Certificate / Test Report';
+  var closeBtn = document.createElement('button');
+  closeBtn.className = 'cert-viewer-close';
+  closeBtn.innerHTML = '&times;';
+  closeBtn.addEventListener('click', function(){ overlay.remove(); });
+  hdr.appendChild(h3);
+  hdr.appendChild(closeBtn);
+  box.appendChild(hdr);
+
+  // Image area
+  var imgArea = document.createElement('div');
+  imgArea.className = 'cert-viewer-img';
+  imgArea.innerHTML = '<div class="cert-viewer-no-img">Loading certificate...</div>';
+  box.appendChild(imgArea);
+
+  // Actions
+  var actions = document.createElement('div');
+  actions.className = 'cert-viewer-actions';
+
+  var approveBtn = document.createElement('button');
+  approveBtn.className = 'cert-approve-btn';
+  approveBtn.textContent = currentStatus === 'verified' ? '✓ Already Verified' : '✓ Approve & Verify';
+  if(currentStatus === 'verified') approveBtn.style.opacity = '0.5';
+  approveBtn.addEventListener('click', function(){
+    if(currentStatus === 'verified') return;
+    if(!canVerify()) { showNoPermissionMsg(); return; }
+    promptVerifierName(function(name){
+      overlay.remove();
+      updateVerification(_certRecordId, 'verified', name);
+    });
+  });
+
+  var rejectBtn = document.createElement('button');
+  rejectBtn.className = 'cert-reject-btn';
+  rejectBtn.textContent = '✗ Reject';
+  rejectBtn.addEventListener('click', function(){
+    if(!canVerify()) { showNoPermissionMsg(); return; }
+    promptRejectionReason(function(reason){
+      overlay.remove();
+      updateVerification(_certRecordId, 'rejected', null, reason);
+    });
+  });
+
+  actions.appendChild(approveBtn);
+  actions.appendChild(rejectBtn);
+  box.appendChild(actions);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  // Load cert image
+  if(hasCertData) {
+    fetch(SUPA_URL + '/rest/v1/ppe_register?id=eq.' + recordId + '&select=cert_image_data,cert_outstanding', {
+      headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}
+    }).then(function(r){ return r.json(); }).then(function(rows){
+      if(!rows || !rows[0]) return;
+      var certData = rows[0].cert_image_data;
+      var outstanding = rows[0].cert_outstanding;
+      if(certData && certData.length > 50) {
+        var img = document.createElement('img');
+        img.src = certData;
+        img.onerror = function(){ imgArea.innerHTML = '<div class="cert-viewer-no-img">&#128196; Could not display certificate.<br>The file may not be a supported image format.</div>'; };
+        imgArea.innerHTML = '';
+        imgArea.appendChild(img);
+      } else if(outstanding === 'cert_outstanding') {
+        imgArea.innerHTML = '<div class="cert-viewer-no-img">&#128203; Engineer marked certificate as not available.<br>Follow up required.</div>';
+      } else {
+        imgArea.innerHTML = '<div class="cert-viewer-no-img">&#128196; No certificate image on file.</div>';
+      }
+    }).catch(function(){
+      imgArea.innerHTML = '<div class="cert-viewer-no-img">Could not load certificate data.</div>';
+    });
+  } else {
+    imgArea.innerHTML = '<div class="cert-viewer-no-img">&#128196; No certificate uploaded for this item.</div>';
+  }
+}
+
+function promptVerifierName(callback) {
+  var old = document.getElementById('_vmodal'); if(old) old.remove();
+  var m = document.createElement('div'); m.id='_vmodal'; m.className='modal-overlay';
+  var inner = document.createElement('div'); inner.className='modal-box';
+  var h3 = document.createElement('h3'); h3.textContent='Approve Certificate'; inner.appendChild(h3);
+  var p = document.createElement('p'); p.style.cssText='font-size:13px;color:var(--text3);margin-bottom:12px;';
+  p.textContent='Enter your name to confirm you have reviewed and approved this certificate.'; inner.appendChild(p);
+  var inp = document.createElement('input'); inp.placeholder='Your name'; inp.autocomplete='off';
+  inp.style.cssText='width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;margin-bottom:14px;box-sizing:border-box;';
+  inner.appendChild(inp);
+  var btns = document.createElement('div'); btns.className='modal-btns';
+  var cancel = document.createElement('button'); cancel.className='modal-cancel'; cancel.textContent='Cancel';
+  cancel.addEventListener('click', function(){ m.remove(); });
+  var confirm = document.createElement('button'); confirm.className='modal-confirm'; confirm.textContent='Approve ✓';
+  confirm.addEventListener('click', function(){
+    if(!inp.value.trim()){ inp.style.borderColor='#f85149'; return; }
+    m.remove(); callback(inp.value.trim());
+  });
+  inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ confirm.click(); }});
+  btns.appendChild(cancel); btns.appendChild(confirm); inner.appendChild(btns);
+  m.appendChild(inner); document.body.appendChild(m);
+  setTimeout(function(){ inp.focus(); }, 80);
+}
+
+function promptRejectionReason(callback) {
+  var old = document.getElementById('_vmodal'); if(old) old.remove();
+  var m = document.createElement('div'); m.id='_vmodal'; m.className='modal-overlay';
+  var inner = document.createElement('div'); inner.className='modal-box';
+  var h3 = document.createElement('h3'); h3.textContent='Reject Certificate'; inner.appendChild(h3);
+  var p = document.createElement('p'); p.style.cssText='font-size:13px;color:var(--text3);margin-bottom:12px;';
+  p.textContent='Please give a reason for rejection. The engineer will need to resubmit.'; inner.appendChild(p);
+  var inp = document.createElement('input'); inp.placeholder='Reason (e.g. Certificate expired, wrong item)'; inp.autocomplete='off';
+  inp.style.cssText='width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;margin-bottom:14px;box-sizing:border-box;';
+  inner.appendChild(inp);
+  var btns = document.createElement('div'); btns.className='modal-btns';
+  var cancel = document.createElement('button'); cancel.className='modal-cancel'; cancel.textContent='Cancel';
+  cancel.addEventListener('click', function(){ m.remove(); });
+  var confirm = document.createElement('button'); confirm.className='modal-confirm';
+  confirm.style.background='#f85149'; confirm.textContent='Reject ✗';
+  confirm.addEventListener('click', function(){
+    if(!inp.value.trim()){ inp.style.borderColor='#f85149'; return; }
+    m.remove(); callback(inp.value.trim());
+  });
+  inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ confirm.click(); }});
+  btns.appendChild(cancel); btns.appendChild(confirm); inner.appendChild(btns);
+  m.appendChild(inner); document.body.appendChild(m);
+  setTimeout(function(){ inp.focus(); }, 80);
+}
+
+function updateVerification(id, status, verifiedBy, rejectionReason) {
+  var payload = { verification_status: status };
+  if(status === 'verified') {
+    payload.verified_by = verifiedBy;
+    payload.verified_at = new Date().toISOString();
+    payload.rejection_reason = null;
+  } else if(status === 'rejected') {
+    payload.rejection_reason = rejectionReason;
+    payload.verified_by = null;
+    payload.verified_at = null;
+  } else {
+    payload.verified_by = null;
+    payload.verified_at = null;
+    payload.rejection_reason = null;
+  }
+  fetch(SUPA_URL + '/rest/v1/ppe_register?id=eq.' + id, {
+    method: 'PATCH',
+    headers: {'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+    body: JSON.stringify(payload)
+  }).then(function(r){
+    if(r.ok){
+      var msg = status==='verified' ? '✓ Certificate approved by '+verifiedBy : status==='rejected' ? '✗ Certificate rejected' : 'Status updated';
+      showToast(msg, status==='verified'?'ok':'warn');
+      fetchData();
+    } else showToast('Update failed','err');
   }).catch(function(){ showToast('Connection error','err'); });
 }
 

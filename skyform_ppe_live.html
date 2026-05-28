@@ -17,7 +17,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.4s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 .pause-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:6px 14px;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;}
-.pause-btn:hover{border-color:var(--accent);color:var(--blue);}
+
 .wrap{max-width:1100px;margin:0 auto;padding:24px 20px;}
 .stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;}
 @media(max-width:700px){.stats-bar{grid-template-columns:repeat(3,1fr);}}
@@ -191,6 +191,15 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 .rag-label{font-size:8px;color:var(--text3);text-align:center;line-height:1.2;max-width:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .rag-cat-hdr{width:100%;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:4px 0 2px;border-bottom:1px dashed var(--border);margin-bottom:2px;}
 
+
+/* full-record in list view */
+.full-record{border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;background:var(--bg2);}
+.fr-row{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;}
+.fr-row:hover{background:var(--bg3);}
+.fr-type{font-size:13px;font-weight:500;color:var(--text);min-width:160px;}
+.fr-eng{font-size:12px;color:var(--text3);min-width:120px;}
+.fr-serial{font-size:11px;color:var(--text3);font-family:"DM Mono",monospace;min-width:100px;}
+
 </style>
 <!-- build:1777564249 -->
 </head>
@@ -200,7 +209,6 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
   <span class="hdr-title">PPE Register — Live View</span>
   <div class="hdr-right">
     <span class="live-badge"><span class="live-dot" id="live-dot"></span><span id="live-lbl">Live</span></span>
-    <button class="pause-btn" id="pause-btn">&#9646;&#9646; Pause</button>
     <button id="signout-btn" style="background:rgba(248,81,73,.15);border:1px solid rgba(248,81,73,.3);color:#f85149;border-radius:6px;padding:5px 12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;margin-left:6px;">&#x2192; Sign Out</button>
   </div>
 </header>
@@ -211,7 +219,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
     <div class="stat-card"><div class="stat-label">Good Condition</div><div class="stat-val" id="s-good" style="color:var(--green)">—</div><div class="stat-sub">No action needed</div></div>
     <div class="stat-card"><div class="stat-label">Monitor</div><div class="stat-val" id="s-mon" style="color:var(--amber)">—</div><div class="stat-sub">Needs attention</div></div>
     <div class="stat-card"><div class="stat-label">Remove / Retire</div><div class="stat-val" id="s-bad" style="color:var(--red)">—</div><div class="stat-sub">Immediate action</div></div>
-    <div class="stat-card"><div class="stat-label">HSEQ Actions</div><div class="stat-val" id="s-unk" style="color:var(--amber)">—</div><div class="stat-sub">Unknown fields</div></div>
+    <div class="stat-card"><div class="stat-label">Pending Verification</div><div class="stat-val" id="s-unk" style="color:var(--amber)">—</div><div class="stat-sub">Items awaiting sign-off</div></div>
   </div>
   <!-- BANNERS -->
   <div class="action-banner ab-red" id="banner-rfs"><span class="ab-icon">&#9888;</span><span class="ab-text"><strong>Remove from Service</strong> — items flagged for immediate withdrawal</span><span class="ab-count" id="bn-rfs">0</span></div>
@@ -243,7 +251,6 @@ var allData=[], paused=false, viewMode="eng", knownIds={}, openItems={};
 window.addEventListener("load",function(){
   buildTypeFilter(); buildMgmtLogin();
   var sob=document.getElementById('signout-btn'); if(sob) sob.addEventListener('click', mgmtSignOut);
-  document.getElementById("pause-btn").addEventListener("click",togglePause);
   document.getElementById("srch").addEventListener("input",render);
   document.getElementById("f-cond").addEventListener("change",render);
   document.getElementById("f-cat").addEventListener("change",render);
@@ -321,7 +328,7 @@ function renderStats(){
   var good=allData.filter(function(r){return r.condition==="Good";}).length;
   var mon=allData.filter(function(r){return r.condition==="Monitor";}).length;
   var bad=allData.filter(function(r){return r.condition==="Remove from Service"||calcRetire(r)==="unknown"||( calcRetire(r)&&calcRetire(r)!=="unknown"&&calcRetire(r).status==="retired");}).length;
-  var unk=allData.filter(function(r){return hasUnknown(r);}).length;
+  var unk=allData.filter(function(r){return (r.verification_status||"pending")==="pending";}).length;
   var rfs=allData.filter(function(r){return r.condition==="Remove from Service";}).length;
   document.getElementById("s-total").textContent=total;
   document.getElementById("s-total-sub").textContent=total+" items registered";
@@ -390,139 +397,7 @@ function renderByEng(items){
     hdr.appendChild(av); hdr.appendChild(nm); hdr.appendChild(cnt); hdr.appendChild(rag);
     var list=document.createElement("div"); list.className="ppe-list";
     ePPE.forEach(function(r){
-      var row=document.createElement("div"); row.className="ppe-item";
-      var _vs=r.verification_status||'pending';
-      var dotEl=document.createElement('span');
-      dotEl.style.cssText='width:10px;height:10px;border-radius:50%;flex-shrink:0;display:inline-block;margin-right:5px;vertical-align:middle;background:'+(_vs==='verified'?'#3fb950':_vs==='rejected'?'#f85149':'#e67e00')+';';
-      dotEl.title=_vs;
-      var tp=document.createElement("span"); tp.className="ppe-type"; tp.textContent=r.item_type;
-      var sr=document.createElement("span"); sr.className="ppe-serial"; sr.textContent=r.serial_number||"—";
-      var det=document.createElement("div"); det.className="ppe-detail";
-      var retR=calcRetire(r);
-      var retTxt=!retR?"N/A":retR==="unknown"?"Unknown":retR.date.toLocaleDateString("en-GB")+(retR.status==="retired"?" (RETIRED)":"");
-      var fields=[
-        ["Brand",r.brand],["Model",r.model],["EN Standard",r.en_standard],
-        ["Manufacture date",r.manufacture_date||"—"],["First use",r.first_use_date||"—"],
-        ["Last inspection",r.last_inspection_date||"—"],["Next inspection",r.next_inspection_date||"—"],
-        ["Inspector",r.inspector_name||"—"],["Retirement date",retTxt],
-        ["Location",r.tagged_location||"—"],["Submitted by",r.submitted_by||"—"],
-      ];
-      var pg=document.createElement("div"); pg.className="pd-grid";
-      fields.forEach(function(f){
-        var fc=document.createElement("div"); fc.className="pd-field";
-        var fl=document.createElement("div"); fl.className="pd-label"; fl.textContent=f[0];
-        var fv=document.createElement("div");
-        if(!f[1]||f[1]==="—"){fv.className="pd-val empty";fv.textContent="—";}
-        else if(f[1]==="Unknown"){fv.className="pd-val unknown";fv.textContent="Unknown - HSEQ to verify";}
-        else if(f[1]&&f[1].indexOf("RETIRED")>-1){fv.className="pd-val crit";fv.textContent=f[1];}
-        else{fv.className="pd-val";fv.textContent=f[1];}
-        fc.appendChild(fl); fc.appendChild(fv); pg.appendChild(fc);
-      });
-      det.appendChild(pg);
-
-      // ── PHOTO STRIP ──────────────────────────────────
-      var photos = [];
-      if(r.image_data && r.image_data.length > 50)
-        photos.push({data:r.image_data, label:'Item Photo', type:'item', verified:false});
-      if(r.label_image_data && r.label_image_data.length > 50)
-        photos.push({data:r.label_image_data, label:'Label', type:'label', verified:false});
-
-      // Always include cert in strip if present — pending or verified
-      var vStatusForPhoto = r.verification_status || 'pending';
-      if(r.cert_image_data && r.cert_image_data.length > 50)
-        photos.push({data:r.cert_image_data, label:'Certificate', type:'cert', verified: vStatusForPhoto==='verified'});
-      else if(r.cert_outstanding === 'cert_outstanding')
-        photos.push({data:null, label:'Cert Outstanding', type:'cert-outstanding', verified:false});
-
-      if(photos.length > 0) {
-        var photoStrip = document.createElement('div'); photoStrip.className = 'detail-photos';
-        photos.forEach(function(ph){
-          var thumb = document.createElement('div'); thumb.className = 'detail-photo-thumb';
-          if(ph.data) {
-            var img = document.createElement('img'); img.src = ph.data;
-            thumb.appendChild(img);
-          } else {
-            // No image — show placeholder
-            thumb.style.cssText += ';display:flex;align-items:center;justify-content:center;background:var(--bg3);';
-            var icon = document.createElement('span'); icon.textContent = '📄'; icon.style.fontSize='24px';
-            thumb.appendChild(icon);
-          }
-          var lbl = document.createElement('div'); lbl.className = 'photo-label'; lbl.textContent = ph.label;
-          thumb.appendChild(lbl);
-          if(ph.verified) {
-            var vbadge = document.createElement('div'); vbadge.className = 'verified-badge'; vbadge.textContent = '✓';
-            thumb.appendChild(vbadge);
-          }
-          if(ph.data) {
-            (function(data, label, isVerif){
-              thumb.addEventListener('click', function(e){
-                e.stopPropagation();
-                openPhotoViewer(data, label, isVerif);
-              });
-            })(ph.data, ph.label, ph.verified);
-          }
-          photoStrip.appendChild(thumb);
-        });
-        det.appendChild(photoStrip);
-      }
-      // ── END PHOTO STRIP ──────────────────────────────
-
-      // ── VERIFICATION ROW ──────────────────────────────
-      var vStatus = r.verification_status || 'pending';
-      var vRow = document.createElement('div'); vRow.className='verif-row';
-
-      // Status dot
-      var vDot = document.createElement('span'); vDot.innerHTML = tlDot(vStatus); vRow.appendChild(vDot);
-
-      // Verified-by meta
-      if(vStatus==='verified' && r.verified_by) {
-        var vMeta = document.createElement('span'); vMeta.className='verif-meta';
-        vMeta.textContent = 'by ' + r.verified_by + (r.verified_at ? ' on ' + new Date(r.verified_at).toLocaleDateString('en-GB') : '');
-        vRow.appendChild(vMeta);
-      }
-
-      // (Cert image now shown in photo strip above)
-
-      // Approve / Reject / Remove button
-      var vBtn = document.createElement('button');
-      if(vStatus === 'verified') {
-        vBtn.className = 'unverify-btn'; vBtn.textContent = 'Remove';
-        (function(rid){ vBtn.addEventListener('click', function(e){ e.stopPropagation(); if(!canVerify()){showNoPermissionMsg();return;} showVerifyModal(rid, 'verified'); }); })(r.id);
-      } else {
-        vBtn.className = 'verify-btn'; vBtn.textContent = vStatus === 'rejected' ? '↻ Re-review' : '✓ Verify';
-        (function(rid, vstatus){ vBtn.addEventListener('click', function(e){ e.stopPropagation(); if(!canVerify()){showNoPermissionMsg();return;} showVerifyModal(rid, vstatus); }); })(r.id, vStatus);
-      }
-      vRow.appendChild(vBtn);
-
-      // Standalone Reject button (when pending or verified)
-      if(vStatus !== 'rejected') {
-        var rBtn = document.createElement('button');
-        rBtn.className = 'cert-reject-btn';
-        rBtn.style.cssText = 'padding:3px 9px;font-size:11px;';
-        rBtn.textContent = '✗ Reject';
-        (function(rid){ rBtn.addEventListener('click', function(e){
-          e.stopPropagation();
-          if(!canVerify()){ showNoPermissionMsg(); return; }
-          promptRejectionReason(function(reason){ updateVerification(rid, 'rejected', null, reason); });
-        }); })(r.id);
-        vRow.appendChild(rBtn);
-      }
-
-      // Rejection reason
-      if(vStatus === 'rejected' && r.rejection_reason) {
-        var rNote = document.createElement('div'); rNote.className='rejection-note';
-        rNote.textContent = 'Rejected: ' + r.rejection_reason;
-        det.appendChild(rNote);
-      }
-
-      det.appendChild(vRow);
-      // ── END VERIFICATION ROW ─────────────────────────
-
-      var pillDiv=document.createElement("div"); pillDiv.style.display="flex"; pillDiv.style.gap="6px"; pillDiv.style.alignItems="center";
-      pillDiv.innerHTML=condPill(r.condition)+" "+retirePill(r);
-      row.appendChild(dotEl); row.appendChild(tp); row.appendChild(sr); row.appendChild(pillDiv);
-      row.addEventListener("click",function(){det.classList.toggle("open");});
-      list.appendChild(row); list.appendChild(det);
+      buildFullRecord(r, list);
     });
         // Ghost rows for required items not submitted
     var _req = ['Safety Helmet', 'Hi-Vis Workwear', 'Safety Boots', 'Cut Resistant Gloves', 'Noise Protection', 'Safety Glasses', 'Head Lamp', 'Full Body Harness', 'Fall Arrest Lanyard (Twin)', 'Work Restraint Lanyard', 'Fall Arrest Glider', 'Transfer Connector'];
@@ -551,13 +426,7 @@ function renderList(items){
   var feed=document.getElementById("flat-feed");
   feed.innerHTML="";
   items.forEach(function(r){
-    var row=document.createElement("div"); row.className="flat-row"+(r._isNew?" new-f":"");
-    var tp=document.createElement("span"); tp.className="fr-type"; tp.textContent=r.item_type;
-    var eng=document.createElement("span"); eng.className="fr-eng"; eng.textContent=r.tagged_engineer||"Unassigned";
-    var sr=document.createElement("span"); sr.className="fr-serial"; sr.textContent=r.serial_number||"—";
-    var condDiv=document.createElement("div"); condDiv.innerHTML=condPill(r.condition)+" "+retirePill(r);
-    row.appendChild(tp); row.appendChild(eng); row.appendChild(sr); row.appendChild(condDiv);
-    feed.appendChild(row);
+    buildFullRecord(r, feed);
   });
 }
 
@@ -722,7 +591,7 @@ function setMgmtLoggedIn(username, name) {
   bar.className = 'mgmt-user-bar';
   bar.innerHTML = '<span style="font-size:14px">&#128274;</span>'
     + '<span class="mgmt-user-name">'+name+'</span>'
-    + '<button class="mgmt-signout" onclick="mgmtSignOut()">Sign out</button>';
+    + '';
   document.body.insertBefore(bar, document.body.firstChild);
   // Now load data
   fetchData(); startRefresh();
@@ -1235,6 +1104,236 @@ function openPhotoViewer(imgData, title, verifiedOverlay) {
 }
 
 
+
+
+// ── FULL RECORD BUILDER (used by both list and card views) ────────────
+function buildFullRecord(r, container) {
+  var vStatus = r.verification_status || 'pending';
+
+  // Outer wrapper
+  var wrapper = document.createElement('div');
+  wrapper.className = 'full-record' + (r._isNew ? ' new-f' : '');
+
+  // ── ROW (always visible) ──────────────────────────────────────────
+  var row = document.createElement('div');
+  row.className = 'fr-row';
+  row.style.cursor = 'pointer';
+
+  var dotEl = document.createElement('span');
+  dotEl.style.cssText = 'width:10px;height:10px;border-radius:50%;flex-shrink:0;display:inline-block;margin-right:6px;vertical-align:middle;background:' +
+    (vStatus==='verified'?'#3fb950':vStatus==='rejected'?'#f85149':'#e67e00') + ';';
+  dotEl.title = vStatus;
+
+  var tp = document.createElement('span'); tp.className='fr-type'; tp.textContent = r.item_type;
+  var eng = document.createElement('span'); eng.className='fr-eng'; eng.textContent = r.tagged_engineer||'Unassigned';
+  var sr = document.createElement('span'); sr.className='fr-serial'; sr.textContent = r.serial_number||'—';
+  var condDiv = document.createElement('div'); condDiv.innerHTML = condPill(r.condition)+' '+retirePill(r);
+
+  row.appendChild(dotEl); row.appendChild(tp); row.appendChild(eng); row.appendChild(sr); row.appendChild(condDiv);
+  wrapper.appendChild(row);
+
+  // ── DETAIL (collapsed by default) ────────────────────────────────
+  var det = document.createElement('div');
+  det.className = 'ppe-detail';
+
+  // Fields grid
+  var retR = calcRetire(r);
+  var retTxt = !retR?'N/A':retR==='unknown'?'Unknown':retR.date.toLocaleDateString('en-GB')+(retR.status==='retired'?' (RETIRED)':'');
+  var fields = [
+    ['Brand',r.brand],['Model',r.model],['EN Standard',r.en_standard],
+    ['Manufacture date',r.manufacture_date||'—'],['First use',r.first_use_date||'—'],
+    ['Last inspection',r.last_inspection_date||'—'],['Next inspection',r.next_inspection_date||'—'],
+    ['Inspector',r.inspector_name||'—'],['Retirement date',retTxt],
+    ['Location',r.tagged_location||'—'],['Submitted by',r.submitted_by||'—'],
+  ];
+  var pg = document.createElement('div'); pg.className='pd-grid';
+  fields.forEach(function(f){
+    var fc=document.createElement('div'); fc.className='pd-field';
+    var fl=document.createElement('div'); fl.className='pd-label'; fl.textContent=f[0];
+    var fv=document.createElement('div');
+    if(!f[1]||f[1]==='—'){fv.className='pd-val empty';fv.textContent='—';}
+    else if(f[1]==='Unknown'){fv.className='pd-val unknown';fv.textContent='Unknown - HSEQ to verify';}
+    else{fv.className='pd-val';fv.textContent=f[1];}
+    fc.appendChild(fl); fc.appendChild(fv); pg.appendChild(fc);
+  });
+  det.appendChild(pg);
+
+  // Photo strip
+  var photos=[];
+  if(r.image_data&&r.image_data.length>50) photos.push({data:r.image_data,label:'Item Photo',verified:false});
+  if(r.label_image_data&&r.label_image_data.length>50) photos.push({data:r.label_image_data,label:'Label',verified:false});
+  if(r.cert_image_data&&r.cert_image_data.length>50) photos.push({data:r.cert_image_data,label:'Certificate',verified:vStatus==='verified'});
+  else if(r.cert_outstanding==='cert_outstanding') photos.push({data:null,label:'Cert Outstanding',verified:false});
+
+  if(photos.length>0){
+    var strip=document.createElement('div'); strip.className='detail-photos';
+    photos.forEach(function(ph){
+      var thumb=document.createElement('div'); thumb.className='detail-photo-thumb';
+      if(ph.data){
+        var img=document.createElement('img'); img.src=ph.data; thumb.appendChild(img);
+        if(ph.verified){var vb=document.createElement('div');vb.className='verified-badge';vb.textContent='✓';thumb.appendChild(vb);}
+        (function(d,l,v){thumb.addEventListener('click',function(e){e.stopPropagation();openPhotoViewer(d,l,v);});})(ph.data,ph.label,ph.verified);
+      } else {
+        thumb.style.cssText+='display:flex;align-items:center;justify-content:center;background:var(--bg3);';
+        var ic=document.createElement('span');ic.textContent='📄';ic.style.fontSize='22px';thumb.appendChild(ic);
+      }
+      var lbl=document.createElement('div'); lbl.className='photo-label'; lbl.textContent=ph.label;
+      thumb.appendChild(lbl); strip.appendChild(thumb);
+    });
+    det.appendChild(strip);
+  }
+
+  // Verification row
+  var vRow=document.createElement('div'); vRow.className='verif-row';
+  var vDot=document.createElement('span'); vDot.innerHTML=tlDot(vStatus); vRow.appendChild(vDot);
+  if(vStatus==='verified'&&r.verified_by){
+    var vm=document.createElement('span'); vm.className='verif-meta';
+    vm.textContent='by '+r.verified_by+(r.verified_at?' on '+new Date(r.verified_at).toLocaleDateString('en-GB'):'');
+    vRow.appendChild(vm);
+  }
+
+  // Verify button
+  var vBtn=document.createElement('button');
+  if(vStatus==='verified'){
+    vBtn.className='unverify-btn'; vBtn.textContent='Remove';
+    (function(rid){vBtn.addEventListener('click',function(e){e.stopPropagation();if(!canVerify()){showNoPermissionMsg();return;}showVerifyModal(rid,'verified');}); })(r.id);
+  } else {
+    vBtn.className='verify-btn'; vBtn.textContent=vStatus==='rejected'?'↻ Re-review':'✓ Verify';
+    (function(rid,vs){vBtn.addEventListener('click',function(e){e.stopPropagation();if(!canVerify()){showNoPermissionMsg();return;}showVerifyModal(rid,vs);}); })(r.id,vStatus);
+  }
+  vRow.appendChild(vBtn);
+
+  // Reject button
+  if(vStatus!=='rejected'){
+    var rBtn=document.createElement('button'); rBtn.className='cert-reject-btn';
+    rBtn.style.cssText='padding:3px 9px;font-size:11px;';rBtn.textContent='✗ Reject';
+    (function(rid){rBtn.addEventListener('click',function(e){e.stopPropagation();if(!canVerify()){showNoPermissionMsg();return;}promptRejectionReason(function(reason){updateVerification(rid,'rejected',null,reason);});});})(r.id);
+    vRow.appendChild(rBtn);
+  }
+
+  // Upload cert button
+  var upBtn=document.createElement('button'); upBtn.className='cert-view-btn';
+  upBtn.innerHTML='&#128196; Upload Cert';
+  (function(rid){
+    upBtn.addEventListener('click',function(e){
+      e.stopPropagation();
+      uploadCertForRecord(rid);
+    });
+  })(r.id);
+  vRow.appendChild(upBtn);
+
+  // Delete button
+  var delBtn=document.createElement('button');
+  delBtn.style.cssText='background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.18);color:#f85149;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;margin-left:auto;';
+  delBtn.textContent='🗑 Delete';
+  (function(rid,itype){
+    delBtn.addEventListener('click',function(e){
+      e.stopPropagation();
+      confirmDelete(rid,itype);
+    });
+  })(r.id,r.item_type);
+  vRow.appendChild(delBtn);
+
+  // Rejection note
+  if(vStatus==='rejected'&&r.rejection_reason){
+    var rn=document.createElement('div'); rn.className='rejection-note';
+    rn.textContent='Rejected: '+r.rejection_reason; det.appendChild(rn);
+  }
+
+  det.appendChild(vRow);
+  wrapper.appendChild(det);
+
+  // Toggle expand
+  row.addEventListener('click',function(){det.classList.toggle('open');});
+  container.appendChild(wrapper);
+}
+
+// ── DELETE RECORD ────────────────────────────────────────────────────
+function confirmDelete(id, itemType) {
+  var old=document.getElementById('_vmodal'); if(old) old.remove();
+  var m=document.createElement('div'); m.id='_vmodal'; m.className='modal-overlay';
+  var inner=document.createElement('div'); inner.className='modal-box';
+  var h3=document.createElement('h3'); h3.textContent='Delete Record'; inner.appendChild(h3);
+  var p=document.createElement('p'); p.style.cssText='font-size:13px;color:var(--text3);margin-bottom:16px;';
+  p.innerHTML='Delete <strong>'+itemType+'</strong>? This cannot be undone.'; inner.appendChild(p);
+  var btns=document.createElement('div'); btns.className='modal-btns';
+  var cancel=document.createElement('button'); cancel.className='modal-cancel'; cancel.textContent='Cancel';
+  cancel.addEventListener('click',function(){m.remove();});
+  var del=document.createElement('button'); del.className='modal-confirm';
+  del.style.background='#f85149'; del.textContent='Delete';
+  del.addEventListener('click',function(){
+    m.remove();
+    fetch(SUPA_URL+'/rest/v1/ppe_register?id=eq.'+id,{
+      method:'DELETE',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'return=minimal'}
+    }).then(function(res){
+      if(res.ok){showToast('Record deleted','warn');fetchData();}
+      else showToast('Delete failed','err');
+    }).catch(function(){showToast('Connection error','err');});
+  });
+  btns.appendChild(cancel); btns.appendChild(del); inner.appendChild(btns);
+  m.appendChild(inner); document.body.appendChild(m);
+}
+
+// ── UPLOAD CERT FOR RECORD (admin upload) ────────────────────────────
+function uploadCertForRecord(recordId) {
+  var old=document.getElementById('_vmodal'); if(old) old.remove();
+  var m=document.createElement('div'); m.id='_vmodal'; m.className='modal-overlay';
+  var inner=document.createElement('div'); inner.className='modal-box';
+  var h3=document.createElement('h3'); h3.textContent='📄 Upload Certificate'; inner.appendChild(h3);
+  var p=document.createElement('p'); p.style.cssText='font-size:12px;color:var(--text3);margin-bottom:14px;';
+  p.textContent='Select a photo or scan of the certificate to attach to this record.'; inner.appendChild(p);
+
+  var fileInput=document.createElement('input'); fileInput.type='file';
+  fileInput.accept='image/*,.pdf'; fileInput.style.cssText='display:block;margin-bottom:14px;font-size:13px;';
+  inner.appendChild(fileInput);
+
+  var preview=document.createElement('div');
+  preview.style.cssText='margin-bottom:14px;text-align:center;min-height:40px;';
+  inner.appendChild(preview);
+
+  fileInput.addEventListener('change',function(){
+    var file=fileInput.files[0]; if(!file) return;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var data=e.target.result;
+      preview.innerHTML='';
+      if(file.type.startsWith('image/')){
+        var img=document.createElement('img');
+        img.src=data; img.style.cssText='max-width:100%;max-height:120px;border-radius:6px;';
+        preview.appendChild(img);
+      } else {
+        preview.textContent='📄 '+file.name+' ready to upload';
+        preview.style.color='var(--text3)';
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  var btns=document.createElement('div'); btns.className='modal-btns';
+  var cancel=document.createElement('button'); cancel.className='modal-cancel'; cancel.textContent='Cancel';
+  cancel.addEventListener('click',function(){m.remove();});
+  var upload=document.createElement('button'); upload.className='modal-confirm'; upload.textContent='Upload';
+  upload.addEventListener('click',function(){
+    var file=fileInput.files[0]; if(!file){alert('Please select a file first.');return;}
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var certData=e.target.result;
+      m.remove();
+      fetch(SUPA_URL+'/rest/v1/ppe_register?id=eq.'+recordId,{
+        method:'PATCH',
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify({cert_image_data:certData})
+      }).then(function(res){
+        if(res.ok){showToast('Certificate uploaded','ok');fetchData();}
+        else showToast('Upload failed','err');
+      }).catch(function(){showToast('Connection error','err');});
+    };
+    reader.readAsDataURL(file);
+  });
+  btns.appendChild(cancel); btns.appendChild(upload); inner.appendChild(btns);
+  m.appendChild(inner); document.body.appendChild(m);
+}
 </script>
 </body>
 </html>

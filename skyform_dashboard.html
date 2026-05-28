@@ -137,6 +137,13 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 .eng-toggle input{accent-color:var(--green);}
 .eng-toggle-name{font-size:12px;font-weight:600;flex:1;}
 .eng-toggle-status{font-size:9px;font-weight:700;}
+.fn-toggle{display:flex;border-radius:5px;overflow:hidden;border:1px solid var(--border);margin-top:4px;}
+.fn-btn{padding:2px 7px;font-size:10px;font-weight:700;cursor:pointer;background:var(--bg4);color:var(--text3);border:none;font-family:"DM Sans",sans-serif;transition:all .12s;}
+.fn-btn.active-i{background:var(--blue);color:#fff;}
+.fn-btn.active-m{background:var(--amber);color:#fff;}
+.fn-btn.active-b{background:var(--mid_green,#2D6A4F);color:#fff;}
+.imp-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:8px;font-size:9px;font-weight:700;background:var(--rbg);color:var(--red);margin-top:3px;}
+.imp-ok{background:var(--gbg);color:var(--green);}
 .modal-footer{display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--border);}
 .btn{padding:7px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:"DM Sans",sans-serif;}
 .btn-primary{background:var(--accent);color:#fff;}
@@ -369,7 +376,12 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
         <div id="scope-certs" style="font-size:12px;color:var(--text3);padding:6px 8px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);"></div>
       </div>
       <div class="form-row">
-        <label class="form-label">Assign Engineers <span style="color:var(--text3);font-weight:400;font-size:10px">(green = all certs valid for scope)</span></label>
+        <label class="form-label">Assign Engineers
+          <span style="color:var(--text3);font-weight:400;font-size:10px"> — set function per engineer (Inspector / Maintainer)</span>
+        </label>
+        <div style="font-size:10px;color:var(--amber);margin-bottom:6px;padding:5px 8px;background:var(--abg);border-radius:5px;border:1px solid rgba(210,153,34,.25)">
+          ⚖ <strong>UKAS Type C Impartiality:</strong> Inspector cannot inspect a site where they previously performed maintenance or repair. Breaches are flagged below.
+        </div>
         <div class="eng-select-grid" id="eng-select-grid"></div>
       </div>
       <div class="form-row">
@@ -406,7 +418,7 @@ var SESSION_TIMEOUT_MS=45*60*1000; var _lastActivity=Date.now();
 setInterval(function(){if(Date.now()-_lastActivity>SESSION_TIMEOUT_MS){alert('Session expired.');sessionStorage.clear();window.location.replace('/');}},60000);
 
 var _session=null;
-var _engineers=[], _ppe=[], _training=[], _mandatoryCerts=[], _deployments=[], _scopes=[];
+var _engineers=[], _ppe=[], _training=[], _mandatoryCerts=[], _deployments=[], _scopes=[], _depEngineers=[];
 var _calYear=2026, _calMonth=5; // 0-indexed May → June
 var _activeTab='overview';
 var _editJobId=null;
@@ -459,13 +471,14 @@ async function initDashboard(){
   _calYear=today.getFullYear();
   _calMonth=today.getMonth();
 
-  var [engs,ppe,train,mand,deps,scopes]=await Promise.all([
+  var [engs,ppe,train,mand,deps,scopes,depEngs]=await Promise.all([
     db('engineers?select=id,name,username,role,location&order=name'),
     db('ppe_register?select=*&order=created_at.desc'),
     db('training_records?select=*&order=created_at.desc'),
     db('training_certifications?select=*&mandatory_all=eq.true'),
     db('deployments?select=*&order=start_date'),
     db('workscope_types?select=*&order=name'),
+    db('deployment_engineers?select=*'),
   ]);
   _engineers=Array.isArray(engs)?engs:[];
   _ppe=Array.isArray(ppe)?ppe:[];
@@ -473,6 +486,7 @@ async function initDashboard(){
   _mandatoryCerts=Array.isArray(mand)?mand:[];
   _deployments=Array.isArray(deps)?deps:[];
   _scopes=Array.isArray(scopes)?scopes:[];
+  _depEngineers=Array.isArray(depEngs)?depEngs:[];
 
   document.getElementById('live-lbl').textContent='Live';
   renderAll();
@@ -843,8 +857,10 @@ function openNewJob(){
   document.getElementById('job-notes').value='';
   document.getElementById('scope-certs-row').style.display='none';
   populateScopeSelect([]);
-  buildEngGrid('',null);
+  buildEngGrid('',null,'');
   document.getElementById('job-modal').classList.add('open');
+  // Re-check impartiality when job name changes
+  document.getElementById('job-name').oninput=function(){checkImpartiality();};
 }
 
 function editJob(id){
@@ -856,11 +872,14 @@ function editJob(id){
   document.getElementById('job-start').value=dep.start_date;
   document.getElementById('job-end').value=dep.end_date||'';
   document.getElementById('job-notes').value=dep.notes||'';
-  populateScopeSelect(dep.engineers||[]);
+  // Get existing engineer functions for this deployment
+  var existingEngs=_depEngineers.filter(function(de){return de.deployment_id===id;}).map(function(de){return{u:de.engineer_username,fn:de.work_function};});
+  populateScopeSelect(existingEngs.map(function(e){return e.u;}));
   document.getElementById('job-scope').value=dep.scope_id||'';
   onScopeChange();
-  buildEngGrid(dep.scope_id||'',dep.engineers||[]);
+  buildEngGrid(dep.scope_id||'',existingEngs,dep.site_name||'');
   document.getElementById('job-modal').classList.add('open');
+  document.getElementById('job-name').oninput=function(){checkImpartiality();};
 }
 
 function populateScopeSelect(selected){
@@ -886,12 +905,25 @@ function onScopeChange(){
   } else {
     document.getElementById('scope-certs-row').style.display='none';
   }
-  buildEngGrid(sid,null);
+  buildEngGrid(sid,null,'');
+  checkImpartiality();
 }
 
-function buildEngGrid(scopeId,selected){
+// ── IMPARTIALITY CHECK ────────────────────────────────────────
+// Returns array of {site_name, date, job} where this engineer has done Maintenance
+function getPriorMaintenanceSites(username){
+  return _depEngineers.filter(function(de){
+    return de.engineer_username.toLowerCase()===username.toLowerCase()
+      && (de.work_function==='Maintainer'||de.work_function==='Both');
+  }).map(function(de){
+    var dep=_deployments.find(function(d){return d.id===de.deployment_id;});
+    return dep?dep.site_name:null;
+  }).filter(Boolean);
+}
+
+function buildEngGrid(scopeId, selected, targetSite){
   var scope=_scopes.find(function(s){return s.id===scopeId;});
-  var reqCerts=scope?(scope.required_certs||[]):[]; // + mandatory 7 always checked
+  var reqCerts=scope?(scope.required_certs||[]):[];
 
   var html='';
   _engineers.forEach(function(eng){
@@ -899,19 +931,85 @@ function buildEngGrid(scopeId,selected){
     var hasIds=engT.map(function(r){return r.certification_id;});
     var mandOK=_mandatoryCerts.every(function(c){return hasIds.includes(c.id);});
     var scopeOK=reqCerts.every(function(cid){return hasIds.includes(cid);});
-    var statusClass=!mandOK?'bad':!scopeOK?'warn':'';
-    var isSelected=selected&&selected.includes(eng.username);
-    var statusLbl=!mandOK?'⚠ Missing mandatory':!scopeOK?'⚠ Missing scope cert':'✓ Qualified';
-    html+='<label class="eng-toggle'+(statusClass?' '+statusClass:'')+(isSelected?' selected':'')+'"><input type="checkbox" value="'+escHtml(eng.username)+'"'+(isSelected?' checked':'')+'> <span class="eng-toggle-name">'+escHtml(eng.name)+'</span><span class="eng-toggle-status" style="color:'+(statusClass?'var(--'+(statusClass==='bad'?'red':'amber')+')':'var(--green)')+'">'+statusLbl+'</span></label>';
-  });
-  document.getElementById('eng-select-grid').innerHTML=html;
+    var certClass=!mandOK?'bad':!scopeOK?'warn':'';
+    var certLbl=!mandOK?'⚠ Missing mandatory':!scopeOK?'⚠ Missing scope cert':'✓ Certs OK';
 
-  // Toggle selected state on click
-  document.querySelectorAll('.eng-toggle').forEach(function(el){
-    el.addEventListener('change',function(){
-      if(el.querySelector('input').checked) el.classList.add('selected');
-      else el.classList.remove('selected');
-    });
+    var isInspector=(eng.role||'').toLowerCase()==='inspector';
+    var selEntry=selected&&selected.find(function(s){return (typeof s==='string'?s:s.u)===eng.username;});
+    var isSelected=!!selEntry;
+    var selFn=selEntry?(typeof selEntry==='string'?(isInspector?'Both':'Maintainer'):selEntry.fn):(isInspector?'Both':'Maintainer');
+
+    // Impartiality check — only relevant when assigning as Inspector
+    var priorSites=getPriorMaintenanceSites(eng.username);
+    var siteToCheck=targetSite||(document.getElementById('job-name')?document.getElementById('job-name').value.split('—')[1]||'':'');
+    siteToCheck=siteToCheck.trim().toLowerCase();
+    var impBreach=isInspector&&siteToCheck&&priorSites.some(function(s){return s.toLowerCase()===siteToCheck;});
+    // Also check against scope-inferred current site name
+    var currentSite=document.getElementById('job-name').value;
+
+    html+='<div class="eng-toggle'+(certClass?' '+certClass:'')+(isSelected?' selected':'')+'" id="etog-'+escHtml(eng.username)+'" style="flex-direction:column;align-items:flex-start;padding:7px 8px">'
+      +'<div style="display:flex;align-items:center;width:100%;gap:6px">'
+      +'<input type="checkbox" value="'+escHtml(eng.username)+'"'+(isSelected?' checked':'')+' onchange="onEngToggle(this)" style="flex-shrink:0">'
+      +'<span class="eng-toggle-name">'+escHtml(eng.name)+'</span>'
+      +'<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;'+(isInspector?'background:rgba(88,166,255,.12);color:var(--blue)':'background:var(--abg);color:var(--amber)')+'">'+escHtml(eng.role||'Maintainer')+'</span>'
+      +'<span class="eng-toggle-status" style="color:'+(certClass?'var(--'+(certClass==='bad'?'red':'amber')+')':'var(--green)')+'">'+certLbl+'</span>'
+      +'</div>'
+      // Function toggle — only show if engineer is selected
+      +'<div class="fn-toggle" id="fn-'+escHtml(eng.username)+'" style="margin-top:5px;'+(isSelected?'':'display:none')+'">'
+      +(isInspector
+        ?'<button class="fn-btn'+(selFn==='Inspector'?' active-i':'')+'" onclick="setFn(\''+escHtml(eng.username)+'\',\'Inspector\')" type="button">Inspector</button>'
+         +'<button class="fn-btn'+(selFn==='Maintainer'?' active-m':'')+'" onclick="setFn(\''+escHtml(eng.username)+'\',\'Maintainer\')" type="button">Maintainer</button>'
+         +'<button class="fn-btn'+(selFn==='Both'?' active-b':'')+'" onclick="setFn(\''+escHtml(eng.username)+'\',\'Both\')" type="button">Both</button>'
+        :'<button class="fn-btn active-m" style="cursor:default" type="button">Maintainer</button>')
+      +'</div>'
+      // Impartiality warning
+      +(impBreach&&isSelected&&(selFn==='Inspector'||selFn==='Both')
+        ?'<div class="imp-badge">⛔ IMPARTIALITY BREACH — previously maintained at this site</div>'
+        :(isSelected&&isInspector&&(selFn==='Inspector'||selFn==='Both')
+          ?'<div class="imp-badge imp-ok">✓ No impartiality conflict recorded</div>':''))
+      +'</div>';
+  });
+  document.getElementById('eng-select-grid').innerHTML=html||'<div class="no-data">No engineers found</div>';
+}
+
+function onEngToggle(cb){
+  var username=cb.value;
+  var wrap=document.getElementById('etog-'+username);
+  var fnDiv=document.getElementById('fn-'+username);
+  if(cb.checked){wrap.classList.add('selected');if(fnDiv)fnDiv.style.display='';}
+  else{wrap.classList.remove('selected');if(fnDiv)fnDiv.style.display='none';}
+  checkImpartiality();
+}
+
+function setFn(username,fn){
+  var wrap=document.getElementById('etog-'+username);
+  if(!wrap) return;
+  // Update button states
+  wrap.querySelectorAll('.fn-btn').forEach(function(b){
+    b.className='fn-btn'+(b.textContent.trim()===fn?' active-'+(fn==='Inspector'?'i':fn==='Maintainer'?'m':'b'):'');
+  });
+  wrap.setAttribute('data-fn',fn);
+  checkImpartiality();
+}
+
+function checkImpartiality(){
+  var siteName=(document.getElementById('job-name').value||'').split('—').slice(-1)[0].trim().toLowerCase();
+  _engineers.forEach(function(eng){
+    var wrap=document.getElementById('etog-'+eng.username);
+    if(!wrap||!wrap.querySelector('input').checked) return;
+    var fn=wrap.getAttribute('data-fn')||(eng.role==='Inspector'?'Both':'Maintainer');
+    var isInspector=(eng.role||'').toLowerCase()==='inspector';
+    // Remove existing badges
+    var oldBadges=wrap.querySelectorAll('.imp-badge');
+    oldBadges.forEach(function(b){b.remove();});
+    if(!isInspector) return;
+    if(fn==='Maintainer') return; // Not inspecting, no risk
+    var priorSites=getPriorMaintenanceSites(eng.username);
+    var breach=siteName&&priorSites.some(function(s){return s.toLowerCase()===siteName;});
+    var badge=document.createElement('div');
+    badge.className='imp-badge'+(breach?'':' imp-ok');
+    badge.textContent=breach?'⛔ IMPARTIALITY BREACH — previously maintained at this site':'✓ No impartiality conflict recorded';
+    wrap.appendChild(badge);
   });
 }
 
@@ -926,21 +1024,82 @@ async function saveJob(){
   var notes=document.getElementById('job-notes').value.trim();
   if(!name){showToast('Job name required','err');return;}
   if(!start){showToast('Start date required','err');return;}
-  var engineers=[].slice.call(document.querySelectorAll('.eng-toggle input:checked')).map(function(el){return el.value;});
+
+  // Collect checked engineers with their assigned function
+  var engAssignments=[];
+  document.querySelectorAll('.eng-toggle input:checked').forEach(function(cb){
+    var username=cb.value;
+    var eng=_engineers.find(function(e){return e.username===username;});
+    if(!eng) return;
+    var wrap=document.getElementById('etog-'+username);
+    var fn=wrap?wrap.getAttribute('data-fn'):null;
+    if(!fn) fn=(eng.role||'').toLowerCase()==='inspector'?'Both':'Maintainer';
+    engAssignments.push({username:username,name:eng.name,fn:fn});
+  });
+
+  // Impartiality hard block — prevent saving if any Inspector is being assigned
+  // to inspect at a site where they previously did maintenance
+  var siteName=name.includes('—')?name.split('—').slice(-1)[0].trim():name;
+  var breaches=engAssignments.filter(function(a){
+    if(a.fn==='Maintainer') return false;
+    var eng=_engineers.find(function(e){return e.username===a.username;});
+    if(!eng||(eng.role||'').toLowerCase()!=='inspector') return false;
+    var priorSites=getPriorMaintenanceSites(a.username);
+    return priorSites.some(function(s){return s.toLowerCase()===siteName.toLowerCase();});
+  });
+
+  if(breaches.length){
+    var bnames=breaches.map(function(b){return b.name;}).join(', ');
+    showToast('⚖ BLOCKED — Impartiality breach: '+bnames,'err');
+    return;
+  }
+
   var btn=document.getElementById('job-save-btn');
   btn.disabled=true;btn.textContent='Saving...';
 
-  var payload={job_name:name,site_name:name.split('—')[1]?name.split('—')[1].trim():name,scope_id:scopeId||null,scope_name:scope?scope.name:null,start_date:start,end_date:end,status:'planned',engineers:engineers,notes:notes||null,created_by:_session.username};
+  var siteParsed=name.includes('—')?name.split('—')[1].trim():name;
+  var payload={
+    job_name:name,site_name:siteParsed,
+    scope_id:scopeId||null,scope_name:scope?scope.name:null,
+    start_date:start,end_date:end,status:'planned',
+    engineers:engAssignments.map(function(a){return a.username;}),
+    notes:notes||null,created_by:_session.username
+  };
 
   var url=SUPA_URL+'/rest/v1/deployments';
   var method='POST';
-  var headers={'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+  var hdrs={'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
   if(_editJobId){url+='?id=eq.'+_editJobId;method='PATCH';}
 
-  var res=await fetch(url,{method:method,headers:headers,body:JSON.stringify(payload)});
+  var res=await fetch(url,{method:method,headers:hdrs,body:JSON.stringify(payload)});
+  if(!res.ok){btn.disabled=false;btn.textContent='Save Deployment';showToast('Save failed','err');return;}
+
+  var saved=await res.json();
+  var depId=_editJobId||(Array.isArray(saved)&&saved[0]?saved[0].id:null);
+
+  if(depId){
+    // Remove old assignments for this deployment then re-insert
+    if(_editJobId){
+      await fetch(SUPA_URL+'/rest/v1/deployment_engineers?deployment_id=eq.'+depId,{
+        method:'DELETE',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+      });
+    }
+    if(engAssignments.length){
+      var rows=engAssignments.map(function(a){return{
+        deployment_id:depId,engineer_username:a.username,
+        engineer_name:a.name,work_function:a.fn
+      };});
+      await fetch(SUPA_URL+'/rest/v1/deployment_engineers',{
+        method:'POST',
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify(rows)
+      });
+    }
+  }
+
   btn.disabled=false;btn.textContent='Save Deployment';
-  if(res.ok){showToast(_editJobId?'Deployment updated':'Deployment created','ok');closeJobModal();location.reload();}
-  else{showToast('Save failed — please try again','err');}
+  showToast(_editJobId?'Deployment updated':'Deployment created','ok');
+  closeJobModal();location.reload();
 }
 
 window.addEventListener('load',function(){

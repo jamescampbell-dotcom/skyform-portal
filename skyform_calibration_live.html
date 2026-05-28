@@ -113,7 +113,13 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 
 <header class="hdr">
   <img src="logo.png" alt="Skyform">
-  <span class="hdr-title">Calibration Equipment — Live View</span>
+  <span class="hdr-title">Skyform Wind Portal</span>
+  <div style="display:flex;gap:4px;margin-left:8px;">
+    <a href="skyform_dashboard.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text3);text-decoration:none;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">Dashboard</a>
+    <a href="skyform_ppe_live.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text3);text-decoration:none;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">PPE Register</a>
+    <a href="skyform_training_live.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text3);text-decoration:none;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">Training</a>
+    <a href="skyform_calibration_live.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--accent);color:#fff;text-decoration:none;">Calibration</a>
+  </div>
   <div class="hdr-right">
     <span class="live-badge" id="live-badge"><span class="live-dot" id="live-dot"></span><span id="live-label">Live</span></span>
     <button class="pause-btn" id="pause-btn">&#9646;&#9646; Pause</button>

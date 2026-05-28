@@ -179,6 +179,18 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 .detail-photo-thumb .photo-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:8px;font-weight:600;text-align:center;padding:2px 0;}
 .detail-photo-thumb .verified-badge{position:absolute;top:3px;right:3px;background:rgba(63,185,80,.9);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;}
 
+
+/* ── RAG DOT GRID ───────────────────────────────── */
+.rag-grid{display:flex;flex-wrap:wrap;gap:5px;padding:10px 14px 8px;border-bottom:1px solid var(--border);background:var(--bg2);}
+.rag-item{display:flex;flex-direction:column;align-items:center;gap:3px;width:44px;cursor:default;}
+.rag-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.rag-dot.rg{background:#3fb950;}
+.rag-dot.ra{background:#e67e00;}
+.rag-dot.rr{background:#f85149;}
+.rag-dot.rm{background:#f85149;opacity:.5;}
+.rag-label{font-size:8px;color:var(--text3);text-align:center;line-height:1.2;max-width:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.rag-cat-hdr{width:100%;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:4px 0 2px;border-bottom:1px dashed var(--border);margin-bottom:2px;}
+
 </style>
 <!-- build:1777564249 -->
 </head>
@@ -508,7 +520,8 @@ function renderByEng(items){
       row.addEventListener("click",function(){det.classList.toggle("open");});
       list.appendChild(row); list.appendChild(det);
     });
-    card.appendChild(hdr); card.appendChild(vBar); card.appendChild(list); grid.appendChild(card);
+    var ragGrid = buildRagGrid(ePPE);
+    card.appendChild(hdr); card.appendChild(ragGrid); card.appendChild(vBar); card.appendChild(list); grid.appendChild(card);
   });
 }
 
@@ -541,59 +554,56 @@ function tlDot(status) {
 }
 
 function showVerifyModal(id, currentStatus) {
+  if(!canVerify()) { showNoPermissionMsg(); return; }
   _pendingId = id;
   var isVerified = (currentStatus === 'verified');
-  var old = document.getElementById('_vmodal');
-  if(old) old.remove();
-  var m = document.createElement('div');
-  m.id = '_vmodal';
-  m.className = 'modal-overlay';
+  var verifierName = _currentMgmt ? _currentMgmt.name : 'Unknown';
+  var old = document.getElementById('_vmodal'); if(old) old.remove();
+  var m = document.createElement('div'); m.id='_vmodal'; m.className='modal-overlay';
+  var inner = document.createElement('div'); inner.className='modal-box';
 
-  var inner = document.createElement('div');
-  inner.className = 'modal-box';
-
-  var h3 = document.createElement('h3');
-  h3.textContent = isVerified ? 'Remove Verification' : 'Verify Certificate';
-  inner.appendChild(h3);
-
-  var p = document.createElement('p');
-  p.style.cssText = 'font-size:13px;color:var(--text3);margin-bottom:14px;line-height:1.5';
-  p.textContent = isVerified
-    ? 'This will reset the record to Pending Verification. Are you sure?'
-    : 'Confirm you have reviewed and approved this certificate or entry.';
-  inner.appendChild(p);
-
-  var nameInput = null;
-  if(!isVerified) {
-    nameInput = document.createElement('input');
-    nameInput.id = '_vname';
-    nameInput.placeholder = 'Your name (e.g. Suzanne Thomson)';
-    nameInput.autocomplete = 'off';
-    nameInput.style.cssText = 'width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;margin-bottom:14px;box-sizing:border-box;';
-    nameInput.addEventListener('keydown', function(e){ if(e.key==='Enter') _doVerify(true); });
-    inner.appendChild(nameInput);
+  if(isVerified) {
+    // Remove verification — simple confirm
+    var h3 = document.createElement('h3'); h3.textContent='Remove Verification'; inner.appendChild(h3);
+    var p = document.createElement('p'); p.style.cssText='font-size:13px;color:var(--text3);margin-bottom:16px;';
+    p.textContent='This will reset the record back to Pending. Are you sure?'; inner.appendChild(p);
+    var btns = document.createElement('div'); btns.className='modal-btns';
+    var cancel = document.createElement('button'); cancel.className='modal-cancel'; cancel.textContent='Cancel';
+    cancel.addEventListener('click', function(){ m.remove(); });
+    var confirm = document.createElement('button'); confirm.className='modal-confirm';
+    confirm.style.background='#f85149'; confirm.textContent='Remove';
+    confirm.addEventListener('click', function(){ m.remove(); _doVerify(false); });
+    btns.appendChild(cancel); btns.appendChild(confirm); inner.appendChild(btns);
+  } else {
+    // Approve — checkbox, auto-name
+    var h3 = document.createElement('h3'); h3.textContent='✓ Approve'; inner.appendChild(h3);
+    var info = document.createElement('div');
+    info.style.cssText='background:var(--gbg);border:1px solid rgba(63,185,80,.25);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:13px;display:flex;align-items:center;gap:8px;';
+    info.innerHTML='<span>&#128274;</span><span>Approving as <strong>'+verifierName+'</strong></span>';
+    inner.appendChild(info);
+    var p = document.createElement('p'); p.style.cssText='font-size:12px;color:var(--text3);margin-bottom:14px;';
+    p.textContent='Tick to confirm you have reviewed and are satisfied this entry is valid.'; inner.appendChild(p);
+    var chkWrap = document.createElement('label');
+    chkWrap.style.cssText='display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:18px;font-size:13px;color:var(--text2);';
+    var chk = document.createElement('input'); chk.type='checkbox';
+    chk.style.cssText='width:16px;height:16px;margin-top:2px;flex-shrink:0;accent-color:var(--green);cursor:pointer;';
+    chkWrap.appendChild(chk);
+    chkWrap.appendChild(document.createTextNode('I confirm I have checked this entry and it is approved'));
+    inner.appendChild(chkWrap);
+    var btns = document.createElement('div'); btns.className='modal-btns';
+    var cancel = document.createElement('button'); cancel.className='modal-cancel'; cancel.textContent='Cancel';
+    cancel.addEventListener('click', function(){ m.remove(); });
+    var confirm = document.createElement('button'); confirm.className='modal-confirm'; confirm.textContent='Approve ✓';
+    confirm.addEventListener('click', function(){
+      if(!chk.checked){ chk.style.outline='2px solid #f85149'; return; }
+      m.remove();
+      // Update directly using stored pendingId and auto verifier name
+      updateVerification(_pendingId, 'verified', verifierName);
+    });
+    btns.appendChild(cancel); btns.appendChild(confirm); inner.appendChild(btns);
   }
 
-  var btns = document.createElement('div');
-  btns.className = 'modal-btns';
-
-  var cancelBtn = document.createElement('button');
-  cancelBtn.className = 'modal-cancel';
-  cancelBtn.textContent = 'Cancel';
-  cancelBtn.addEventListener('click', function(){ m.remove(); });
-  btns.appendChild(cancelBtn);
-
-  var confirmBtn = document.createElement('button');
-  confirmBtn.className = 'modal-confirm';
-  confirmBtn.textContent = isVerified ? 'Remove' : 'Verify';
-  if(isVerified) confirmBtn.style.background = '#f85149';
-  confirmBtn.addEventListener('click', function(){ _doVerify(!isVerified); });
-  btns.appendChild(confirmBtn);
-
-  inner.appendChild(btns);
-  m.appendChild(inner);
-  document.body.appendChild(m);
-  if(nameInput) setTimeout(function(){ nameInput.focus(); }, 80);
+  m.appendChild(inner); document.body.appendChild(m);
 }
 
 function _doVerify(verify) {
@@ -1216,6 +1226,72 @@ function openPhotoViewer(imgData, title, verifiedOverlay) {
   actions.appendChild(closeAction); box.appendChild(actions);
 
   overlay.appendChild(box); document.body.appendChild(overlay);
+}
+
+
+// ── RAG DOT GRID ─────────────────────────────────────────────────────
+var RAG_ITEMS = [
+  // [display label, item_type key in DB, required=always]
+  // Baseline
+  {l:'Helmet',    k:'Safety Helmet',              cat:'B'},
+  {l:'Hi-Vis',    k:'Hi-Vis Workwear',             cat:'B'},
+  {l:'Boots',     k:'Safety Boots',                cat:'B'},
+  {l:'Gloves',    k:'Cut Resistant Gloves',        cat:'B'},
+  {l:'Noise',     k:'Noise Protection',            cat:'B'},
+  {l:'Glasses',   k:'Safety Glasses',              cat:'B'},
+  {l:'Lamp',      k:'Head Lamp',                   cat:'B'},
+  // Height
+  {l:'Harness',   k:'Full Body Harness',           cat:'H'},
+  {l:'Lanyard',   k:'Fall Arrest Lanyard (Twin)',  cat:'H'},
+  {l:'Restraint', k:'Work Restraint Lanyard',      cat:'H'},
+  {l:'Glider',    k:'Fall Arrest Glider',          cat:'H'},
+  {l:'Connector', k:'Transfer Connector',          cat:'H'},
+  // Offshore
+  {l:'Suit',      k:'Immersion Suit',              cat:'O'},
+  {l:'Lifejacket',k:'Lifejacket 275N',             cat:'O'},
+  {l:'PLB',       k:'Personal Locator Beacon',     cat:'O'},
+  // HV
+  {l:'Arc Cloth', k:'Arc / FR Clothing',           cat:'E'},
+  {l:'Elec Glv',  k:'Electrical Gloves',           cat:'E'},
+  {l:'Arc Face',  k:'Arc Face & Head Protection',  cat:'E'},
+];
+
+var CAT_LABELS = {B:'Baseline',H:'Height',O:'Offshore',E:'HV/Elec'};
+
+function buildRagGrid(ePPE) {
+  // Build a lookup: item_type -> best verification_status
+  var statusMap = {};
+  ePPE.forEach(function(r){
+    var s = r.verification_status || 'pending';
+    var existing = statusMap[r.item_type];
+    // 'verified' wins over 'pending' wins over 'rejected'
+    if(!existing) { statusMap[r.item_type] = s; }
+    else if(s==='verified') { statusMap[r.item_type] = 'verified'; }
+    else if(s==='pending' && existing==='rejected') { statusMap[r.item_type] = 'pending'; }
+  });
+
+  var grid = document.createElement('div'); grid.className='rag-grid';
+  var lastCat = null;
+
+  RAG_ITEMS.forEach(function(item){
+    if(item.cat !== lastCat) {
+      lastCat = item.cat;
+      var catHdr = document.createElement('div'); catHdr.className='rag-cat-hdr';
+      catHdr.textContent = CAT_LABELS[item.cat] || item.cat;
+      grid.appendChild(catHdr);
+    }
+    var status = statusMap[item.k];
+    var dotClass = !status ? 'rm' : status==='verified' ? 'rg' : status==='pending' ? 'ra' : 'rr';
+    var tooltip = item.k + ': ' + (!status ? 'Not submitted' : status);
+
+    var wrap = document.createElement('div'); wrap.className='rag-item'; wrap.title=tooltip;
+    var dot = document.createElement('div'); dot.className='rag-dot '+dotClass;
+    var lbl = document.createElement('div'); lbl.className='rag-label'; lbl.textContent=item.l;
+    wrap.appendChild(dot); wrap.appendChild(lbl);
+    grid.appendChild(wrap);
+  });
+
+  return grid;
 }
 </script>
 </body>

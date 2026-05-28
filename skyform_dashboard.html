@@ -144,6 +144,31 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 .fn-btn.active-b{background:var(--mid_green,#2D6A4F);color:#fff;}
 .imp-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:8px;font-size:9px;font-weight:700;background:var(--rbg);color:var(--red);margin-top:3px;}
 .imp-ok{background:var(--gbg);color:var(--green);}
+
+/* WORK TYPE + ENV CHIPS */
+.wt-chip,.env-chip{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;border:2px solid var(--border);cursor:pointer;font-size:12px;font-weight:600;color:var(--text3);background:var(--bg3);transition:all .15s;user-select:none;}
+.wt-chip:has(input:checked),.env-chip.active{border-color:var(--accent);background:var(--bbg);color:var(--accent);}
+.wt-chip input,.env-chip input{display:none;}
+
+/* SCOPE GROUPS */
+.scope-group{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:6px;}
+.scope-group-hdr{display:flex;align-items:center;gap:7px;padding:9px 12px;background:var(--bg3);cursor:pointer;user-select:none;}
+.scope-group-hdr:hover{background:var(--bg4);}
+.scope-group-icon{font-size:14px;}
+.scope-group-title{font-size:12px;font-weight:700;flex:1;}
+.scope-group-count{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:var(--gbg);color:var(--green);}
+.scope-chevron{font-size:10px;color:var(--text3);transition:transform .2s;}
+.scope-chevron.open{transform:rotate(180deg);}
+.scope-group-body{display:none;border-top:1px solid var(--border);}
+.scope-group-body.open{display:block;}
+.scope-items{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:4px;}
+.scope-item{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);transition:background .12s;border:1px solid transparent;}
+.scope-item:hover{background:var(--bg3);}
+.scope-item:has(input:checked){background:var(--gbg);border-color:rgba(63,185,80,.3);color:var(--green);}
+.scope-item input{accent-color:var(--green);flex-shrink:0;}
+.scope-cert-tag{margin-left:auto;font-size:9px;font-weight:600;padding:1px 5px;border-radius:4px;background:var(--bg4);color:var(--text3);}
+.scope-item:has(input:checked) .scope-cert-tag{background:var(--gbg);color:var(--green);}
+.scope-item-general{border-top:1px dashed var(--border);grid-column:1/-1;}
 .modal-footer{display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--border);}
 .btn{padding:7px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:"DM Sans",sans-serif;}
 .btn-primary{background:var(--accent);color:#fff;}
@@ -343,14 +368,26 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
   </div>
 </div>
 
-<!-- NEW JOB MODAL -->
+<!-- NEW JOB MODAL — 3-step wizard -->
 <div class="modal-overlay" id="job-modal">
-  <div class="modal">
+  <div class="modal" style="max-width:680px">
     <div class="modal-hdr">
-      <span class="modal-title" id="modal-job-title">New Deployment</span>
+      <div>
+        <div class="modal-title" id="modal-job-title">New Deployment</div>
+        <div id="step-indicator" style="font-size:11px;color:var(--text3);margin-top:2px">Step 1 of 3 — Job Details</div>
+      </div>
       <button class="modal-close" onclick="closeJobModal()">✕</button>
     </div>
-    <div class="modal-body">
+
+    <!-- STEP PROGRESS BAR -->
+    <div style="display:flex;gap:2px;padding:10px 16px 0;background:var(--bg2);">
+      <div id="step-bar-1" style="flex:1;height:3px;border-radius:2px;background:var(--accent);transition:all .2s"></div>
+      <div id="step-bar-2" style="flex:1;height:3px;border-radius:2px;background:var(--border);transition:all .2s"></div>
+      <div id="step-bar-3" style="flex:1;height:3px;border-radius:2px;background:var(--border);transition:all .2s"></div>
+    </div>
+
+    <!-- STEP 1: JOB DETAILS + WORK TYPE -->
+    <div id="wiz-step-1" class="modal-body">
       <div class="form-row">
         <label class="form-label">Job / Site Name</label>
         <input type="text" class="form-input" id="job-name" placeholder="e.g. Beatrice Offshore — Annual Inspection">
@@ -365,33 +402,198 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
           <input type="date" class="form-input" id="job-end">
         </div>
       </div>
+
+      <!-- Work type -->
       <div class="form-row">
-        <label class="form-label">Work Scope</label>
-        <select class="form-sel" id="job-scope" onchange="onScopeChange()">
-          <option value="">Select scope...</option>
-        </select>
-      </div>
-      <div class="form-row" id="scope-certs-row" style="display:none">
-        <label class="form-label">Required Certifications</label>
-        <div id="scope-certs" style="font-size:12px;color:var(--text3);padding:6px 8px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);"></div>
-      </div>
-      <div class="form-row">
-        <label class="form-label">Assign Engineers
-          <span style="color:var(--text3);font-weight:400;font-size:10px"> — set function per engineer (Inspector / Maintainer)</span>
-        </label>
-        <div style="font-size:10px;color:var(--amber);margin-bottom:6px;padding:5px 8px;background:var(--abg);border-radius:5px;border:1px solid rgba(210,153,34,.25)">
-          ⚖ <strong>UKAS Type C Impartiality:</strong> Inspector cannot inspect a site where they previously performed maintenance or repair. Breaches are flagged below.
+        <label class="form-label">Work Type <span style="color:var(--text3);font-weight:400;font-size:10px"> — select all that apply to this deployment</span></label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+          <label class="wt-chip" id="wt-inspection">
+            <input type="checkbox" id="wt-cb-inspection" onchange="onWorkTypeChange()"> 🔍 Inspection
+          </label>
+          <label class="wt-chip" id="wt-maintenance">
+            <input type="checkbox" id="wt-cb-maintenance" onchange="onWorkTypeChange()"> 🔧 Maintenance
+          </label>
+          <label class="wt-chip" id="wt-repair">
+            <input type="checkbox" id="wt-cb-repair" onchange="onWorkTypeChange()"> 🛠 Repair
+          </label>
         </div>
-        <div class="eng-select-grid" id="eng-select-grid"></div>
+        <div id="ukas-note" style="display:none;margin-top:6px;padding:6px 8px;background:var(--abg);border-radius:5px;font-size:10px;color:var(--amber);border:1px solid rgba(210,153,34,.25)">
+          ⚖ <strong>UKAS Type C One Stop Shop:</strong> Inspection + Maintenance/Repair on the same visit is permitted. Impartiality is enforced per engineer — each must be assigned to only one function.
+        </div>
       </div>
+
+      <!-- Onshore / Offshore -->
       <div class="form-row">
-        <label class="form-label">Notes</label>
-        <input type="text" class="form-input" id="job-notes" placeholder="Optional">
+        <label class="form-label">Environment</label>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <label class="env-chip active" id="env-onshore">
+            <input type="radio" name="env" value="onshore" checked onchange="onEnvChange()"> 🏔 Onshore
+          </label>
+          <label class="env-chip" id="env-offshore">
+            <input type="radio" name="env" value="offshore" onchange="onEnvChange()"> 🌊 Offshore
+          </label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Notes <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+        <input type="text" class="form-input" id="job-notes" placeholder="Additional information">
       </div>
     </div>
+
+    <!-- STEP 2: EQUIPMENT SCOPE SELECTION -->
+    <div id="wiz-step-2" class="modal-body" style="display:none">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px;padding:6px 8px;background:var(--bg3);border-radius:5px;border:1px solid var(--border)">
+        Select every type of equipment included in this deployment. Expand categories to pick the specific type — use <strong>General</strong> only if the exact type isn't known.
+      </div>
+
+      <!-- TOWERHOISTS -->
+      <div class="scope-group">
+        <div class="scope-group-hdr" onclick="toggleScopeGroup(this)">
+          <span class="scope-group-icon">🏗</span>
+          <span class="scope-group-title">Towerhoists / Man-Riding Lifts</span>
+          <span class="scope-group-count" id="sgc-lift">0 selected</span>
+          <span class="scope-chevron">▼</span>
+        </div>
+        <div class="scope-group-body open">
+          <div class="scope-items">
+            <label class="scope-item"><input type="checkbox" value="skyman-th250" data-group="lift" onchange="onScopeItemChange()"> <span>Skyman TH250</span><span class="scope-cert-tag">SKY-OP + SVC</span></label>
+            <label class="scope-item"><input type="checkbox" value="skyman-gwb450" data-group="lift" onchange="onScopeItemChange()"> <span>Skyman GWB450</span><span class="scope-cert-tag">SKY-GWB</span></label>
+            <label class="scope-item"><input type="checkbox" value="pc-sherpa" data-group="lift" onchange="onScopeItemChange()"> <span>Power Climber Sherpa</span><span class="scope-cert-tag">PC-OP + SVC</span></label>
+            <label class="scope-item"><input type="checkbox" value="avanti-swp" data-group="lift" onchange="onScopeItemChange()"> <span>Avanti SWP-L / XL</span><span class="scope-cert-tag">AV-OP + SVC</span></label>
+            <label class="scope-item"><input type="checkbox" value="goracon-gwb" data-group="lift" onchange="onScopeItemChange()"> <span>Goracon GWB450</span><span class="scope-cert-tag">GOR-OP + SVC</span></label>
+            <label class="scope-item scope-item-general"><input type="checkbox" value="lift-general" data-group="lift" onchange="onScopeItemChange()"> <span>General (type unknown)</span><span class="scope-cert-tag">Skyman TH250</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- TMSE -->
+      <div class="scope-group">
+        <div class="scope-group-hdr">
+          <span class="scope-group-icon">🔒</span>
+          <span class="scope-group-title">TMSE — Turbine Mounted Safety Equipment</span>
+          <label class="scope-item" style="margin-left:auto;border:none;padding:0">
+            <input type="checkbox" value="tmse" data-group="tmse" onchange="onScopeItemChange()"> Include
+          </label>
+        </div>
+      </div>
+
+      <!-- PSSR -->
+      <div class="scope-group">
+        <div class="scope-group-hdr">
+          <span class="scope-group-icon">🔴</span>
+          <span class="scope-group-title">PSSR — Pressure Systems Safety Regulations</span>
+          <label class="scope-item" style="margin-left:auto;border:none;padding:0">
+            <input type="checkbox" value="pssr" data-group="pssr" onchange="onScopeItemChange()"> Include
+          </label>
+        </div>
+      </div>
+
+      <!-- CRANES -->
+      <div class="scope-group">
+        <div class="scope-group-hdr" onclick="toggleScopeGroup(this)">
+          <span class="scope-group-icon">🏋</span>
+          <span class="scope-group-title">Service Cranes</span>
+          <span class="scope-group-count" id="sgc-crane">0 selected</span>
+          <span class="scope-chevron">▼</span>
+        </div>
+        <div class="scope-group-body">
+          <div class="scope-items">
+            <label class="scope-item"><input type="checkbox" value="crane-hmf" data-group="crane" onchange="onScopeItemChange()"> <span>HMF / Palfinger Compact</span><span class="scope-cert-tag">ALLMI + PAL</span></label>
+            <label class="scope-item"><input type="checkbox" value="crane-hiab" data-group="crane" onchange="onScopeItemChange()"> <span>HIAB</span><span class="scope-cert-tag">ALLMI + HIAB</span></label>
+            <label class="scope-item"><input type="checkbox" value="crane-demag" data-group="crane" onchange="onScopeItemChange()"> <span>Demag DS10</span><span class="scope-cert-tag">ALLMI + DEMAG</span></label>
+            <label class="scope-item"><input type="checkbox" value="crane-davit" data-group="crane" onchange="onScopeItemChange()"> <span>Davit Crane <span style="color:var(--blue);font-size:9px">Offshore</span></span><span class="scope-cert-tag">DAVIT</span></label>
+            <label class="scope-item scope-item-general"><input type="checkbox" value="crane-general" data-group="crane" onchange="onScopeItemChange()"> <span>General (type unknown)</span><span class="scope-cert-tag">ALLMI</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAIN HOISTS -->
+      <div class="scope-group">
+        <div class="scope-group-hdr" onclick="toggleScopeGroup(this)">
+          <span class="scope-group-icon">⛓</span>
+          <span class="scope-group-title">Chain Hoists &amp; Lifting Equipment</span>
+          <span class="scope-group-count" id="sgc-hoist">0 selected</span>
+          <span class="scope-chevron">▼</span>
+        </div>
+        <div class="scope-group-body">
+          <div class="scope-items">
+            <label class="scope-item"><input type="checkbox" value="hoist-liftket" data-group="hoist" onchange="onScopeItemChange()"> <span>Liftket Chain Hoist</span><span class="scope-cert-tag">LIFTKET</span></label>
+            <label class="scope-item"><input type="checkbox" value="hoist-abb-demag" data-group="hoist" onchange="onScopeItemChange()"> <span>ABB / Demag Hoist</span><span class="scope-cert-tag">DEMAG-HOIST</span></label>
+            <label class="scope-item"><input type="checkbox" value="hoist-goracon" data-group="hoist" onchange="onScopeItemChange()"> <span>Goracon Chain Hoist</span><span class="scope-cert-tag">LIFTKET</span></label>
+            <label class="scope-item scope-item-general"><input type="checkbox" value="hoist-general" data-group="hoist" onchange="onScopeItemChange()"> <span>General (type unknown)</span><span class="scope-cert-tag">BANKSMAN</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOLER / PPE -->
+      <div class="scope-group">
+        <div class="scope-group-hdr" onclick="toggleScopeGroup(this)">
+          <span class="scope-group-icon">📋</span>
+          <span class="scope-group-title">Statutory Inspections</span>
+          <span class="scope-group-count" id="sgc-inspection">0 selected</span>
+          <span class="scope-chevron">▼</span>
+        </div>
+        <div class="scope-group-body">
+          <div class="scope-items">
+            <label class="scope-item"><input type="checkbox" value="loler" data-group="inspection" onchange="onScopeItemChange()"> <span>LOLER — Lifting Equipment</span><span class="scope-cert-tag">ALLMI + UKAS</span></label>
+            <label class="scope-item"><input type="checkbox" value="ppe-insp" data-group="inspection" onchange="onScopeItemChange()"> <span>PPE Inspection</span><span class="scope-cert-tag">UKAS</span></label>
+            <label class="scope-item"><input type="checkbox" value="tp-insp" data-group="inspection" onchange="onScopeItemChange()"> <span>TP Statutory Inspection <span style="color:var(--blue);font-size:9px">Offshore</span></span><span class="scope-cert-tag">HUET + OFFMED</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROPE ACCESS / BLADE -->
+      <div class="scope-group">
+        <div class="scope-group-hdr" onclick="toggleScopeGroup(this)">
+          <span class="scope-group-icon">🧗</span>
+          <span class="scope-group-title">Blade Access / Rope Access</span>
+          <span class="scope-group-count" id="sgc-access">0 selected</span>
+          <span class="scope-chevron">▼</span>
+        </div>
+        <div class="scope-group-body">
+          <div class="scope-items">
+            <label class="scope-item"><input type="checkbox" value="blade" data-group="access" onchange="onScopeItemChange()"> <span>Blade Access</span><span class="scope-cert-tag">IRATA-1</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- CIVIL -->
+      <div class="scope-group">
+        <div class="scope-group-hdr">
+          <span class="scope-group-icon">🏗</span>
+          <span class="scope-group-title">Base Grouting &amp; Waterproofing</span>
+          <label class="scope-item" style="margin-left:auto;border:none;padding:0">
+            <input type="checkbox" value="grout" data-group="civil" onchange="onScopeItemChange()"> Include
+          </label>
+        </div>
+      </div>
+
+      <!-- Combined cert requirements preview -->
+      <div id="scope-summary" style="display:none;margin-top:10px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r)">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:5px">Combined certification requirements</div>
+        <div id="scope-cert-list" style="font-size:11px;color:var(--text2);line-height:1.7"></div>
+      </div>
+    </div>
+
+    <!-- STEP 3: ENGINEER ASSIGNMENT -->
+    <div id="wiz-step-3" class="modal-body" style="display:none">
+      <div style="margin-bottom:10px;padding:7px 10px;background:var(--bg3);border-radius:5px;border:1px solid var(--border);font-size:11px;">
+        <span style="color:var(--text3)">Scope:</span> <span id="step3-scope-summary" style="color:var(--text2);font-weight:600"></span><br>
+        <span style="color:var(--text3)">Required certs:</span> <span id="step3-certs-summary" style="color:var(--text2)"></span>
+      </div>
+      <div style="font-size:10px;color:var(--amber);margin-bottom:8px;padding:5px 8px;background:var(--abg);border-radius:5px;border:1px solid rgba(210,153,34,.25)">
+        ⚖ <strong>UKAS Type C:</strong> Assign each engineer to their function on this job. Inspector cannot inspect work they maintained at this site previously.
+      </div>
+      <div class="eng-select-grid" id="eng-select-grid"></div>
+    </div>
+
+    <!-- FOOTER NAVIGATION -->
     <div class="modal-footer">
+      <button class="btn btn-secondary" id="wiz-back-btn" onclick="wizBack()" style="display:none">← Back</button>
       <button class="btn btn-secondary" onclick="closeJobModal()">Cancel</button>
-      <button class="btn btn-primary" id="job-save-btn" onclick="saveJob()">Save Deployment</button>
+      <button class="btn btn-primary" id="wiz-next-btn" onclick="wizNext()">Next →</button>
+      <button class="btn btn-primary" id="job-save-btn" onclick="saveJob()" style="display:none">Save Deployment</button>
     </div>
   </div>
 </div>
@@ -909,7 +1111,261 @@ function onScopeChange(){
   checkImpartiality();
 }
 
-// ── IMPARTIALITY CHECK ────────────────────────────────────────
+// ── SCOPE → SCOPE_ID MAPPING ─────────────────────────────────
+// Resolves equipment selections + environment into workscope_types IDs
+// and then aggregates required certs across all selected scopes
+
+var SCOPE_MAP = {
+  // equipment-value : {onshore_id, offshore_id}
+  'skyman-th250':  {on:'TH-SVC-SKY', off:'TH-SVC-SKY'},
+  'skyman-gwb450': {on:'TH-SVC-SKY', off:'TH-SVC-SKY'},
+  'pc-sherpa':     {on:'TH-SVC-PC',  off:'TH-SVC-PC'},
+  'avanti-swp':    {on:'TH-SVC-AV',  off:'TH-SVC-AV'},
+  'goracon-gwb':   {on:'TH-SVC-GOR', off:'TH-SVC-GOR'},
+  'lift-general':  {on:'TH-SVC-SKY', off:'TH-SVC-SKY'},
+  'crane-hmf':     {on:'CRANE-SVC-HMF',  off:'CRANE-SVC-HMF'},
+  'crane-hiab':    {on:'CRANE-SVC-HIAB', off:'CRANE-SVC-HIAB'},
+  'crane-demag':   {on:'CRANE-SVC-DEMAG',off:'CRANE-SVC-DEMAG'},
+  'crane-davit':   {on:'DAVIT-SVC',      off:'DAVIT-SVC'},
+  'crane-general': {on:'CRANE-SVC-HMF',  off:'CRANE-SVC-HMF'},
+  'hoist-liftket': {on:'HOIST-SVC',  off:'HOIST-SVC'},
+  'hoist-abb-demag':{on:'HOIST-SVC', off:'HOIST-SVC'},
+  'hoist-goracon': {on:'HOIST-SVC',  off:'HOIST-SVC'},
+  'hoist-general': {on:'HOIST-SVC',  off:'HOIST-SVC'},
+  'tmse':          {on:'TMSE-ONS',   off:'TMSE-OFF'},
+  'pssr':          {on:'PSSR-ONS',   off:'PSSR-OFF'},
+  'loler':         {on:'LOLER-ONS',  off:'LOLER-OFF'},
+  'ppe-insp':      {on:'PPE-INSP',   off:'PPE-INSP'},
+  'tp-insp':       {on:'TP-INSP',    off:'TP-INSP'},
+  'blade':         {on:'BLADE-ONS',  off:'BLADE-OFF'},
+  'grout':         {on:'GROUT',      off:'GROUT'},
+};
+
+function getSelectedEquipment(){
+  return Array.from(document.querySelectorAll('.scope-group-body input:checked')).map(function(cb){return cb.value;});
+}
+
+function getIsOffshore(){
+  var r=document.querySelector('input[name="env"]:checked');
+  return r&&r.value==='offshore';
+}
+
+function getWorkTypes(){
+  return ['inspection','maintenance','repair'].filter(function(t){
+    var cb=document.getElementById('wt-cb-'+t);
+    return cb&&cb.checked;
+  }).map(function(t){return t.charAt(0).toUpperCase()+t.slice(1);});
+}
+
+function resolveScopes(){
+  var equip=getSelectedEquipment();
+  var offshore=getIsOffshore();
+  var key=offshore?'off':'on';
+  var ids=[...new Set(equip.map(function(e){
+    return SCOPE_MAP[e]?SCOPE_MAP[e][key]:null;
+  }).filter(Boolean))];
+  return ids;
+}
+
+function getAggregatedCerts(scopeIds, includeInspectorCerts){
+  var certs=new Set();
+  scopeIds.forEach(function(sid){
+    var scope=_scopes.find(function(s){return s.id===sid;});
+    if(!scope) return;
+    (scope.required_certs||[]).forEach(function(c){certs.add(c);});
+    if(includeInspectorCerts)(scope.inspector_certs||[]).forEach(function(c){certs.add(c);});
+  });
+  return Array.from(certs);
+}
+
+function updateScopeGroupCounts(){
+  var groups={lift:0,crane:0,hoist:0,inspection:0,access:0};
+  document.querySelectorAll('.scope-group-body input:checked').forEach(function(cb){
+    var g=cb.getAttribute('data-group');
+    if(groups[g]!==undefined) groups[g]++;
+  });
+  Object.keys(groups).forEach(function(g){
+    var el=document.getElementById('sgc-'+g);
+    if(el){el.textContent=groups[g]+' selected';el.style.display=groups[g]?'':'none';}
+  });
+}
+
+function onScopeItemChange(){
+  updateScopeGroupCounts();
+  var scopeIds=resolveScopes();
+  var workTypes=getWorkTypes();
+  var hasInspection=workTypes.includes('Inspection');
+  var certs=getAggregatedCerts(scopeIds, hasInspection);
+  var summary=document.getElementById('scope-summary');
+  var certList=document.getElementById('scope-cert-list');
+  if(scopeIds.length){
+    summary.style.display='';
+    var mandatoryNote='<span style="color:var(--text3)">+ 7 mandatory baseline (GWO BST ×5, Medical, CST)</span>';
+    certList.innerHTML=certs.map(function(c){return'<span style="display:inline-block;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin:2px;font-size:10px">'+c+'</span>';}).join('')+(certs.length?'<br>'+mandatoryNote:mandatoryNote);
+  } else {
+    summary.style.display='none';
+  }
+}
+
+function onWorkTypeChange(){
+  var types=getWorkTypes();
+  var ukas=document.getElementById('ukas-note');
+  var hasInspection=types.includes('Inspection');
+  var hasMaintOrRepair=types.includes('Maintenance')||types.includes('Repair');
+  ukas.style.display=(hasInspection&&hasMaintOrRepair)?'':'none';
+  // Update chip active states
+  ['inspection','maintenance','repair'].forEach(function(t){
+    var chip=document.getElementById('wt-'+t);
+    var cb=document.getElementById('wt-cb-'+t);
+    if(chip&&cb) chip.style.borderColor=cb.checked?'var(--accent)':'';
+    if(chip&&cb) chip.style.background=cb.checked?'var(--bbg)':'';
+    if(chip&&cb) chip.style.color=cb.checked?'var(--accent)':'';
+  });
+}
+
+function onEnvChange(){
+  ['onshore','offshore'].forEach(function(e){
+    var chip=document.getElementById('env-'+e);
+    var rb=document.querySelector('input[name="env"][value="'+e+'"]');
+    if(chip&&rb){
+      if(rb.checked) chip.classList.add('active');
+      else chip.classList.remove('active');
+    }
+  });
+  onScopeItemChange(); // refresh cert list for offshore/onshore change
+}
+
+function toggleScopeGroup(hdr){
+  var body=hdr.nextElementSibling;
+  var chev=hdr.querySelector('.scope-chevron');
+  if(!body||!body.classList.contains('scope-group-body')) return;
+  body.classList.toggle('open');
+  if(chev) chev.classList.toggle('open');
+}
+
+// ── WIZARD STATE ──────────────────────────────────────────────
+var _wizStep=1;
+
+function wizReset(){
+  _wizStep=1;
+  _editJobId=null;
+  // Step 1
+  document.getElementById('job-name').value='';
+  document.getElementById('job-start').value='';
+  document.getElementById('job-end').value='';
+  document.getElementById('job-notes').value='';
+  ['inspection','maintenance','repair'].forEach(function(t){
+    var cb=document.getElementById('wt-cb-'+t); if(cb) cb.checked=false;
+  });
+  onWorkTypeChange();
+  var onCb=document.querySelector('input[name="env"][value="onshore"]');
+  if(onCb){onCb.checked=true; onEnvChange();}
+  // Step 2
+  document.querySelectorAll('.scope-group-body input[type="checkbox"]').forEach(function(cb){cb.checked=false;});
+  document.querySelectorAll('.scope-group-body').forEach(function(b){b.classList.remove('open');});
+  document.querySelector('.scope-group-body').classList.add('open'); // open first one
+  updateScopeGroupCounts();
+  document.getElementById('scope-summary').style.display='none';
+  wizShowStep(1);
+}
+
+function wizShowStep(n){
+  _wizStep=n;
+  for(var i=1;i<=3;i++){
+    document.getElementById('wiz-step-'+i).style.display=i===n?'':'none';
+    document.getElementById('step-bar-'+i).style.background=i<=n?'var(--accent)':'var(--border)';
+  }
+  var lbl=['Job Details','Equipment Scope','Engineer Assignment'];
+  document.getElementById('step-indicator').textContent='Step '+n+' of 3 — '+lbl[n-1];
+  document.getElementById('wiz-back-btn').style.display=n>1?'':'none';
+  document.getElementById('wiz-next-btn').style.display=n<3?'':'none';
+  document.getElementById('job-save-btn').style.display=n===3?'':'none';
+}
+
+function wizBack(){
+  if(_wizStep>1) wizShowStep(_wizStep-1);
+}
+
+function wizNext(){
+  if(_wizStep===1){
+    var name=document.getElementById('job-name').value.trim();
+    var start=document.getElementById('job-start').value;
+    if(!name){showToast('Job name required','err');return;}
+    if(!start){showToast('Start date required','err');return;}
+    var types=getWorkTypes();
+    if(!types.length){showToast('Select at least one work type','err');return;}
+    wizShowStep(2);
+  } else if(_wizStep===2){
+    var scopeIds=resolveScopes();
+    var equip=getSelectedEquipment();
+    if(!equip.length){showToast('Select at least one equipment type','err');return;}
+    // Populate step 3 summary
+    var scope_names=scopeIds.map(function(id){var s=_scopes.find(function(x){return x.id===id;});return s?s.name:id;});
+    document.getElementById('step3-scope-summary').textContent=scope_names.join(' + ')||'—';
+    var workTypes=getWorkTypes();
+    var hasInspection=workTypes.includes('Inspection');
+    var certs=getAggregatedCerts(scopeIds, hasInspection);
+    document.getElementById('step3-certs-summary').textContent=
+      '7 mandatory + '+(certs.length?certs.join(', '):'none beyond baseline');
+    buildEngGrid(scopeIds, null, document.getElementById('job-name').value.split('—').slice(-1)[0].trim());
+    wizShowStep(3);
+  }
+}
+
+function openNewJob(){
+  document.getElementById('modal-job-title').textContent='New Deployment';
+  wizReset();
+  document.getElementById('job-modal').classList.add('open');
+  document.getElementById('job-name').oninput=function(){checkImpartiality();};
+}
+
+function editJob(id){
+  var dep=_deployments.find(function(d){return d.id===id;});
+  if(!dep) return;
+  _editJobId=id;
+  document.getElementById('modal-job-title').textContent='Edit Deployment';
+  wizReset();
+  // Repopulate step 1
+  document.getElementById('job-name').value=dep.job_name;
+  document.getElementById('job-start').value=dep.start_date;
+  document.getElementById('job-end').value=dep.end_date||'';
+  document.getElementById('job-notes').value=dep.notes||'';
+  // Work types
+  (dep.work_types||['Inspection']).forEach(function(t){
+    var cb=document.getElementById('wt-cb-'+t.toLowerCase()); if(cb){cb.checked=true;}
+  });
+  onWorkTypeChange();
+  // Offshore
+  if(dep.is_offshore){var offCb=document.querySelector('input[name="env"][value="offshore"]');if(offCb){offCb.checked=true;onEnvChange();}}
+  // Scope IDs — reverse-map to equipment values
+  var scopeIds=dep.scope_ids||[dep.scope_id].filter(Boolean);
+  var revMap={};
+  Object.keys(SCOPE_MAP).forEach(function(eq){
+    var id=SCOPE_MAP[eq];
+    ['on','off'].forEach(function(k){if(!revMap[id[k]])revMap[id[k]]=[];revMap[id[k]].push(eq);});
+  });
+  scopeIds.forEach(function(sid){
+    (revMap[sid]||[]).slice(0,1).forEach(function(eq){
+      var cb=document.querySelector('.scope-group-body input[value="'+eq+'"]');
+      if(cb) cb.checked=true;
+    });
+  });
+  onScopeItemChange();
+  updateScopeGroupCounts();
+  var existingEngs=_depEngineers.filter(function(de){return de.deployment_id===id;}).map(function(de){return{u:de.engineer_username,fn:de.work_function};});
+  // Skip to step 3 if editing
+  var siteName=dep.site_name||dep.job_name.split('—').slice(-1)[0].trim();
+  var s3scope=dep.scope_ids||[dep.scope_id].filter(Boolean);
+  var wt=dep.work_types||['Inspection'];
+  var hi=wt.includes('Inspection');
+  var certs=getAggregatedCerts(s3scope,hi);
+  document.getElementById('step3-scope-summary').textContent=s3scope.join(', ');
+  document.getElementById('step3-certs-summary').textContent='7 mandatory + '+(certs.length?certs.join(', '):'none');
+  buildEngGrid(s3scope, existingEngs, siteName);
+  document.getElementById('job-modal').classList.add('open');
+  wizShowStep(3);
+  document.getElementById('job-name').oninput=function(){checkImpartiality();};
+}
 // Returns array of {site_name, date, job} where this engineer has done Maintenance
 function getPriorMaintenanceSites(username){
   return _depEngineers.filter(function(de){
@@ -921,9 +1377,11 @@ function getPriorMaintenanceSites(username){
   }).filter(Boolean);
 }
 
-function buildEngGrid(scopeId, selected, targetSite){
-  var scope=_scopes.find(function(s){return s.id===scopeId;});
-  var reqCerts=scope?(scope.required_certs||[]):[];
+function buildEngGrid(scopeIdOrIds, selected, targetSite){
+  // Accept either a single scope ID string (legacy) or array of scope IDs
+  var scopeIds=Array.isArray(scopeIdOrIds)?scopeIdOrIds:(scopeIdOrIds?[scopeIdOrIds]:[]);
+  // Aggregate required certs across all selected scopes
+  var reqCerts=getAggregatedCerts(scopeIds, false); // mandatory inspection certs handled per-engineer below
 
   var html='';
   _engineers.forEach(function(eng){
@@ -1057,13 +1515,19 @@ async function saveJob(){
   var btn=document.getElementById('job-save-btn');
   btn.disabled=true;btn.textContent='Saving...';
 
+  var scopeIds=resolveScopes();
+  var workTypes=getWorkTypes();
+  var isOffshore=getIsOffshore();
+  var scopeId=scopeIds[0]||null;
+  var scope=_scopes.find(function(s){return s.id===scopeId;});
   var siteParsed=name.includes('—')?name.split('—')[1].trim():name;
   var payload={
-    job_name:name,site_name:siteParsed,
-    scope_id:scopeId||null,scope_name:scope?scope.name:null,
-    start_date:start,end_date:end,status:'planned',
+    job_name:name, site_name:siteParsed,
+    scope_id:scopeId, scope_name:scope?scope.name:null,
+    scope_ids:scopeIds, work_types:workTypes, is_offshore:isOffshore,
+    start_date:start, end_date:end, status:'planned',
     engineers:engAssignments.map(function(a){return a.username;}),
-    notes:notes||null,created_by:_session.username
+    notes:notes||null, created_by:_session.username
   };
 
   var url=SUPA_URL+'/rest/v1/deployments';

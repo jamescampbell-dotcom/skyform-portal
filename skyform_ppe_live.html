@@ -1391,7 +1391,7 @@ function buildFullRecord(r, container) {
     ['Manufacture date',r.manufacture_date||'—'],['First use',r.first_use_date||'—'],
     ['Last inspection',r.last_inspection_date||'—'],['Next inspection',r.next_inspection_date||'—'],
     ['Inspector',r.inspector_name||'—'],['Retirement date',retTxt],
-    ['Location',r.tagged_location||'—'],['Submitted by',r.submitted_by||'—'],
+    ['Location',r.location||'—'],['Submitted by',r.submitted_by||'—'],
   ];
   var pg = document.createElement('div'); pg.className='pd-grid';
   fields.forEach(function(f){
@@ -1787,7 +1787,7 @@ function showAddRecordModal(engName, existingRecords) {
         inspector_name: (document.getElementById('_aem_inspector')||{}).value||'',
         condition: document.getElementById('_aem_cond').value||'Good',
         tagged_engineer: engName,
-        tagged_location: (document.getElementById('_aem_loc')||{}).value||'',
+        location: (document.getElementById('_aem_loc')||{}).value||'',
         submitted_by: _currentMgmt?_currentMgmt.username:'admin',
         verification_status: 'pending',
         cert_image_data: cert||''

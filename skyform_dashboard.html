@@ -460,7 +460,7 @@ async function initDashboard(){
   _calMonth=today.getMonth();
 
   var [engs,ppe,train,mand,deps,scopes]=await Promise.all([
-    db('engineers?select=id,name,username,role,tagged_location&order=name'),
+    db('engineers?select=id,name,username,role,location&order=name'),
     db('ppe_register?select=*&order=created_at.desc'),
     db('training_records?select=*&order=created_at.desc'),
     db('training_certifications?select=*&mandatory_all=eq.true'),
@@ -588,7 +588,7 @@ function renderEngTable(){
     var dep=d.nextDep?'<span style="font-size:11px;color:var(--text3)">'+formatDate(d.nextDep.start_date)+'<br>'+escHtml(d.nextDep.site_name)+'</span>':'<span style="font-size:11px;color:var(--border2)">—</span>';
     html+='<tr>'
       +'<td><div class="eng-name">'+escHtml(d.eng.name)+'</div><div class="eng-role">'+escHtml(d.eng.role||'')+'</div></td>'
-      +'<td style="font-size:11px;color:var(--text3)">'+escHtml(d.eng.tagged_location||'—')+'</td>'
+      +'<td style="font-size:11px;color:var(--text3)">'+escHtml(d.eng.location||'—')+'</td>'
       +'<td><div class="bar-wrap"><div class="bar-fill" style="width:'+d.ppePct+'%;background:'+pc+'"></div></div><span class="pct" style="color:'+pc+'">'+d.ppePct+'%</span></td>'
       +'<td><div class="bar-wrap"><div class="bar-fill" style="width:'+d.trainPct+'%;background:'+tc+'"></div></div><span class="pct" style="color:'+tc+'">'+d.trainPct+'%</span></td>'
       +'<td>'+dl+'</td>'
@@ -628,7 +628,7 @@ function renderExpiry(){
 function renderSites(){
   var sites={};
   _engineers.forEach(function(eng){
-    var loc=eng.tagged_location||'Unknown';
+    var loc=eng.location||'Unknown';
     if(!sites[loc]) sites[loc]={v:0,t:0,engs:0};
     var engPPE=_ppe.filter(function(r){return(r.submitted_by||'').toLowerCase()===eng.username.toLowerCase();});
     var engTrain=_training.filter(function(r){return(r.engineer_username||'').toLowerCase()===eng.username.toLowerCase();});

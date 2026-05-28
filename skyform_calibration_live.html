@@ -300,7 +300,7 @@ function renderFeed() {
     if (filterState && r.state !== filterState) return false;
     if (filterType && r.equipment_type !== filterType) return false;
     if (search) {
-      var hay = ((r.name||"")+" "+(r.identifier||"")+" "+(r.tagged_engineer||"")+" "+(r.tagged_location||"")+" "+(r.submitted_by||"")+" "+(r.equipment_type||"")).toLowerCase();
+      var hay = ((r.name||"")+" "+(r.identifier||"")+" "+(r.tagged_engineer||"")+" "+(r.location||"")+" "+(r.submitted_by||"")+" "+(r.equipment_type||"")).toLowerCase();
       if (hay.indexOf(search) === -1) return false;
     }
     return true;
@@ -397,9 +397,9 @@ function buildEntry(r) {
 
   // Tag chips row
   var chips = document.createElement("div"); chips.className = "tag-chips"; chips.style.marginTop = "14px";
-  if (r.tagged_location) {
+  if (r.location) {
     var lc = document.createElement("span"); lc.className = "tag-chip tc-loc";
-    lc.textContent = "\uD83D\uDCCD " + r.tagged_location; chips.appendChild(lc);
+    lc.textContent = "\uD83D\uDCCD " + r.location; chips.appendChild(lc);
   }
   if (r.tagged_engineer) {
     var ec = document.createElement("span"); ec.className = "tag-chip tc-eng";

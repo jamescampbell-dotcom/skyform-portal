@@ -412,7 +412,7 @@ function dbFetch(path){
 async function initPage(){
   document.getElementById('main-page').style.display='';
   var [engs,certs,recs]=await Promise.all([
-    dbFetch('engineers?select=id,name,username,role,tagged_location&order=name'),
+    dbFetch('engineers?select=id,name,username,role,location&order=name'),
     dbFetch('training_certifications?select=*&order=category,id'),
     dbFetch('training_records?select=*&order=created_at.desc'),
   ]);
@@ -508,7 +508,7 @@ function renderMatrix(){
     tbody2+='<tr>'
       +'<td style="font-weight:600">'+escHtml(eng.name)+'</td>'
       +'<td style="font-size:12px;color:var(--text3)">'+escHtml(eng.role||'—')+'</td>'
-      +'<td style="font-size:12px;color:var(--text3)">'+escHtml(eng.tagged_location||'—')+'</td>'
+      +'<td style="font-size:12px;color:var(--text3)">'+escHtml(eng.location||'—')+'</td>'
       +'<td style="font-size:12px">'+verified+' / '+total+' verified</td>'
       +'<td><span class="pill '+statusCls+'">'+status+'</span></td>'
       +'</tr>';

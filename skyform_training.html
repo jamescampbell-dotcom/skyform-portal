@@ -327,7 +327,7 @@ async function initTraining(){
   // Load certs catalogue + engineer's records in parallel
   var [certs, engData, records] = await Promise.all([
     dbFetch('training_certifications?select=*&order=category,id'),
-    dbFetch('engineers?select=name,role,tagged_location&username=ilike.'+encodeURIComponent(_session.username)),
+    dbFetch('engineers?select=name,role,location&username=ilike.'+encodeURIComponent(_session.username)),
     dbFetch('training_records?select=*&engineer_username=ilike.'+encodeURIComponent(_session.username)+'&order=created_at.desc')
   ]);
 
@@ -335,7 +335,7 @@ async function initTraining(){
   _myRecords = Array.isArray(records) ? records : [];
   var eng = Array.isArray(engData) && engData.length ? engData[0] : {};
   var role = eng.role || 'Engineer';
-  var location = eng.tagged_location || '—';
+  var location = eng.location || '—';
   document.getElementById('profile-sub').textContent = role+' · '+location;
 
   renderTraining(role);

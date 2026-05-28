@@ -170,51 +170,36 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min
 </div>
 
 <script>
-var SUPA_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co";
-var SUPA_KEY = "sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK";
 
-var _engMap  = {};
-var _mgmtMap = {};
-var _loaded  = false;
 
-// Load both user tables on page load
-async function loadUsers() {
+// ── SECURE AUTH — server-side Edge Function ──────────────────
+// pw_hash and sha256 verification happen server-side only
+var AUTH_URL = 'https://tdbgakmhkwzyaczqjrxw.supabase.co/functions/v1/skyform-auth';
+var AUTH_KEY = 'sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK';
+async function serverLogin(username, password) {
   try {
-    var [engRes, mgmtRes] = await Promise.all([
-      fetch(SUPA_URL + "/rest/v1/engineers?select=name,username,pw_hash", {
-        headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
-      }),
-      fetch(SUPA_URL + "/rest/v1/management_users?select=name,username,pw_hash", {
-        headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
-      })
-    ]);
-    var engs  = await engRes.json();
-    var mgmts = await mgmtRes.json();
-
-    // Build name->engineer lookup for dual-role detection
-    var engByName = {};
-    engs.forEach(function(r){
-      if(r.username) _engMap[r.username.toLowerCase()] = {name:r.name, hash:r.pw_hash, type:'engineer'};
-      engByName[r.name.toLowerCase()] = {name:r.name, hash:r.pw_hash, username:r.username};
+    var res = await fetch(AUTH_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + AUTH_KEY
+      },
+      body: JSON.stringify({username: username.trim(), password: password})
     });
-    mgmts.forEach(function(r){
-      if(!r.username) return;
-      var mgmtRec = {name:r.name, hash:r.pw_hash, type:'management'};
-      // Check if this management user also exists as an engineer (by name)
-      var engMatch = engByName[r.name.toLowerCase()];
-      if(engMatch) mgmtRec.dualEng = engMatch;
-      _mgmtMap[r.username.toLowerCase()] = mgmtRec;
-    });
-    _loaded = true;
-    document.getElementById('p-loading').textContent = '';
+    return await res.json();
   } catch(e) {
-    document.getElementById('p-loading').textContent = 'Connection issue — please refresh';
+    return {success: false, error: 'Connection error — please try again'};
   }
-}
-
-async function sha256hex(str) {
-  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}async function serverLogin(username, password) {
+  try {
+    var res = await fetch(AUTH_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({username:username.trim(), password:password})
+    });
+    return await res.json();
+  } catch(e) {
+    return {success:false, error:'Connection error — please try again'};
+  }
 }
 
 async function doPortalLogin() {
@@ -222,53 +207,27 @@ async function doPortalLogin() {
   var password = document.getElementById('p-pass').value||'';
   var err = document.getElementById('p-err');
   var btn = document.getElementById('p-btn');
-
   err.textContent = '';
-  if(!username){ err.textContent = 'Please enter your username'; return; }
-  if(!password){ err.textContent = 'Please enter your password'; return; }
-
-  btn.disabled = true;
-  btn.textContent = 'Signing in...';
-
-  if(!_loaded) {
-    document.getElementById('p-loading').textContent = 'Loading...';
-    await loadUsers();
-    document.getElementById('p-loading').textContent = '';
-  }
-
-  var key  = username.toLowerCase();
-  var hash = await sha256hex(password);
-
-  var mgmt = _mgmtMap[key];
-  var eng  = _engMap[key];
-
-  // ── DUAL ROLE: management user who also has an engineer record ───
-  if(mgmt && mgmt.dualEng && hash === mgmt.hash) {
-    btn.disabled = false; btn.textContent = 'Sign In →';
-    showRolePicker(username, mgmt, mgmt.dualEng);
+  if(!username){ err.textContent='Please enter your username'; return; }
+  if(!password){ err.textContent='Please enter your password'; return; }
+  btn.disabled=true; btn.textContent='Signing in...';
+  var result = await serverLogin(username, password);
+  btn.disabled=false; btn.textContent='Sign In →';
+  if(!result.success){ err.textContent=result.error||'Username not recognised or password incorrect'; return; }
+  if(result.type==='management' && result.dualRole){
+    showRolePicker(username, result, {name:result.name, username:result.engUsername});
     return;
   }
-
-  // ── MANAGEMENT ONLY ───────────────────────────────────────────────
-  if(mgmt) {
-    if(hash !== mgmt.hash){ err.textContent = 'Incorrect password — please try again'; btn.disabled=false; btn.textContent='Sign In →'; return; }
-    sessionStorage.setItem('skyform_mgmt_session', JSON.stringify({ username: username, name: mgmt.name }));
-    window.location.href = 'skyform_ppe_live.html';
-    return;
+  if(result.type==='management'){
+    sessionStorage.setItem('skyform_mgmt_session', JSON.stringify({username:username, name:result.name}));
+    window.location.href='skyform_ppe_live.html'; return;
   }
-
-  // ── ENGINEER ONLY ─────────────────────────────────────────────────
-  if(eng) {
-    if(hash !== eng.hash){ err.textContent = 'Incorrect password — please try again'; btn.disabled=false; btn.textContent='Sign In →'; return; }
-    var displayName = username.slice(0,2).toUpperCase() + username.slice(2);
-    sessionStorage.setItem('skyform_eng_session', JSON.stringify({ username: displayName, name: eng.name }));
-    window.location.href = 'skyform_ppe.html';
-    return;
+  if(result.type==='engineer'){
+    var d=username.slice(0,2).toUpperCase()+username.slice(2);
+    sessionStorage.setItem('skyform_eng_session', JSON.stringify({username:d, name:result.name}));
+    window.location.href='skyform_ppe.html'; return;
   }
-
-  err.textContent = 'Username not recognised — please check and try again';
-  btn.disabled = false;
-  btn.textContent = 'Sign In →';
+  err.textContent='Unexpected response — please try again';
 }
 
 function showRolePicker(username, mgmt, eng) {

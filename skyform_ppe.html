@@ -990,7 +990,46 @@ function loadEngineerRequirements(engName) {
 // ── ENGINEER LOGIN ──────────────────────────────────────────────────
 
 // Engineer lookup map: username -> {name, hash}
-var ENG_MAP = {};
+
+// ── SECURE AUTH — server-side Edge Function ──────────────────
+// pw_hash and sha256 verification happen server-side only
+var AUTH_URL = 'https://tdbgakmhkwzyaczqjrxw.supabase.co/functions/v1/skyform-auth';
+var AUTH_KEY = 'sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK';
+async function serverLogin(username, password) {
+  try {
+    var res = await fetch(AUTH_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + AUTH_KEY
+      },
+      body: JSON.stringify({username: username.trim(), password: password})
+    });
+    return await res.json();
+  } catch(e) {
+    return {success: false, error: 'Connection error — please try again'};
+  }
+}async function serverLogin(username, password) {
+  try {
+    var res = await fetch(AUTH_URL, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:username.trim(),password:password})});
+    return await res.json();
+  } catch(e) { return {success:false,error:'Connection error — please try again'}; }
+}
+async function doEngLogin() {
+  var username=((document.getElementById('login-user')||{}).value||'').trim();
+  var password=(document.getElementById('login-pass')||{}).value||'';
+  var err=document.getElementById('login-err');
+  var btn=document.getElementById('eng-login-btn');
+  if(!username){err.textContent='Please enter your username';return;}
+  if(!password){err.textContent='Please enter your password';return;}
+  if(btn){btn.disabled=true;btn.textContent='Signing in...';}
+  err.textContent='';
+  var result=await serverLogin(username,password);
+  if(btn){btn.disabled=false;btn.textContent='Sign In →';}
+  if(!result.success){err.textContent=result.error||'Username not recognised or password incorrect';return;}
+  var d=username.slice(0,2).toUpperCase()+username.slice(2);
+  setLoggedInEngineer(d,result.name);
+}
 
 function buildLoginScreen() {
   var saved = sessionStorage.getItem('skyform_eng_session');
@@ -1019,55 +1058,12 @@ function buildLoginScreen() {
     + '</div>';
   document.body.appendChild(screen);
 
-  fetch(SUPA_URL + "/rest/v1/engineers?select=name,username,pw_hash&order=name", {
-    headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
-  }).then(function(r){return r.json();}).then(function(rows){
-    ENG_MAP = {};
-    rows.forEach(function(r){
-      if(r.username) ENG_MAP[r.username.toLowerCase()] = {name:r.name, hash:r.pw_hash};
-    });
-  }).catch(function(){});
-
   var pass = document.getElementById('login-pass');
   if(pass) pass.addEventListener('keydown', function(e){ if(e.key==='Enter') doEngLogin(); });
   var usr = document.getElementById('login-user');
   if(usr) usr.addEventListener('keydown', function(e){ if(e.key==='Enter'){ var p=document.getElementById('login-pass'); if(p) p.focus(); }});
 }
 
-async function sha256hex(str) {
-  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-}
-
-async function doEngLogin() {
-  var username = ((document.getElementById('login-user')||{}).value||'').trim();
-  var password = (document.getElementById('login-pass')||{}).value||'';
-  var err = document.getElementById('login-err');
-  if(!username){ err.textContent='Please enter your username'; return; }
-  if(!password){ err.textContent='Please enter your password'; return; }
-  // If ENG_MAP not loaded yet, fetch now and retry
-  if(Object.keys(ENG_MAP).length === 0) {
-    err.textContent='Loading... please try again in a moment';
-    try {
-      var r = await fetch(SUPA_URL + "/rest/v1/engineers?select=name,username,pw_hash&order=name", {
-        headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
-      });
-      var rows = await r.json();
-      ENG_MAP = {};
-      rows.forEach(function(row){ if(row.username) ENG_MAP[row.username.toLowerCase()]={name:row.name,hash:row.pw_hash}; });
-    } catch(e) {}
-    err.textContent='';
-  }
-  var key = username.toLowerCase();
-  var eng = ENG_MAP[key];
-  if(!eng){ err.textContent='Username not recognised — please check and try again'; return; }
-  var hash = await sha256hex(password);
-  if(hash !== eng.hash){ err.textContent='Incorrect password — please try again'; return; }
-  err.textContent='';
-  var displayName = username.slice(0,2).toUpperCase() + username.slice(2);
-  sessionStorage.setItem('skyform_eng_session', JSON.stringify({username:displayName, name:eng.name}));
-  setLoggedInEngineer(displayName, eng.name);
-}
 
 function setLoggedInEngineer(username, fullName) {
   var screen = document.getElementById('eng-login-screen');

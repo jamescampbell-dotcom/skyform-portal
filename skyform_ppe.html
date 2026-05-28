@@ -9,13 +9,13 @@
 :root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#2d333b;--border:#30363d;--border2:#444c56;--text:#e6edf3;--text2:#c9d1d9;--text3:#8b949e;--accent:#1f6feb;--green:#3fb950;--gbg:rgba(63,185,80,.12);--amber:#d29922;--abg:rgba(210,153,34,.12);--red:#f85149;--rbg:rgba(248,81,73,.10);--blue:#58a6ff;--r:8px;--rl:12px;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;padding-bottom:60px;}
-.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:52px;gap:14px;position:sticky;top:0;z-index:100;}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;height:48px;gap:12px;position:sticky;top:0;z-index:100;}
 .hdr img{height:30px;border-radius:4px;}
 .hdr-title{font-size:13px;font-weight:600;color:var(--text2);}
 .hdr-pill{margin-left:auto;background:var(--green);border-radius:20px;padding:3px 12px;font-size:11px;font-weight:600;color:#fff;}
-.wrap{max-width:700px;margin:0 auto;padding:20px 16px;}
-h1{font-size:22px;font-weight:600;margin-bottom:6px;}
-.intro{font-size:13px;color:var(--text3);line-height:1.6;margin-bottom:20px;}
+.wrap{max-width:680px;margin:0 auto;padding:16px;}
+h1{font-size:20px;font-weight:600;margin-bottom:4px;}
+.intro{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:14px;}
 /* submitter */
 .sub-bar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
 .sub-bar label{font-size:12px;font-weight:600;color:var(--text3);white-space:nowrap;padding-top:9px;}
@@ -32,18 +32,18 @@ h1{font-size:22px;font-weight:600;margin-bottom:6px;}
 .sub-status.known{color:var(--green);}
 .sub-status.new-eng{color:var(--amber);}
 /* cards */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:16px;overflow:hidden;}
-.card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:12px;overflow:hidden;}
+.card-hdr{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
 .card-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
 .card-title{font-size:13px;font-weight:600;}
 .card-sub{font-size:11px;color:var(--text3);margin-top:2px;}
-.card-body{padding:18px;}
+.card-body{padding:14px 16px;}
 /* fields */
 .fg{display:grid;gap:14px;margin-bottom:14px;}
 .fg.c2{grid-template-columns:1fr 1fr;}
 .fg.c3{grid-template-columns:1fr 1fr 1fr;}
 @media(max-width:480px){.fg.c2,.fg.c3{grid-template-columns:1fr;}}
-.field label{display:block;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.field label{display:block;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;}
 .field input,.field select,.field textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);}
 .field textarea{resize:vertical;min-height:80px;line-height:1.5;}
@@ -53,8 +53,8 @@ h1{font-size:22px;font-weight:600;margin-bottom:6px;}
 /* ppe type grid */
 .ppe-cats{display:flex;flex-direction:column;gap:12px;}
 .cat-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;padding-left:2px;}
-.chip-row{display:flex;flex-wrap:wrap;gap:6px;}
-.chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;}
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;}
+.chip{padding:4px 11px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;}
 .chip:hover{border-color:var(--accent);color:var(--blue);}
 .chip.sel{color:#fff;}
 /* en standard display */
@@ -76,10 +76,10 @@ h1{font-size:22px;font-weight:600;margin-bottom:6px;}
 .cond-btn.ca{border-color:var(--amber);background:var(--abg);color:var(--amber);}
 .cond-btn.cr{border-color:var(--red);background:var(--rbg);color:var(--red);}
 /* image upload */
-.img-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:all .15s;position:relative;}
+.img-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:14px;text-align:center;cursor:pointer;transition:all .15s;position:relative;}
 .img-zone:hover{border-color:var(--accent);background:rgba(31,111,235,.04);}
 .img-zone.loaded{border-style:solid;border-color:var(--green);padding:0;}
-.img-zone.loaded img{width:100%;max-height:180px;object-fit:cover;border-radius:6px;display:block;}
+.img-zone.loaded img{width:100%;max-height:140px;object-fit:cover;border-radius:6px;display:block;}
 .iz-icon{font-size:24px;margin-bottom:6px;display:block;}
 .iz-text{font-size:12px;color:var(--text3);}
 .iz-sub{font-size:10px;color:var(--text3);margin-top:3px;opacity:.7;}
@@ -97,7 +97,7 @@ h1{font-size:22px;font-weight:600;margin-bottom:6px;}
 .tag-sel:focus{border-color:var(--accent);}
 .tag-required{border-color:var(--amber);}
 /* submit */
-.submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--green),#059669);border:none;border-radius:var(--r);font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;color:#fff;cursor:pointer;margin-top:8px;transition:opacity .15s;}
+.submit-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--green),#059669);border:none;border-radius:var(--r);font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;color:#fff;cursor:pointer;margin-top:8px;transition:opacity .15s;}
 .submit-btn:hover{opacity:.9;}
 .submit-btn:disabled{opacity:.5;cursor:not-allowed;}
 /* success */
@@ -148,12 +148,12 @@ h1{font-size:22px;font-weight:600;margin-bottom:6px;}
   <span class="hdr-pill">&#128737; PPE Tracking</span>
 </header>
 <div class="wrap">
-  <h1>Personal Protective Equipment Register</h1>
-  <p class="intro">Register each item of PPE. The system automatically calculates retirement dates and flags items approaching end of life. HSEQ will be alerted to any Unknown fields or items requiring action.</p>
+  <h1>PPE Register</h1>
+  <p class="intro">Register each PPE item below. Retirement dates are calculated automatically and HSEQ is alerted to any items requiring attention.</p>
 
   <!-- SUBMITTER -->
   <div class="sub-bar">
-    <label>&#128100; Engineer:</label>
+    <label style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);padding-top:10px;white-space:nowrap;">Engineer</label>
     <div class="sub-wrap">
       <input class="sub-input" id="sub-input" type="text" placeholder="Start typing your name..." autocomplete="off">
       <div class="sub-dd" id="sub-dd"></div>
@@ -164,10 +164,9 @@ h1{font-size:22px;font-weight:600;margin-bottom:6px;}
         <textarea id="ppe-other-desc" placeholder="Please describe the PPE item — type, standard, purpose and any relevant details..." style="min-height:80px"></textarea>
       </div>
 <div class="field-group" id="cert-upload-group">
-        <label class="field-label">Certificate / Test Report <span style="font-size:11px;color:var(--text-muted);font-weight:400">(optional — photo or scan)</span></label>
-        <div id="cert-zone" style="border:2px dashed var(--border);border-radius:10px;padding:22px;text-align:center;cursor:pointer;background:var(--card);transition:border-color .2s;margin-top:4px">
-          <div style="font-size:28px;margin-bottom:6px">&#128196;</div>
-          <div style="font-size:13px;color:var(--text-muted)">Tap to upload certificate / test report</div>
+        <label class="field-label">Certificate / Test Report <span style="font-size:11px;color:var(--text-muted);font-weight:400">(where applicable)</span></label>
+        <div id="cert-zone" style="border:2px dashed var(--border);border-radius:8px;padding:14px 16px;text-align:center;cursor:pointer;background:var(--card);transition:border-color .2s;margin-top:4px;display:flex;align-items:center;gap:10px;justify-content:center">
+          <span style="font-size:20px;flex-shrink:0">&#128196;</span><span style="font-size:13px;color:var(--text-muted)">Tap to upload certificate or test report</span>
         </div>
       </div>
       <div class="sub-status" id="sub-status"></div>

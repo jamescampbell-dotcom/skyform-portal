@@ -98,6 +98,39 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min
 }
 .role-back-btn:hover{color:var(--text);}
 
+
+/* ── LIGHT MODE OVERRIDES ─────────────────────────── */
+[data-theme="light"]{
+  --bg:#f6f8fa;--bg2:#ffffff;--bg3:#f0f2f4;--bg4:#e8ebee;
+  --border:#d0d7de;--border2:#b0b8c1;
+  --text:#1c2128;--text2:#373e47;--text3:#636c76;
+  --accent:#0969da;--blue:#0969da;
+  --green:#1a7f37;--gbg:rgba(26,127,55,.1);
+  --amber:#9a6700;--abg:rgba(154,103,0,.1);
+  --red:#cf222e;--rbg:rgba(207,34,46,.08);
+  --purple:#6e40c9;
+}
+[data-theme="light"] body{background:var(--bg);}
+[data-theme="light"] .eng-card-hdr:hover,[data-theme="light"] .fr-row:hover{background:var(--bg3);}
+[data-theme="light"] .full-record,[data-theme="light"] .eng-card{box-shadow:0 1px 3px rgba(0,0,0,.08);}
+[data-theme="light"] .stat-card{box-shadow:0 1px 3px rgba(0,0,0,.06);}
+[data-theme="light"] .portal-header{background:linear-gradient(135deg,#1B4332 0%,#2D6A4F 100%);}
+[data-theme="light"] .ppe-type{color:var(--text);}
+
+/* ── THEME TOGGLE BUTTON ──────────────────────────── */
+.theme-toggle{
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:20px;padding:4px 10px;
+  font-size:14px;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  color:var(--text3);transition:all .2s;
+  font-family:"DM Sans",sans-serif;
+  white-space:nowrap;
+}
+.theme-toggle:hover{border-color:var(--accent);color:var(--text);}
+.theme-toggle-label{font-size:11px;font-weight:600;display:none;}
+@media(min-width:480px){.theme-toggle-label{display:inline;}}
+
 </style>
 </head>
 <body>
@@ -126,6 +159,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min
 
     <div class="status-row">
       <span class="status-dot">System live</span>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">&#9728;</button>
     </div>
   </div>
 </div>
@@ -294,6 +328,34 @@ document.addEventListener('DOMContentLoaded', function(){
     if(e.key === 'Enter') document.getElementById('p-pass').focus();
   });
 });
+
+// ── THEME SYSTEM ─────────────────────────────────────────────────────
+(function(){
+  var saved = localStorage.getItem('skyform_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+})();
+
+function toggleTheme() {
+  var current = document.documentElement.getAttribute('data-theme') || 'dark';
+  var next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('skyform_theme', next);
+  updateThemeBtn();
+}
+
+function updateThemeBtn() {
+  var theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  var btns = document.querySelectorAll('.theme-toggle');
+  btns.forEach(function(btn){
+    btn.innerHTML = theme === 'dark'
+      ? '&#9728; <span class="theme-toggle-label">Light</span>'
+      : '&#9790; <span class="theme-toggle-label">Dark</span>';
+    btn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function(){ updateThemeBtn(); });
+
 </script>
 </body>
 </html>

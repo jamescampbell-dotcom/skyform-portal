@@ -3,729 +3,948 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Skyform Wind — Compliance Dashboard</title>
+<title>Skyform Wind — Operations Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ── TOKENS ──────────────────────────────────────────────────── */
-:root{
-  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#2d333b;
-  --border:#30363d;--border2:#444c56;
-  --text:#e6edf3;--text2:#c9d1d9;--text3:#8b949e;
-  --accent:#1f6feb;--blue:#58a6ff;
-  --green:#3fb950;--gbg:rgba(63,185,80,.12);
-  --amber:#d29922;--abg:rgba(210,153,34,.14);
-  --red:#f85149;--rbg:rgba(248,81,73,.10);
-  --purple:#a371f7;--pbg:rgba(163,113,247,.12);
-  --r:8px;--rl:12px;
-}
-[data-theme="light"]{
-  --bg:#f0f2f5;--bg2:#ffffff;--bg3:#f6f8fa;--bg4:#eaedf0;
-  --border:#d0d7de;--border2:#b8c0cc;
-  --text:#1c2128;--text2:#373e47;--text3:#636c76;
-  --accent:#0969da;--blue:#0969da;
-  --green:#1a7f37;--gbg:rgba(26,127,55,.1);
-  --amber:#9a6700;--abg:rgba(154,103,0,.1);
-  --red:#cf222e;--rbg:rgba(207,34,46,.08);
-  --purple:#6e40c9;--pbg:rgba(110,64,201,.1);
-}
-
-/* ── RESET ───────────────────────────────────────────────────── */
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;font-size:14px;}
-
-/* ── HEADER ─────────────────────────────────────────────────── */
-.hdr{
-  position:sticky;top:0;z-index:100;
-  background:var(--bg2);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:12px;padding:0 16px;height:54px;
-}
-.hdr-logo{height:26px;object-fit:contain;}
-.hdr-title{font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;}
-.hdr-sep{width:1px;height:20px;background:var(--border2);margin:0 4px;}
-.hdr-nav{display:flex;gap:4px;margin-left:4px;}
-.hdr-nav a{
-  padding:5px 12px;border-radius:6px;font-size:13px;font-weight:600;
-  color:var(--text3);text-decoration:none;transition:all .15s;
-}
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#2d333b;--border:#30363d;--border2:#444c56;--text:#e6edf3;--text2:#c9d1d9;--text3:#8b949e;--accent:#1f6feb;--green:#3fb950;--gbg:rgba(63,185,80,.12);--amber:#d29922;--abg:rgba(210,153,34,.13);--red:#f85149;--rbg:rgba(248,81,73,.10);--blue:#58a6ff;--bbg:rgba(88,166,255,.1);--r:8px;--rl:12px;}
+[data-theme="light"]{--bg:#f0f2f5;--bg2:#fff;--bg3:#f6f8fa;--bg4:#eaedf0;--border:#d0d7de;--border2:#b8c0cc;--text:#1c2128;--text2:#373e47;--text3:#636c76;--accent:#0969da;--green:#1a7f37;--gbg:rgba(26,127,55,.1);--amber:#9a6700;--abg:rgba(154,103,0,.1);--red:#cf222e;--rbg:rgba(207,34,46,.08);--blue:#0969da;--bbg:rgba(9,105,218,.08);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 16px;height:50px;position:sticky;top:0;z-index:100;}
+.hdr img{height:28px;border-radius:4px;}
+.hdr-title{font-size:13px;font-weight:600;color:var(--text2);}
+.hdr-nav{display:flex;gap:3px;margin-left:8px;}
+.hdr-nav a{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text3);text-decoration:none;transition:all .15s;}
 .hdr-nav a:hover{background:var(--bg3);color:var(--text);}
 .hdr-nav a.active{background:var(--accent);color:#fff;}
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
-.live-badge{
-  display:flex;align-items:center;gap:5px;padding:4px 10px;
-  border:1px solid var(--border2);border-radius:20px;font-size:11px;font-weight:600;color:var(--text3);
-}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);
-  animation:pulse 2s infinite;}
+.live-pill{display:flex;align-items:center;gap:5px;padding:3px 9px;border:1px solid var(--border2);border-radius:14px;font-size:11px;font-weight:600;color:var(--text3);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.theme-toggle{
-  background:var(--bg3);border:1px solid var(--border2);border-radius:20px;
-  padding:4px 10px;font-size:13px;cursor:pointer;color:var(--text3);
-  font-family:"DM Sans",sans-serif;transition:all .15s;
-}
-.theme-toggle:hover{border-color:var(--accent);color:var(--text);}
-.hdr-signout{
-  background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.25);
-  color:var(--red);border-radius:6px;padding:5px 12px;
-  font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;cursor:pointer;
-  white-space:nowrap;
-}
-.hdr-signout:hover{background:rgba(248,81,73,.2);}
+.theme-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:3px 9px;font-size:12px;cursor:pointer;color:var(--text3);font-family:"DM Sans",sans-serif;}
+.signout-btn{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.25);color:var(--red);border-radius:6px;padding:4px 10px;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
 
-/* ── PAGE ────────────────────────────────────────────────────── */
-.page{max-width:1200px;margin:0 auto;padding:20px 16px 60px;}
+/* MAIN TABS */
+.main-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg2);padding:0 16px;}
+.main-tab{padding:10px 16px;font-size:13px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.main-tab:hover{color:var(--text);}
+.main-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
 
-/* ── HERO STATS ─────────────────────────────────────────────── */
-.hero{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
-@media(min-width:640px){.hero{grid-template-columns:repeat(4,1fr);}}
-.stat{
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);
-  padding:16px;position:relative;overflow:hidden;
-}
-.stat-label{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--text3);text-transform:uppercase;margin-bottom:8px;}
-.stat-val{font-size:32px;font-weight:700;line-height:1;margin-bottom:4px;}
-.stat-sub{font-size:12px;color:var(--text3);}
-.stat-accent{position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px;}
-.stat.green .stat-val{color:var(--green);}
-.stat.green .stat-accent{background:var(--green);}
-.stat.amber .stat-val{color:var(--amber);}
-.stat.amber .stat-accent{background:var(--amber);}
-.stat.red .stat-val{color:var(--red);}
-.stat.red .stat-accent{background:var(--red);}
-.stat.blue .stat-val{color:var(--blue);}
-.stat.blue .stat-accent{background:var(--blue);}
-.stat-ring{
-  position:absolute;right:12px;top:50%;transform:translateY(-50%);
-  width:52px;height:52px;
-}
+.page{max-width:1300px;margin:0 auto;padding:16px;}
 
-/* ── MAIN GRID ───────────────────────────────────────────────── */
-.main-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;}
-@media(min-width:900px){.main-grid{grid-template-columns:1fr 340px;}}
+/* HERO STATS */
+.hero{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+@media(min-width:700px){.hero{grid-template-columns:repeat(4,1fr);}}
+@media(min-width:1000px){.hero{grid-template-columns:repeat(6,1fr);}}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:13px 14px;position:relative;overflow:hidden;}
+.stat-bar{position:absolute;top:0;left:0;width:3px;height:100%;}
+.stat-lbl{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;}
+.stat-val{font-size:26px;font-weight:700;line-height:1;}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:3px;}
 
-/* ── CARDS ───────────────────────────────────────────────────── */
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:1000px){.grid-2{grid-template-columns:1fr 320px;}}
+.grid-3{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px;}
+@media(min-width:700px){.grid-3{grid-template-columns:1fr 1fr;}}
+@media(min-width:1100px){.grid-3{grid-template-columns:1fr 1fr 320px;}}
+
+/* CARDS */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;}
-.card-hdr{
-  display:flex;align-items:center;gap:8px;padding:14px 16px;
-  border-bottom:1px solid var(--border);
-}
-.card-title{font-size:14px;font-weight:700;flex:1;}
-.card-sub{font-size:11px;color:var(--text3);}
-.card-body{padding:0;}
+.card-hdr{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--border);}
+.card-title{font-size:13px;font-weight:700;flex:1;}
+.card-meta{font-size:11px;color:var(--text3);}
+.card-btn{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;border:none;cursor:pointer;font-family:"DM Sans",sans-serif;background:var(--accent);color:#fff;}
 
-/* ── ENGINEER TABLE ─────────────────────────────────────────── */
+/* ENGINEER TABLE */
 .eng-table{width:100%;border-collapse:collapse;}
-.eng-table th{
-  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--text3);padding:8px 14px;text-align:left;
-  border-bottom:1px solid var(--border);background:var(--bg3);
-  cursor:pointer;user-select:none;white-space:nowrap;
-}
+.eng-table th{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:7px 12px;text-align:left;background:var(--bg3);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;}
 .eng-table th:hover{color:var(--text);}
-.eng-table th .sort-arrow{opacity:.4;margin-left:4px;}
-.eng-table th.sorted .sort-arrow{opacity:1;color:var(--accent);}
-.eng-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.eng-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
 .eng-table tr:last-child td{border-bottom:none;}
 .eng-table tr:hover td{background:var(--bg3);}
-.eng-name{font-weight:600;font-size:13px;}
-.eng-loc{font-size:11px;color:var(--text3);margin-top:2px;}
-.bar-wrap{height:6px;background:var(--bg4);border-radius:3px;width:80px;overflow:hidden;}
-.bar-fill{height:100%;border-radius:3px;transition:width .4s;}
-.pct-lbl{font-size:12px;font-weight:700;min-width:36px;text-align:right;}
-.pill{
-  display:inline-flex;align-items:center;gap:3px;
-  padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;
-}
-.pill.g{background:var(--gbg);color:var(--green);}
-.pill.a{background:var(--abg);color:var(--amber);}
-.pill.r{background:var(--rbg);color:var(--red);}
-.pill.b{background:rgba(31,111,235,.12);color:var(--blue);}
-.pill.p{background:var(--pbg);color:var(--purple);}
-.no-data{padding:32px;text-align:center;color:var(--text3);}
+.eng-name{font-size:13px;font-weight:600;}
+.eng-role{font-size:10px;color:var(--text3);margin-top:1px;}
+.bar-wrap{height:5px;background:var(--bg4);border-radius:3px;width:60px;overflow:hidden;display:inline-block;vertical-align:middle;}
+.bar-fill{height:100%;border-radius:3px;}
+.pct{font-size:12px;font-weight:700;margin-left:5px;}
+.deploy-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap;}
+.dp-g{background:var(--gbg);color:var(--green);}
+.dp-a{background:var(--abg);color:var(--amber);}
+.dp-r{background:var(--rbg);color:var(--red);}
 
-/* ── RIGHT COLUMN ────────────────────────────────────────────── */
-.right-col{display:flex;flex-direction:column;gap:16px;}
+/* EXPIRY / ACTIONS */
+.list-row{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--border);}
+.list-row:last-child{border-bottom:none;}
+.list-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.list-text{flex:1;font-size:12px;font-weight:500;}
+.list-sub{font-size:10px;color:var(--text3);margin-top:1px;}
+.list-val{font-size:13px;font-weight:700;}
+.list-btn{font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;border:none;cursor:pointer;font-family:"DM Sans",sans-serif;}
+.lbtn-a{background:var(--gbg);color:var(--green);}
+.lbtn-r{background:var(--rbg);color:var(--red);}
 
-/* ── EXPIRY TIMELINE ─────────────────────────────────────────── */
-.expiry-band{
-  display:flex;align-items:center;padding:10px 14px;gap:10px;
-  border-bottom:1px solid var(--border);
-}
-.expiry-band:last-child{border-bottom:none;}
-.expiry-dot{
-  width:10px;height:10px;border-radius:50%;flex-shrink:0;
-}
-.expiry-info{flex:1;}
-.expiry-label{font-size:12px;font-weight:600;}
-.expiry-detail{font-size:11px;color:var(--text3);margin-top:1px;}
-.expiry-count{font-size:20px;font-weight:700;min-width:32px;text-align:right;}
+/* PLANNER */
+.planner-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+.cal-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;}
+.cal-hdr{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);}
+.cal-title{font-size:15px;font-weight:700;flex:1;}
+.cal-nav{display:flex;gap:6px;align-items:center;}
+.cal-nav button{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2);cursor:pointer;font-family:"DM Sans",sans-serif;font-size:12px;}
+.cal-days-hdr{display:grid;grid-template-columns:repeat(7,1fr);background:var(--bg3);border-bottom:1px solid var(--border);}
+.cal-days-hdr div{padding:5px;text-align:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);}
+.cal-body{display:grid;grid-template-columns:repeat(7,1fr);}
+.cal-cell{min-height:70px;padding:4px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);position:relative;}
+.cal-cell.today{background:rgba(31,111,235,.06);}
+.cal-cell.other-month{opacity:.4;}
+.cal-date{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:3px;}
+.cal-date.today-num{width:20px;height:20px;background:var(--accent);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;}
+.cal-event{font-size:10px;font-weight:600;padding:2px 5px;border-radius:4px;margin-bottom:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;}
+.cal-event:hover{opacity:.85;}
 
-/* ── SITE BREAKDOWN ─────────────────────────────────────────── */
-.site-row{display:flex;flex-direction:column;gap:4px;padding:10px 14px;border-bottom:1px solid var(--border);}
-.site-row:last-child{border-bottom:none;}
-.site-top{display:flex;align-items:center;justify-content:space-between;}
-.site-name{font-size:13px;font-weight:600;}
-.site-pct{font-size:13px;font-weight:700;}
-.site-bar-wrap{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
-.site-bar-fill{height:100%;border-radius:3px;transition:width .5s;}
-.site-meta{font-size:11px;color:var(--text3);margin-top:2px;}
+/* JOB LIST */
+.job-row{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;}
+.job-row:hover{background:var(--bg3);}
+.job-row:last-child{border-bottom:none;}
+.job-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.job-body{flex:1;}
+.job-name{font-size:13px;font-weight:600;}
+.job-meta{font-size:11px;color:var(--text3);margin-top:2px;}
+.job-engs{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;}
+.eng-chip{font-size:10px;font-weight:600;padding:1px 6px;background:var(--bg3);border-radius:8px;color:var(--text2);border:1px solid var(--border);}
+.eng-chip.ok{background:var(--gbg);color:var(--green);border-color:transparent;}
+.eng-chip.warn{background:var(--abg);color:var(--amber);border-color:transparent;}
+.eng-chip.bad{background:var(--rbg);color:var(--red);border-color:transparent;}
+.job-actions{display:flex;gap:4px;flex-shrink:0;}
 
-/* ── ACTIVITY FEED ───────────────────────────────────────────── */
-.activity-grid{display:grid;grid-template-columns:1fr;gap:16px;}
-@media(min-width:640px){.activity-grid{grid-template-columns:1fr 1fr;}}
-.activity-item{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:10px 14px;border-bottom:1px solid var(--border);
-}
-.activity-item:last-child{border-bottom:none;}
-.activity-icon{
-  width:28px;height:28px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;flex-shrink:0;margin-top:1px;
-}
-.activity-icon.submit{background:var(--gbg);}
-.activity-icon.verify{background:var(--gbg);}
-.activity-icon.reject{background:var(--rbg);}
-.activity-icon.pending{background:var(--abg);}
-.activity-body{flex:1;}
-.activity-text{font-size:12px;font-weight:500;line-height:1.4;}
-.activity-time{font-size:11px;color:var(--text3);margin-top:2px;}
+/* NEW JOB MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);width:100%;max-width:560px;}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:14px;font-weight:700;}
+.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;}
+.modal-body{padding:16px;}
+.form-row{margin-bottom:12px;}
+.form-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:5px;display:block;}
+.form-input,.form-sel,.form-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;color:var(--text);font-family:"DM Sans",sans-serif;font-size:13px;}
+.form-input:focus,.form-sel:focus,.form-textarea:focus{outline:none;border-color:var(--accent);}
+.eng-select-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:4px;}
+.eng-toggle{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);cursor:pointer;transition:all .15s;background:var(--bg3);}
+.eng-toggle.selected{border-color:var(--green);background:var(--gbg);}
+.eng-toggle.warn{border-color:var(--amber);background:var(--abg);}
+.eng-toggle.bad{border-color:var(--red);background:var(--rbg);}
+.eng-toggle input{accent-color:var(--green);}
+.eng-toggle-name{font-size:12px;font-weight:600;flex:1;}
+.eng-toggle-status{font-size:9px;font-weight:700;}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--border);}
+.btn{padding:7px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:"DM Sans",sans-serif;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-secondary{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
 
-/* ── OUTSTANDING ACTIONS ─────────────────────────────────────── */
-.action-item{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 14px;border-bottom:1px solid var(--border);
-  cursor:pointer;transition:background .12s;
-}
-.action-item:last-child{border-bottom:none;}
-.action-item:hover{background:var(--bg3);}
-.action-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.action-text{flex:1;font-size:12px;font-weight:500;}
-.action-eng{font-size:11px;color:var(--text3);margin-top:2px;}
-.action-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;}
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;align-items:center;justify-content:center;}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);width:340px;overflow:hidden;}
+.login-hdr{background:var(--accent);padding:20px;text-align:center;}
+.login-hdr img{height:36px;border-radius:4px;}
+.login-hdr h2{font-size:16px;font-weight:700;color:#fff;margin-top:8px;}
+.login-hdr p{font-size:12px;color:rgba(255,255,255,.75);margin-top:2px;}
+.login-body{padding:20px;}
+.login-err{color:var(--red);font-size:12px;margin-bottom:8px;min-height:16px;}
+.login-body input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;color:var(--text);font-family:"DM Sans",sans-serif;font-size:13px;margin-bottom:10px;}
+.login-body input:focus{outline:none;border-color:var(--accent);}
+.login-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r);padding:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:"DM Sans",sans-serif;}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;}
 
-/* ── SPINNER ─────────────────────────────────────────────────── */
-.spinner{
-  width:32px;height:32px;border-radius:50%;
-  border:3px solid var(--border2);border-top-color:var(--accent);
-  animation:spin .6s linear infinite;margin:0 auto;
-}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:400;opacity:0;transition:opacity .3s;}
+.toast.ok{background:var(--green);color:#fff;}
+.toast.err{background:var(--red);color:#fff;}
+.toast.warn{background:var(--amber);color:#fff;}
+.no-data{padding:28px;text-align:center;color:var(--text3);font-size:13px;}
+.spinner{width:26px;height:26px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;margin:0 auto;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-wrap{padding:48px;display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--text3);}
-
-/* ── SECTION HEADER ─────────────────────────────────────────── */
-.section-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 0 10px;
-}
-.section-title{font-size:16px;font-weight:700;}
-.section-meta{font-size:12px;color:var(--text3);}
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <div class="login-hdr">
+      <img src="logo.png" alt="Skyform Wind">
+      <h2>Operations Dashboard</h2>
+      <p>Management access required</p>
+    </div>
+    <div class="login-body">
+      <div class="login-err" id="login-err"></div>
+      <input type="text" id="login-user" placeholder="Username" autocomplete="username">
+      <input type="password" id="login-pass" placeholder="Password" autocomplete="current-password">
+      <button class="login-btn" id="login-btn" onclick="doLogin()">Access Dashboard →</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
 <header class="hdr">
-  <img src="logo.png" alt="Skyform Wind" class="hdr-logo">
-  <div class="hdr-sep"></div>
+  <img src="logo.png" alt="Skyform Wind">
   <span class="hdr-title">Skyform Wind Portal</span>
   <nav class="hdr-nav">
     <a href="skyform_dashboard.html" class="active">Dashboard</a>
-    <a href="skyform_ppe_live.html">PPE Register</a>
+    <a href="skyform_ppe_live.html">PPE</a>
     <a href="skyform_training_live.html">Training</a>
+    <a href="skyform_calibration_live.html">Calibration</a>
   </nav>
   <div class="hdr-right">
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">&#9728;</button>
-    <div class="live-badge"><span class="live-dot"></span><span id="live-lbl">Live</span></div>
-    <button class="hdr-signout" id="signout-btn">&#8594; Sign Out</button>
+    <button class="theme-btn" onclick="toggleTheme()">☀</button>
+    <div class="live-pill"><span class="live-dot"></span><span id="live-lbl">Loading</span></div>
+    <button class="signout-btn" id="signout-btn">Sign Out</button>
   </div>
 </header>
 
-<div class="page" id="page" style="display:none">
+<!-- MAIN TABS -->
+<div class="main-tabs" id="main-tabs" style="display:none">
+  <div class="main-tab active" onclick="switchTab('overview',this)">Overview</div>
+  <div class="main-tab" onclick="switchTab('planner',this)">Planner</div>
+  <div class="main-tab" onclick="switchTab('actions',this)">Actions <span id="actions-count" style="background:var(--red);color:#fff;border-radius:10px;font-size:10px;padding:1px 6px;margin-left:4px;display:none"></span></div>
+</div>
 
-  <!-- HERO STATS -->
-  <div class="hero" id="hero">
-    <div class="stat green"><div class="stat-accent"></div><div class="stat-label">Overall Compliance</div><div class="stat-val" id="stat-overall">—</div><div class="stat-sub" id="stat-overall-sub">Loading...</div></div>
-    <div class="stat blue"><div class="stat-accent"></div><div class="stat-label">Engineers Active</div><div class="stat-val" id="stat-engineers">—</div><div class="stat-sub" id="stat-eng-sub">Loading...</div></div>
-    <div class="stat amber"><div class="stat-accent"></div><div class="stat-label">Expiring (90 days)</div><div class="stat-val" id="stat-expiring">—</div><div class="stat-sub" id="stat-exp-sub">Loading...</div></div>
-    <div class="stat red"><div class="stat-accent"></div><div class="stat-label">Pending Review</div><div class="stat-val" id="stat-pending">—</div><div class="stat-sub" id="stat-pend-sub">Loading...</div></div>
-  </div>
-
-  <!-- MAIN GRID -->
-  <div class="main-grid">
-
-    <!-- Engineer Compliance Table -->
-    <div class="card">
-      <div class="card-hdr">
-        <span class="card-title">Engineer Compliance</span>
-        <span class="card-sub" id="eng-table-meta">—</span>
-      </div>
-      <div class="card-body">
-        <div id="eng-table-wrap">
-          <div class="loading-wrap"><div class="spinner"></div><span>Loading engineers...</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Column -->
-    <div class="right-col">
-
-      <!-- Expiry Timeline -->
-      <div class="card">
-        <div class="card-hdr">
-          <span class="card-title">Expiry Timeline</span>
-          <span class="card-sub">Items by renewal window</span>
-        </div>
-        <div class="card-body" id="expiry-wrap">
-          <div class="loading-wrap"><div class="spinner"></div></div>
-        </div>
-      </div>
-
-      <!-- Site Breakdown -->
-      <div class="card">
-        <div class="card-hdr">
-          <span class="card-title">Compliance by Site</span>
-          <span class="card-sub" id="site-meta">—</span>
-        </div>
-        <div class="card-body" id="site-wrap">
-          <div class="loading-wrap"><div class="spinner"></div></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- BOTTOM ROW: Outstanding Actions + Activity Feed -->
-  <div class="activity-grid">
-
-    <!-- Outstanding Actions -->
-    <div class="card">
-      <div class="card-hdr">
-        <span class="card-title">Outstanding Actions</span>
-        <span class="card-sub" id="actions-meta">—</span>
-      </div>
-      <div class="card-body" id="actions-wrap">
-        <div class="loading-wrap"><div class="spinner"></div></div>
-      </div>
-    </div>
-
-    <!-- Recent Activity -->
-    <div class="card">
-      <div class="card-hdr">
-        <span class="card-title">Recent Activity</span>
-        <span class="card-sub">Last 14 days</span>
-      </div>
-      <div class="card-body" id="activity-wrap">
-        <div class="loading-wrap"><div class="spinner"></div></div>
-      </div>
-    </div>
-
+<!-- HERO STATS (always visible when logged in) -->
+<div id="hero-wrap" style="display:none">
+  <div class="page" style="padding-bottom:0">
+    <div class="hero" id="hero"></div>
   </div>
 </div>
 
-<div id="auth-wall" style="display:none;padding:80px 16px;text-align:center;color:var(--text3);">
-  <p style="font-size:32px;margin-bottom:12px;">🔒</p>
-  <p style="font-weight:600;margin-bottom:8px;">Management access required</p>
-  <a href="/" style="color:var(--accent);">Return to portal</a>
+<!-- TAB: OVERVIEW -->
+<div class="page" id="tab-overview" style="display:none">
+  <div class="grid-2">
+    <!-- Engineer compliance table -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title">Engineer Status</span>
+        <span class="card-meta" id="eng-meta">—</span>
+        <div style="display:flex;gap:4px;margin-left:8px;">
+          <select id="sort-sel" onchange="renderEngTable()" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 6px;color:var(--text3);font-size:11px;font-family:'DM Sans',sans-serif;">
+            <option value="name">Sort: Name</option>
+            <option value="deploy">Sort: Status</option>
+            <option value="ppe">Sort: PPE</option>
+            <option value="train">Sort: Training</option>
+          </select>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="eng-table">
+          <thead><tr>
+            <th>Engineer</th>
+            <th title="Site location">Site</th>
+            <th title="PPE compliance %">PPE</th>
+            <th title="Training compliance %">Training</th>
+            <th title="Mandatory certs valid + PPE OK">Deploy Ready</th>
+            <th>Next Deployment</th>
+          </tr></thead>
+          <tbody id="eng-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <!-- Expiry timeline -->
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Expiry Timeline</span><span class="card-meta">PPE + Training</span></div>
+        <div id="expiry-wrap"><div style="padding:20px;text-align:center"><div class="spinner"></div></div></div>
+      </div>
+      <!-- Site breakdown -->
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Compliance by Site</span><span class="card-meta" id="site-meta">—</span></div>
+        <div id="site-wrap"><div style="padding:20px;text-align:center"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom row -->
+  <div class="grid-3">
+    <!-- PPE pending -->
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">PPE — Pending Verification</span><span class="card-meta" id="ppe-pend-meta">—</span></div>
+      <div id="ppe-pend-wrap"></div>
+    </div>
+    <!-- Training pending -->
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Training — Pending Verification</span><span class="card-meta" id="train-pend-meta">—</span></div>
+      <div id="train-pend-wrap"></div>
+    </div>
+    <!-- Activity feed -->
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Recent Activity</span><span class="card-meta">Last 14 days</span></div>
+      <div id="activity-wrap"></div>
+    </div>
+  </div>
 </div>
+
+<!-- TAB: PLANNER -->
+<div class="page" id="tab-planner" style="display:none">
+  <div style="display:grid;grid-template-columns:1fr;gap:14px;">
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
+
+      <!-- Calendar -->
+      <div class="cal-wrap">
+        <div class="cal-hdr">
+          <span class="cal-title" id="cal-month-lbl">June 2026</span>
+          <div class="cal-nav">
+            <button onclick="calNav(-1)">◀</button>
+            <button onclick="calNav(0)">Today</button>
+            <button onclick="calNav(1)">▶</button>
+          </div>
+          <button class="card-btn" style="margin-left:12px" onclick="openNewJob()">+ New Deployment</button>
+        </div>
+        <div class="cal-days-hdr">
+          <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+        </div>
+        <div class="cal-body" id="cal-body"></div>
+      </div>
+
+      <!-- Upcoming jobs list -->
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Upcoming Deployments</span>
+          <span class="card-meta" id="jobs-meta">—</span>
+        </div>
+        <div id="jobs-list"></div>
+      </div>
+    </div>
+
+    <!-- Engineer availability strip -->
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Engineer Availability</span><span class="card-meta" id="avail-month">—</span></div>
+      <div style="overflow-x:auto" id="avail-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: ACTIONS -->
+<div class="page" id="tab-actions" style="display:none">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Expired Certifications</span><span class="card-meta" id="expired-meta">—</span></div>
+      <div id="expired-wrap"></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-title">Missing Mandatory Certs</span><span class="card-meta" id="missing-meta">—</span></div>
+      <div id="missing-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW JOB MODAL -->
+<div class="modal-overlay" id="job-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-title" id="modal-job-title">New Deployment</span>
+      <button class="modal-close" onclick="closeJobModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-label">Job / Site Name</label>
+        <input type="text" class="form-input" id="job-name" placeholder="e.g. Beatrice Offshore — Annual Inspection">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-row">
+          <label class="form-label">Start Date</label>
+          <input type="date" class="form-input" id="job-start">
+        </div>
+        <div class="form-row">
+          <label class="form-label">End Date</label>
+          <input type="date" class="form-input" id="job-end">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Work Scope</label>
+        <select class="form-sel" id="job-scope" onchange="onScopeChange()">
+          <option value="">Select scope...</option>
+        </select>
+      </div>
+      <div class="form-row" id="scope-certs-row" style="display:none">
+        <label class="form-label">Required Certifications</label>
+        <div id="scope-certs" style="font-size:12px;color:var(--text3);padding:6px 8px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);"></div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Assign Engineers <span style="color:var(--text3);font-weight:400;font-size:10px">(green = all certs valid for scope)</span></label>
+        <div class="eng-select-grid" id="eng-select-grid"></div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Notes</label>
+        <input type="text" class="form-input" id="job-notes" placeholder="Optional">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeJobModal()">Cancel</button>
+      <button class="btn btn-primary" id="job-save-btn" onclick="saveJob()">Save Deployment</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-(function(){var t=localStorage.getItem('skyform_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+(function(){ var t=localStorage.getItem('skyform_theme')||'dark'; document.documentElement.setAttribute('data-theme',t); })();
 
-var SUPA_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co";
-var SUPA_KEY = "sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK";
-var AUTH_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co/functions/v1/skyform-auth";
-var AUTH_KEY = SUPA_KEY;
+var SUPA_URL="https://tdbgakmhkwzyaczqjrxw.supabase.co";
+var SUPA_KEY="sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK";
+var AUTH_URL="https://tdbgakmhkwzyaczqjrxw.supabase.co/functions/v1/skyform-auth";
+var AUTH_KEY=SUPA_KEY;
 
-// ── PPE CATEGORIES ────────────────────────────────────────────
-var PPE_CATS = [
-  {key:"baseline",title:"Baseline PPE",required:true,
-   items:["Safety Helmet","Hi-Vis Workwear","Safety Boots","Cut Resistant Gloves","Noise Protection","Safety Glasses","Head Lamp"]},
-  {key:"height",title:"Working at Height",required:true,
-   items:["Full Body Harness","Fall Arrest Lanyard (Twin)","Work Restraint Lanyard","Fall Arrest Glider","Transfer Connector"]},
-  {key:"offshore",title:"Offshore Additional",required:false,
-   items:["Immersion Suit","Lifejacket 275N","Personal Locator Beacon"]},
-  {key:"hv",title:"HV / Electrical",required:false,
-   items:["Arc / FR Clothing","Electrical Gloves","Arc Face & Head Protection"]},
-  {key:"hotworks",title:"Hot Works",required:false,
-   items:["FR Hot Works Clothing","Hot Works Gloves","Face & Eye Protection","Respiratory Protection"]}
-];
-var REQUIRED_ITEMS = PPE_CATS.filter(function(c){return c.required;}).flatMap(function(c){return c.items;});
-
-// ── AUTH ──────────────────────────────────────────────────────
-var _session = null;
-function getSession() {
-  if(_session) return _session;
-  try{
-    var s = sessionStorage.getItem('skyform_mgmt_session');
-    if(s){_session=JSON.parse(s);return _session;}
-  }catch(e){}
-  return null;
+// ── SECURE AUTH ────────────────────────────────────────────────
+// pw_hash and sha256 verification happen server-side only
+async function serverLogin(u,p){
+  try{var r=await fetch(AUTH_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+AUTH_KEY},body:JSON.stringify({action:'login',username:u.trim(),password:p})});return await r.json();}
+  catch(e){return{success:false,error:'Connection error'};}
 }
 
-// ── SESSION SECURITY (45-min idle) ────────────────────────────
-var _lastActivity=Date.now();
-['click','keydown','mousemove','touchstart'].forEach(function(e){
-  document.addEventListener(e,function(){_lastActivity=Date.now();},{passive:true});
-});
-setInterval(function(){
-  if(Date.now()-_lastActivity > 45*60*1000){
-    alert('Session expired due to inactivity.');
-    sessionStorage.clear();
-    window.location.replace('/');
-  }
-},60000);
+var SESSION_TIMEOUT_MS=45*60*1000; var _lastActivity=Date.now();
+['click','keydown','mousemove','touchstart'].forEach(function(e){document.addEventListener(e,function(){_lastActivity=Date.now();},{passive:true});});
+setInterval(function(){if(Date.now()-_lastActivity>SESSION_TIMEOUT_MS){alert('Session expired.');sessionStorage.clear();window.location.replace('/');}},60000);
 
-// ── THEME ─────────────────────────────────────────────────────
-function toggleTheme(){
-  var t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
-  document.documentElement.setAttribute('data-theme',t);
-  localStorage.setItem('skyform_theme',t);
-  updateThemeBtn();
-}
-function updateThemeBtn(){
-  var t=document.documentElement.getAttribute('data-theme');
-  var b=document.querySelector('.theme-toggle');
-  if(b) b.innerHTML=t==='dark'?'&#9728; <span style="font-size:11px;font-weight:600">Light</span>':'&#9790; <span style="font-size:11px;font-weight:600">Dark</span>';
-}
+var _session=null;
+var _engineers=[], _ppe=[], _training=[], _mandatoryCerts=[], _deployments=[], _scopes=[];
+var _calYear=2026, _calMonth=5; // 0-indexed May → June
+var _activeTab='overview';
+var _editJobId=null;
 
-// ── DB FETCH ──────────────────────────────────────────────────
-function dbFetch(table, params) {
-  var url = SUPA_URL + '/rest/v1/' + table + (params ? '?' + params : '');
-  return fetch(url, {headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}}).then(function(r){return r.json();});
-}
-
-// ── HELPERS ───────────────────────────────────────────────────
+function toggleTheme(){var t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',t);localStorage.setItem('skyform_theme',t);}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function daysUntil(d){if(!d)return Infinity;return Math.ceil((new Date(d)-new Date())/86400000);}
+function formatDate(d){if(!d)return'—';var p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function showToast(m,t){var el=document.getElementById('toast');el.textContent=m;el.className='toast '+t;el.style.opacity='1';setTimeout(function(){el.style.opacity='0';},3000);}
 function pctColor(p){return p>=80?'var(--green)':p>=50?'var(--amber)':'var(--red)';}
-function pctClass(p){return p>=80?'g':p>=50?'a':'r';}
-function timeAgo(dateStr){
-  if(!dateStr) return '';
-  var d=new Date(dateStr), now=new Date(), diff=Math.floor((now-d)/1000);
-  if(diff<60) return 'just now';
-  if(diff<3600) return Math.floor(diff/60)+'m ago';
-  if(diff<86400) return Math.floor(diff/3600)+'h ago';
-  return Math.floor(diff/86400)+'d ago';
-}
-function daysUntil(dateStr){
-  if(!dateStr) return Infinity;
-  return Math.ceil((new Date(dateStr)-new Date())/86400000);
-}
-function escHtml(s){
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// ── LOGIN ─────────────────────────────────────────────────────
+document.getElementById('login-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+document.getElementById('signout-btn').addEventListener('click',function(){sessionStorage.clear();window.location.replace('/');});
+
+async function doLogin(){
+  var u=(document.getElementById('login-user').value||'').trim();
+  var p=document.getElementById('login-pass').value||'';
+  var err=document.getElementById('login-err');
+  var btn=document.getElementById('login-btn');
+  if(!u){err.textContent='Please enter your username';return;}
+  if(!p){err.textContent='Please enter your password';return;}
+  btn.disabled=true;btn.textContent='Signing in...';
+  var res=await serverLogin(u,p);
+  btn.disabled=false;btn.textContent='Access Dashboard →';
+  if(!res.success){err.textContent=res.error||'Invalid credentials';return;}
+  if(res.type!=='management'){err.textContent='Management access required';return;}
+  _session={username:u,name:res.name,token:res.token};
+  sessionStorage.setItem('skyform_mgmt_session',JSON.stringify(_session));
+  document.getElementById('login-screen').remove();
+  initDashboard();
 }
 
-// ── SORT STATE ────────────────────────────────────────────────
-var _sortField = 'pct';
-var _sortAsc   = true;
+function checkSession(){
+  var s=sessionStorage.getItem('skyform_mgmt_session');
+  if(s){try{_session=JSON.parse(s);document.getElementById('login-screen').remove();initDashboard();return;}catch(e){}}
+}
 
-// ── MAIN DATA LOAD ────────────────────────────────────────────
-var _engineers=[], _ppe=[];
+// ── DATA ──────────────────────────────────────────────────────
+function db(path){
+  return fetch(SUPA_URL+'/rest/v1/'+path,{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}}).then(function(r){return r.json();});
+}
 
-function loadDashboard(){
-  Promise.all([
-    dbFetch('engineers','select=id,name,username,tagged_location,department&order=name'),
-    dbFetch('ppe_register','select=*&order=created_at.desc')
-  ]).then(function(results){
-    _engineers = Array.isArray(results[0]) ? results[0] : [];
-    _ppe = Array.isArray(results[1]) ? results[1] : [];
-    renderAll();
-    document.getElementById('page').style.display='';
-    document.getElementById('live-lbl').textContent='Live';
-  }).catch(function(e){
-    console.error(e);
-    document.getElementById('live-lbl').textContent='Error';
-  });
+async function initDashboard(){
+  document.getElementById('main-tabs').style.display='flex';
+  document.getElementById('hero-wrap').style.display='';
+  document.getElementById('tab-overview').style.display='';
+
+  var today=new Date();
+  _calYear=today.getFullYear();
+  _calMonth=today.getMonth();
+
+  var [engs,ppe,train,mand,deps,scopes]=await Promise.all([
+    db('engineers?select=id,name,username,role,tagged_location&order=name'),
+    db('ppe_register?select=*&order=created_at.desc'),
+    db('training_records?select=*&order=created_at.desc'),
+    db('training_certifications?select=*&mandatory_all=eq.true'),
+    db('deployments?select=*&order=start_date'),
+    db('workscope_types?select=*&order=name'),
+  ]);
+  _engineers=Array.isArray(engs)?engs:[];
+  _ppe=Array.isArray(ppe)?ppe:[];
+  _training=Array.isArray(train)?train:[];
+  _mandatoryCerts=Array.isArray(mand)?mand:[];
+  _deployments=Array.isArray(deps)?deps:[];
+  _scopes=Array.isArray(scopes)?scopes:[];
+
+  document.getElementById('live-lbl').textContent='Live';
+  renderAll();
+  setInterval(function(){location.reload();},60000);
 }
 
 function renderAll(){
-  var stats = buildStats();
-  renderHero(stats);
-  renderEngineerTable(stats.engData);
+  renderHero();
+  renderEngTable();
   renderExpiry();
-  renderSites(stats.engData);
-  renderActions();
+  renderSites();
+  renderPPEPending();
+  renderTrainPending();
   renderActivity();
+  renderActions();
+  renderPlanner();
+  renderCalendar();
 }
 
-// ── STATS ─────────────────────────────────────────────────────
-function buildStats(){
-  var engData = _engineers.map(function(eng){
-    var records = _ppe.filter(function(r){return r.submitted_by && r.submitted_by.toLowerCase()===eng.username.toLowerCase();});
-    var verified = records.filter(function(r){return r.verification_status==='verified';}).length;
-    var pending  = records.filter(function(r){return r.verification_status==='pending';}).length;
-    var rejected = records.filter(function(r){return r.verification_status==='rejected';}).length;
-    var total    = records.length;
-    var missing  = REQUIRED_ITEMS.filter(function(item){
-      return !records.some(function(r){return r.item_type===item;});
-    }).length;
-    var pct = total>0 ? Math.round((verified/total)*100) : 0;
-    var reqPct = REQUIRED_ITEMS.length>0 ? Math.round(((REQUIRED_ITEMS.length-missing)/REQUIRED_ITEMS.length)*100) : 0;
-    return {eng:eng, records:records, verified:verified, pending:pending,
-            rejected:rejected, total:total, missing:missing, pct:pct, reqPct:reqPct};
+function switchTab(tab,el){
+  _activeTab=tab;
+  document.querySelectorAll('.main-tab').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  ['overview','planner','actions'].forEach(function(t){
+    var el=document.getElementById('tab-'+t);
+    if(el) el.style.display=t===tab?'':'none';
   });
+}
 
-  var totalVerified = engData.reduce(function(s,e){return s+e.verified;},0);
-  var totalItems    = engData.reduce(function(s,e){return s+e.total;},0);
-  var totalPending  = engData.reduce(function(s,e){return s+e.pending;},0);
-  var overallPct    = totalItems>0 ? Math.round((totalVerified/totalItems)*100) : 0;
+// ── HERO STATS ────────────────────────────────────────────────
+function renderHero(){
+  var ppeVerified=_ppe.filter(function(r){return r.verification_status==='verified';}).length;
+  var ppePending=_ppe.filter(function(r){return r.verification_status==='pending';}).length;
+  var trainVerified=_training.filter(function(r){return r.verification_status==='verified';}).length;
+  var trainPending=_training.filter(function(r){return r.verification_status==='pending';}).length;
+  var totalItems=_ppe.length+_training.length;
+  var totalVerified=ppeVerified+trainVerified;
+  var overallPct=totalItems>0?Math.round(totalVerified/totalItems*100):0;
 
-  var now=new Date();
-  var expiring90 = _ppe.filter(function(r){
-    var d=daysUntil(r.next_inspection_date||r.expiry_date);
-    return d>=0 && d<=90;
+  var deployReady=_engineers.filter(function(eng){
+    var engTrain=_training.filter(function(r){return r.engineer_username&&r.engineer_username.toLowerCase()===eng.username.toLowerCase();});
+    var missMand=_mandatoryCerts.filter(function(c){return !engTrain.some(function(r){return r.certification_id===c.id&&r.verification_status==='verified'&&daysUntil(r.expiry_date)>=0;});}).length;
+    return missMand===0;
   }).length;
 
-  var activeEngs = engData.filter(function(e){return e.total>0;}).length;
+  var today=new Date();
+  var expiring=_training.filter(function(r){var d=daysUntil(r.expiry_date);return r.verification_status==='verified'&&d>=0&&d<90;}).length
+    +_ppe.filter(function(r){var d=daysUntil(r.next_inspection_date);return r.verification_status==='verified'&&d>=0&&d<90;}).length;
 
-  return {engData:engData, overallPct:overallPct, totalVerified:totalVerified,
-          totalItems:totalItems, totalPending:totalPending, expiring90:expiring90,
-          activeEngs:activeEngs};
-}
+  var upcoming=_deployments.filter(function(d){return d.status==='planned'&&new Date(d.start_date)>=today;}).length;
+  var allPend=ppePending+trainPending;
 
-// ── HERO ──────────────────────────────────────────────────────
-function renderHero(stats){
-  document.getElementById('stat-overall').textContent = stats.overallPct+'%';
-  document.getElementById('stat-overall-sub').textContent = stats.totalVerified+' of '+stats.totalItems+' items verified';
-  document.getElementById('stat-engineers').textContent = stats.activeEngs;
-  document.getElementById('stat-eng-sub').textContent = 'of '+_engineers.length+' total engineers';
-  document.getElementById('stat-expiring').textContent = stats.expiring90;
-  document.getElementById('stat-exp-sub').textContent = 'items due within 90 days';
-  document.getElementById('stat-pending').textContent = stats.totalPending;
-  document.getElementById('stat-pend-sub').textContent = 'certificates awaiting sign-off';
+  var cards=[
+    {lbl:'Combined Compliance',val:overallPct+'%',sub:totalVerified+' of '+totalItems+' items verified',col:pctColor(overallPct)},
+    {lbl:'PPE Compliance',val:_ppe.length>0?Math.round(ppeVerified/_ppe.length*100)+'%':'—',sub:ppeVerified+' of '+_ppe.length+' verified',col:pctColor(_ppe.length>0?Math.round(ppeVerified/_ppe.length*100):0)},
+    {lbl:'Training Compliance',val:_training.length>0?Math.round(trainVerified/_training.length*100)+'%':'—',sub:trainVerified+' of '+_training.length+' verified',col:pctColor(_training.length>0?Math.round(trainVerified/_training.length*100):0)},
+    {lbl:'Site Ready',val:deployReady+'/'+_engineers.length,sub:'Engineers with all mandatory certs',col:deployReady===_engineers.length?'var(--green)':'var(--amber)'},
+    {lbl:'Expiring (90d)',val:expiring,sub:'Certs needing renewal soon',col:expiring===0?'var(--green)':expiring<5?'var(--amber)':'var(--red)'},
+    {lbl:'Pending Review',val:allPend,sub:'Certs awaiting admin sign-off',col:allPend===0?'var(--green)':'var(--red)'},
+  ];
 
-  // Colour the hero stats dynamically
-  var overallCard = document.querySelector('.stat.green');
-  overallCard.className = 'stat '+(stats.overallPct>=80?'green':stats.overallPct>=50?'amber':'red');
-  var pendCard = document.querySelector('.stat.red');
-  pendCard.className = 'stat '+(stats.totalPending===0?'green':stats.totalPending<5?'amber':'red');
+  var html='';
+  cards.forEach(function(c){
+    html+='<div class="stat"><div class="stat-bar" style="background:'+c.col+'"></div>'
+      +'<div class="stat-lbl">'+escHtml(c.lbl)+'</div>'
+      +'<div class="stat-val" style="color:'+c.col+'">'+c.val+'</div>'
+      +'<div class="stat-sub">'+escHtml(c.sub)+'</div></div>';
+  });
+  document.getElementById('hero').innerHTML=html;
+  document.getElementById('actions-count').textContent=allPend;
+  document.getElementById('actions-count').style.display=allPend>0?'':'none';
 }
 
 // ── ENGINEER TABLE ────────────────────────────────────────────
-function renderEngineerTable(engData){
-  var sorted = engData.slice().sort(function(a,b){
-    var av = _sortField==='name' ? a.eng.name : _sortField==='pct' ? a.pct :
-             _sortField==='pending' ? a.pending : _sortField==='loc' ? (a.eng.tagged_location||'') : a.pct;
-    var bv = _sortField==='name' ? b.eng.name : _sortField==='pct' ? b.pct :
-             _sortField==='pending' ? b.pending : _sortField==='loc' ? (b.eng.tagged_location||'') : b.pct;
-    if(av<bv) return _sortAsc?-1:1;
-    if(av>bv) return _sortAsc?1:-1;
-    return 0;
+function renderEngTable(){
+  var sort=document.getElementById('sort-sel').value;
+  var today=new Date();
+
+  var data=_engineers.map(function(eng){
+    var engPPE=_ppe.filter(function(r){return (r.tagged_engineer||r.submitted_by||'').toLowerCase()===eng.name.toLowerCase()||(r.submitted_by||'').toLowerCase()===eng.username.toLowerCase();});
+    var engTrain=_training.filter(function(r){return (r.engineer_username||'').toLowerCase()===eng.username.toLowerCase();});
+
+    var ppeV=engPPE.filter(function(r){return r.verification_status==='verified';}).length;
+    var ppePct=engPPE.length>0?Math.round(ppeV/engPPE.length*100):0;
+
+    var trainV=engTrain.filter(function(r){return r.verification_status==='verified'&&daysUntil(r.expiry_date)>=0;}).length;
+    var trainPct=engTrain.length>0?Math.round(trainV/engTrain.length*100):0;
+
+    var missMand=_mandatoryCerts.filter(function(c){return !engTrain.some(function(r){return r.certification_id===c.id&&r.verification_status==='verified'&&daysUntil(r.expiry_date)>=0;});}).length;
+    var expiringSoon=engTrain.filter(function(r){var d=daysUntil(r.expiry_date);return r.verification_status==='verified'&&d>=0&&d<90;}).length;
+
+    var deploy=missMand>0?'r':expiringSoon>0?'a':'g';
+
+    var nextDep=_deployments.filter(function(d){return d.engineers&&d.engineers.includes(eng.username)&&new Date(d.start_date)>=today;}).sort(function(a,b){return new Date(a.start_date)-new Date(b.start_date);})[0];
+
+    return{eng:eng,ppePct:ppePct,trainPct:trainPct,deploy:deploy,missMand:missMand,expiringSoon:expiringSoon,nextDep:nextDep};
   });
 
-  var compliant = engData.filter(function(e){return e.pct>=80 && e.total>0;}).length;
-  document.getElementById('eng-table-meta').textContent =
-    compliant+' of '+engData.filter(function(e){return e.total>0;}).length+' engineers compliant';
-
-  var html = '<table class="eng-table"><thead><tr>';
-  var cols = [
-    {key:'name',  label:'Engineer'},
-    {key:'loc',   label:'Location'},
-    {key:'pct',   label:'Compliance'},
-    {key:'pending',label:'Pending'},
-  ];
-  cols.forEach(function(col){
-    var sorted_cls = _sortField===col.key?' sorted':'';
-    var arrow = _sortField===col.key ? (_sortAsc?'↑':'↓') : '↕';
-    html += '<th class="'+sorted_cls+'" onclick="sortTable(\''+col.key+'\')">'+escHtml(col.label)+' <span class="sort-arrow">'+arrow+'</span></th>';
-  });
-  html += '<th>Status</th></tr></thead><tbody>';
-
-  sorted.forEach(function(d){
-    var color = pctColor(d.pct);
-    var noData = d.total===0;
-    html += '<tr>';
-    html += '<td><div class="eng-name">'+escHtml(d.eng.name)+'</div></td>';
-    html += '<td><span style="font-size:11px;color:var(--text3);">'+escHtml(d.eng.tagged_location||'—')+'</span></td>';
-    if(noData){
-      html += '<td colspan="3"><span style="color:var(--text3);font-size:12px;">No PPE registered</span></td>';
-    } else {
-      html += '<td><div style="display:flex;align-items:center;gap:8px;">';
-      html += '<div class="bar-wrap"><div class="bar-fill" style="width:'+d.pct+'%;background:'+color+';"></div></div>';
-      html += '<span class="pct-lbl" style="color:'+color+'">'+d.pct+'%</span></div></td>';
-      html += '<td>'+(d.pending>0?'<span class="pill a">⏳ '+d.pending+'</span>':'<span style="color:var(--text3);font-size:12px;">—</span>')+'</td>';
-      var status = d.pct>=80&&d.pending===0 ? '<span class="pill g">✓ Compliant</span>' :
-                   d.pending>0 ? '<span class="pill a">Review needed</span>' :
-                   d.missing>0 ? '<span class="pill r">'+d.missing+' missing</span>' :
-                   d.rejected>0 ? '<span class="pill r">'+d.rejected+' rejected</span>' :
-                   '<span class="pill a">In progress</span>';
-      html += '<td>'+status+'</td>';
-    }
-    html += '</tr>';
+  data.sort(function(a,b){
+    if(sort==='ppe') return b.ppePct-a.ppePct;
+    if(sort==='train') return b.trainPct-a.trainPct;
+    if(sort==='deploy'){var o={'r':0,'a':1,'g':2};return o[a.deploy]-o[b.deploy];}
+    return a.eng.name.localeCompare(b.eng.name);
   });
 
-  html += '</tbody></table>';
-  document.getElementById('eng-table-wrap').innerHTML = html;
+  var deployable=data.filter(function(d){return d.deploy==='g';}).length;
+  document.getElementById('eng-meta').textContent=deployable+' of '+_engineers.length+' deploy-ready';
+
+  var html='';
+  data.forEach(function(d){
+    var pc=pctColor(d.ppePct); var tc=pctColor(d.trainPct);
+    var dl=d.deploy==='g'?'<span class="deploy-pill dp-g">✓ Ready</span>':d.deploy==='a'?'<span class="deploy-pill dp-a">⚠ '+d.expiringSoon+' expiring</span>':'<span class="deploy-pill dp-r">✗ '+d.missMand+' cert'+(d.missMand>1?'s':'')+' missing</span>';
+    var dep=d.nextDep?'<span style="font-size:11px;color:var(--text3)">'+formatDate(d.nextDep.start_date)+'<br>'+escHtml(d.nextDep.site_name)+'</span>':'<span style="font-size:11px;color:var(--border2)">—</span>';
+    html+='<tr>'
+      +'<td><div class="eng-name">'+escHtml(d.eng.name)+'</div><div class="eng-role">'+escHtml(d.eng.role||'')+'</div></td>'
+      +'<td style="font-size:11px;color:var(--text3)">'+escHtml(d.eng.tagged_location||'—')+'</td>'
+      +'<td><div class="bar-wrap"><div class="bar-fill" style="width:'+d.ppePct+'%;background:'+pc+'"></div></div><span class="pct" style="color:'+pc+'">'+d.ppePct+'%</span></td>'
+      +'<td><div class="bar-wrap"><div class="bar-fill" style="width:'+d.trainPct+'%;background:'+tc+'"></div></div><span class="pct" style="color:'+tc+'">'+d.trainPct+'%</span></td>'
+      +'<td>'+dl+'</td>'
+      +'<td>'+dep+'</td>'
+      +'</tr>';
+  });
+  document.getElementById('eng-tbody').innerHTML=html||'<tr><td colspan="6" class="no-data">No engineer data</td></tr>';
 }
 
-function sortTable(field){
-  if(_sortField===field) _sortAsc=!_sortAsc;
-  else { _sortField=field; _sortAsc=true; }
-  var stats=buildStats();
-  renderEngineerTable(stats.engData);
-}
-
-// ── EXPIRY TIMELINE ───────────────────────────────────────────
+// ── EXPIRY TIMELINE ────────────────────────────────────────────
 function renderExpiry(){
-  var bands = [
-    {label:'Overdue',color:'var(--red)',min:-Infinity,max:-1},
-    {label:'Within 30 days',color:'var(--red)',min:0,max:30},
-    {label:'31 – 60 days',color:'var(--amber)',min:31,max:60},
-    {label:'61 – 90 days',color:'var(--amber)',min:61,max:90},
-    {label:'3 – 6 months',color:'var(--green)',min:91,max:180},
+  var bands=[
+    {lbl:'Overdue',col:'var(--red)',min:-9999,max:-1},
+    {lbl:'< 30 days',col:'var(--red)',min:0,max:30},
+    {lbl:'31–60 days',col:'var(--amber)',min:31,max:60},
+    {lbl:'61–90 days',col:'var(--amber)',min:61,max:90},
+    {lbl:'3–6 months',col:'var(--green)',min:91,max:180},
   ];
+  var allItems=[];
+  _training.filter(function(r){return r.verification_status==='verified'&&r.expiry_date;}).forEach(function(r){allItems.push({d:daysUntil(r.expiry_date),name:r.certification_name,eng:r.engineer_name,type:'T'});});
+  _ppe.filter(function(r){return r.next_inspection_date;}).forEach(function(r){allItems.push({d:daysUntil(r.next_inspection_date),name:r.item_type,eng:r.tagged_engineer||r.submitted_by,type:'P'});});
 
-  var html = '';
-  bands.forEach(function(band){
-    var items = _ppe.filter(function(r){
-      var d=daysUntil(r.next_inspection_date||r.expiry_date);
-      return d>=band.min && d<=band.max;
-    });
-    var cnt = items.length;
-    if(cnt===0 && band.min>0) return;
-    var engineers = [...new Set(items.map(function(r){return r.submitted_by;}))]
-      .filter(Boolean).length;
-    html += '<div class="expiry-band">';
-    html += '<div class="expiry-dot" style="background:'+band.color+'"></div>';
-    html += '<div class="expiry-info"><div class="expiry-label">'+escHtml(band.label)+'</div>';
-    if(cnt>0) html += '<div class="expiry-detail">'+engineers+' engineer'+(engineers!==1?'s':'')+' affected</div>';
-    html += '</div>';
-    html += '<div class="expiry-count" style="color:'+(cnt>0?band.color:'var(--text3)')+'">'+cnt+'</div>';
-    html += '</div>';
+  var html='';
+  bands.forEach(function(b){
+    var items=allItems.filter(function(x){return x.d>=b.min&&x.d<=b.max;});
+    if(!items.length&&b.min>0) return;
+    var engs=[...new Set(items.map(function(x){return x.eng;}).filter(Boolean))].length;
+    html+='<div class="list-row"><div class="list-dot" style="background:'+b.col+'"></div>'
+      +'<div style="flex:1"><div class="list-text">'+escHtml(b.lbl)+'</div>'
+      +(items.length?'<div class="list-sub">'+engs+' engineer'+(engs!==1?'s':'')+' — '+items.length+' item'+(items.length!==1?'s':'')+'</div>':'')
+      +'</div><div class="list-val" style="color:'+(items.length?b.col:'var(--text3)')+'">'+items.length+'</div></div>';
   });
-
-  if(!html) html = '<div class="no-data">No expiry data found.<br><span style="font-size:11px">Add inspection dates when registering PPE items.</span></div>';
-  document.getElementById('expiry-wrap').innerHTML = html;
+  document.getElementById('expiry-wrap').innerHTML=html||'<div class="no-data">No expiry data</div>';
 }
 
 // ── SITE BREAKDOWN ────────────────────────────────────────────
-function renderSites(engData){
-  var sites = {};
-  engData.forEach(function(d){
-    var loc = d.eng.tagged_location || 'Unknown';
-    if(!sites[loc]) sites[loc]={verified:0,total:0,engineers:0};
-    sites[loc].verified += d.verified;
-    sites[loc].total    += d.total;
-    if(d.total>0) sites[loc].engineers++;
+function renderSites(){
+  var sites={};
+  _engineers.forEach(function(eng){
+    var loc=eng.tagged_location||'Unknown';
+    if(!sites[loc]) sites[loc]={v:0,t:0,engs:0};
+    var engPPE=_ppe.filter(function(r){return(r.submitted_by||'').toLowerCase()===eng.username.toLowerCase();});
+    var engTrain=_training.filter(function(r){return(r.engineer_username||'').toLowerCase()===eng.username.toLowerCase();});
+    sites[loc].v+=engPPE.filter(function(r){return r.verification_status==='verified';}).length+engTrain.filter(function(r){return r.verification_status==='verified';}).length;
+    sites[loc].t+=engPPE.length+engTrain.length;
+    sites[loc].engs++;
   });
-
-  var siteList = Object.keys(sites).map(function(loc){
-    var s=sites[loc];
-    return {loc:loc, pct:s.total>0?Math.round((s.verified/s.total)*100):0,
-            verified:s.verified, total:s.total, engineers:s.engineers};
-  }).sort(function(a,b){return b.engineers-a.engineers;});
-
-  document.getElementById('site-meta').textContent = siteList.filter(function(s){return s.engineers>0;}).length+' active sites';
-
+  var list=Object.keys(sites).map(function(k){var s=sites[k];return{loc:k,pct:s.t?Math.round(s.v/s.t*100):0,engs:s.engs};}).sort(function(a,b){return b.engs-a.engs;});
+  document.getElementById('site-meta').textContent=list.length+' sites';
   var html='';
-  siteList.forEach(function(s){
-    var color=pctColor(s.pct);
-    html+='<div class="site-row">';
-    html+='<div class="site-top"><span class="site-name">'+escHtml(s.loc)+'</span>';
-    html+='<span class="site-pct" style="color:'+color+'">'+s.pct+'%</span></div>';
-    html+='<div class="site-bar-wrap"><div class="site-bar-fill" style="width:'+s.pct+'%;background:'+color+';"></div></div>';
-    html+='<div class="site-meta">'+s.engineers+' engineer'+(s.engineers!==1?'s':'')+' · '+s.verified+' of '+s.total+' items verified</div>';
-    html+='</div>';
+  list.forEach(function(s){
+    var c=pctColor(s.pct);
+    html+='<div class="list-row"><div class="list-body" style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;font-weight:600">'+escHtml(s.loc)+'</span><span style="font-size:12px;font-weight:700;color:'+c+'">'+s.pct+'%</span></div><div style="height:4px;background:var(--bg4);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+s.pct+'%;background:'+c+';border-radius:2px"></div></div><div style="font-size:10px;color:var(--text3);margin-top:2px">'+s.engs+' engineer'+(s.engs!==1?'s':'')+'</div></div></div>';
   });
-
-  if(!siteList.length) html='<div class="no-data">No site data available.</div>';
-  document.getElementById('site-wrap').innerHTML = html;
+  document.getElementById('site-wrap').innerHTML=html||'<div class="no-data">No site data</div>';
 }
 
-// ── OUTSTANDING ACTIONS ───────────────────────────────────────
-function renderActions(){
-  var actions=[];
-
-  // Pending verifications
-  var pendingItems = _ppe.filter(function(r){return r.verification_status==='pending';});
-  pendingItems.slice(0,5).forEach(function(r){
-    var engName = (_engineers.find(function(e){return e.username.toLowerCase()===(r.submitted_by||'').toLowerCase()})||{}).name || r.submitted_by;
-    actions.push({color:'var(--amber)',text:escHtml(r.item_type)+' awaiting verification',eng:escHtml(engName),badge:'<span class="action-badge" style="background:var(--abg);color:var(--amber);">Pending</span>',link:'skyform_ppe_live.html'});
+// ── PENDING LISTS ─────────────────────────────────────────────
+function renderPPEPending(){
+  var pending=_ppe.filter(function(r){return r.verification_status==='pending';}).slice(0,5);
+  document.getElementById('ppe-pend-meta').textContent=_ppe.filter(function(r){return r.verification_status==='pending';}).length+' pending';
+  var html='';
+  pending.forEach(function(r){
+    html+='<div class="list-row"><div class="list-dot" style="background:var(--amber)"></div>'
+      +'<div><div class="list-text">'+escHtml(r.item_type)+'</div><div class="list-sub">'+escHtml(r.tagged_engineer||r.submitted_by||'—')+'</div></div>'
+      +'<a href="skyform_ppe_live.html" style="font-size:11px;font-weight:600;color:var(--accent)">Review →</a></div>';
   });
-  if(pendingItems.length>5) actions.push({color:'var(--amber)',text:(pendingItems.length-5)+' more items pending verification',eng:'',badge:'',link:'skyform_ppe_live.html'});
+  if(!pending.length) html='<div class="no-data">No pending PPE ✓</div>';
+  document.getElementById('ppe-pend-wrap').innerHTML=html;
+}
 
-  // Missing required items (up to 5 most critical)
+function renderTrainPending(){
+  var pending=_training.filter(function(r){return r.verification_status==='pending';}).slice(0,5);
+  document.getElementById('train-pend-meta').textContent=_training.filter(function(r){return r.verification_status==='pending';}).length+' pending';
+  var html='';
+  pending.forEach(function(r){
+    html+='<div class="list-row"><div class="list-dot" style="background:var(--amber)"></div>'
+      +'<div><div class="list-text">'+escHtml(r.certification_name)+'</div><div class="list-sub">'+escHtml(r.engineer_name||'—')+'</div></div>'
+      +'<a href="skyform_training_live.html" style="font-size:11px;font-weight:600;color:var(--accent)">Review →</a></div>';
+  });
+  if(!pending.length) html='<div class="no-data">No pending training ✓</div>';
+  document.getElementById('train-pend-wrap').innerHTML=html;
+}
+
+// ── ACTIVITY FEED ─────────────────────────────────────────────
+function renderActivity(){
+  var cutoff=new Date(); cutoff.setDate(cutoff.getDate()-14);
+  var events=[];
+  _ppe.filter(function(r){return new Date(r.verified_at||r.created_at)>=cutoff;}).forEach(function(r){events.push({date:r.verified_at||r.created_at,text:(r.verification_status==='verified'?'✓ ':r.verification_status==='rejected'?'✗ ':'📋 ')+escHtml(r.item_type),sub:'PPE — '+escHtml(r.tagged_engineer||r.submitted_by||'—'),col:r.verification_status==='verified'?'var(--green)':'var(--amber)' });});
+  _training.filter(function(r){return new Date(r.verified_at||r.created_at)>=cutoff;}).forEach(function(r){events.push({date:r.verified_at||r.created_at,text:(r.verification_status==='verified'?'✓ ':r.verification_status==='rejected'?'✗ ':'📋 ')+escHtml(r.certification_name),sub:'Training — '+escHtml(r.engineer_name||'—'),col:r.verification_status==='verified'?'var(--green)':'var(--amber)' });});
+  events.sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+  var html='';
+  events.slice(0,12).forEach(function(e){
+    var d=new Date(e.date); var ago=Math.floor((new Date()-d)/86400000);
+    html+='<div class="list-row"><div class="list-dot" style="background:'+e.col+'"></div><div><div class="list-text">'+e.text+'</div><div class="list-sub">'+e.sub+'</div></div><div style="font-size:10px;color:var(--text3);white-space:nowrap">'+(ago===0?'today':ago+'d ago')+'</div></div>';
+  });
+  if(!html) html='<div class="no-data">No activity in last 14 days</div>';
+  document.getElementById('activity-wrap').innerHTML=html;
+}
+
+// ── ACTIONS TAB ───────────────────────────────────────────────
+function renderActions(){
+  // Expired certs
+  var expired=_training.filter(function(r){return r.verification_status==='verified'&&r.expiry_date&&daysUntil(r.expiry_date)<0;});
+  expired=expired.concat(_ppe.filter(function(r){return daysUntil(r.next_inspection_date)<0;}));
+  document.getElementById('expired-meta').textContent=expired.length+' expired';
+  var html='';
+  expired.slice(0,15).forEach(function(r){
+    var isT=!!r.certification_id;
+    var d=daysUntil(isT?r.expiry_date:r.next_inspection_date);
+    html+='<div class="list-row"><div class="list-dot" style="background:var(--red)"></div><div style="flex:1"><div class="list-text">'+escHtml(isT?r.certification_name:r.item_type)+'</div><div class="list-sub">'+escHtml(isT?r.engineer_name:(r.tagged_engineer||r.submitted_by))+'</div></div><span style="font-size:10px;font-weight:700;color:var(--red);white-space:nowrap">'+Math.abs(d)+'d ago</span></div>';
+  });
+  if(!html) html='<div class="no-data">No expired items ✓</div>';
+  document.getElementById('expired-wrap').innerHTML=html;
+
+  // Missing mandatory
   var missing=[];
   _engineers.forEach(function(eng){
-    var records=_ppe.filter(function(r){return r.submitted_by&&r.submitted_by.toLowerCase()===eng.username.toLowerCase();});
-    REQUIRED_ITEMS.forEach(function(item){
-      if(!records.some(function(r){return r.item_type===item;})){
-        missing.push({eng:eng.name,item:item});
+    var engT=_training.filter(function(r){return(r.engineer_username||'').toLowerCase()===eng.username.toLowerCase();});
+    _mandatoryCerts.forEach(function(c){
+      if(!engT.some(function(r){return r.certification_id===c.id&&r.verification_status==='verified'&&daysUntil(r.expiry_date)>=0;})){
+        missing.push({eng:eng.name,cert:c.name});
       }
     });
   });
-  missing.slice(0,4).forEach(function(m){
-    actions.push({color:'var(--red)',text:escHtml(m.item)+' not registered',eng:escHtml(m.eng),badge:'<span class="action-badge" style="background:var(--rbg);color:var(--red);">Missing</span>',link:'skyform_ppe_live.html'});
+  document.getElementById('missing-meta').textContent=missing.length+' missing';
+  var html2='';
+  missing.slice(0,15).forEach(function(m){
+    html2+='<div class="list-row"><div class="list-dot" style="background:var(--red)"></div><div style="flex:1"><div class="list-text">'+escHtml(m.cert)+'</div><div class="list-sub">'+escHtml(m.eng)+'</div></div><span style="font-size:10px;font-weight:700;color:var(--red)">MISSING</span></div>';
   });
-  if(missing.length>4) actions.push({color:'var(--red)',text:(missing.length-4)+' more required items missing',eng:'',badge:'',link:'skyform_ppe_live.html'});
-
-  document.getElementById('actions-meta').textContent = (pendingItems.length+missing.length)+' items need attention';
-
-  var html='';
-  if(!actions.length){
-    html='<div class="no-data" style="padding:24px">✅ No outstanding actions</div>';
-  } else {
-    actions.forEach(function(a){
-      html+='<div class="action-item" onclick="window.location=\''+a.link+'\'">';
-      html+='<div class="action-dot" style="background:'+a.color+'"></div>';
-      html+='<div style="flex:1"><div class="action-text">'+a.text+'</div>';
-      if(a.eng) html+='<div class="action-eng">'+a.eng+'</div>';
-      html+='</div>'+a.badge+'</div>';
-    });
-  }
-  document.getElementById('actions-wrap').innerHTML = html;
+  if(!html2) html2='<div class="no-data">No missing mandatory certs ✓</div>';
+  document.getElementById('missing-wrap').innerHTML=html2;
 }
 
-// ── RECENT ACTIVITY ───────────────────────────────────────────
-function renderActivity(){
-  var cutoff = new Date(); cutoff.setDate(cutoff.getDate()-14);
-  var recent = _ppe.filter(function(r){
-    var d = new Date(r.verified_at || r.created_at);
-    return d >= cutoff;
-  }).slice(0,12);
+// ── PLANNER ───────────────────────────────────────────────────
+function renderPlanner(){
+  var today=new Date();
+  var upcoming=_deployments.filter(function(d){return d.status==='planned'&&new Date(d.start_date)>=today;}).sort(function(a,b){return new Date(a.start_date)-new Date(b.start_date);});
+  document.getElementById('jobs-meta').textContent=upcoming.length+' upcoming';
+
+  var JOB_COLORS=['#1f6feb','#2D6A4F','#6e40c9','#E07B00','#cf222e','#0ea5e9'];
+  var html='';
+  upcoming.slice(0,8).forEach(function(dep,i){
+    var col=JOB_COLORS[i%JOB_COLORS.length];
+    var engs=dep.engineers||[];
+    var chips=engs.map(function(u){
+      var eng=_engineers.find(function(e){return e.username===u;});
+      return '<span class="eng-chip ok">'+(eng?eng.name.split(' ')[0]:u)+'</span>';
+    }).join('');
+    html+='<div class="job-row">'
+      +'<div class="job-dot" style="background:'+col+'"></div>'
+      +'<div class="job-body"><div class="job-name">'+escHtml(dep.job_name)+'</div>'
+      +'<div class="job-meta">'+formatDate(dep.start_date)+(dep.end_date&&dep.end_date!==dep.start_date?' – '+formatDate(dep.end_date):'')+'  ·  '+escHtml(dep.site_name)+'</div>'
+      +(dep.scope_name?'<div class="job-meta" style="margin-top:1px">'+escHtml(dep.scope_name)+'</div>':'')
+      +'<div class="job-engs">'+chips+'</div></div>'
+      +'<div class="job-actions">'
+      +'<button class="list-btn" style="background:var(--bg3);color:var(--text3);border:1px solid var(--border)" onclick="editJob(\''+dep.id+'\')">Edit</button></div>'
+      +'</div>';
+  });
+  if(!html) html='<div class="no-data">No upcoming deployments<br><button class="card-btn" style="margin-top:8px" onclick="openNewJob()">+ Create First Deployment</button></div>';
+  document.getElementById('jobs-list').innerHTML=html;
+  renderCalendar();
+  renderAvailability();
+}
+
+function calNav(dir){
+  if(dir===0){var t=new Date();_calYear=t.getFullYear();_calMonth=t.getMonth();}
+  else{_calMonth+=dir;if(_calMonth>11){_calMonth=0;_calYear++;}else if(_calMonth<0){_calMonth=11;_calYear--;}}
+  renderCalendar();
+  renderAvailability();
+}
+
+function renderCalendar(){
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-lbl').textContent=months[_calMonth]+' '+_calYear;
+  document.getElementById('avail-month').textContent=months[_calMonth]+' '+_calYear;
+
+  var firstDay=new Date(_calYear,_calMonth,1);
+  var lastDay=new Date(_calYear,_calMonth+1,0);
+  var startDow=(firstDay.getDay()+6)%7; // Mon=0
+  var today=new Date(); var todayStr=today.toISOString().slice(0,10);
+
+  var JOB_COLORS={};
+  var colorList=['#1f6feb','#2D6A4F','#6e40c9','#E07B00','#cf222e','#0ea5e9','#9a6700'];
+  _deployments.forEach(function(d,i){JOB_COLORS[d.id]=colorList[i%colorList.length];});
 
   var html='';
-  if(!recent.length){
-    html='<div class="no-data">No activity in the last 14 days.</div>';
-  } else {
-    recent.forEach(function(r){
-      var status = r.verification_status;
-      var icon = status==='verified'?'✓':status==='rejected'?'✗':'📋';
-      var iconClass = status==='verified'?'verify':status==='rejected'?'reject':'submit';
-      var engName = (_engineers.find(function(e){return e.username.toLowerCase()===(r.submitted_by||'').toLowerCase()})||{}).name || r.submitted_by;
-      var actionDate = r.verified_at || r.created_at;
-      var desc = status==='verified' ? escHtml(r.item_type)+' verified' :
-                 status==='rejected' ? escHtml(r.item_type)+' rejected' :
-                 escHtml(r.item_type)+' submitted';
-      html+='<div class="activity-item">';
-      html+='<div class="activity-icon '+iconClass+'">'+icon+'</div>';
-      html+='<div class="activity-body"><div class="activity-text">'+desc+'<br><span style="color:var(--text3)">'+escHtml(engName||'Unknown')+'</span></div>';
-      html+='<div class="activity-time">'+timeAgo(actionDate)+'</div></div>';
+  var cellDate=new Date(_calYear,_calMonth,1-startDow);
+  for(var week=0;week<6;week++){
+    for(var dow=0;dow<7;dow++){
+      var dateStr=cellDate.toISOString().slice(0,10);
+      var isToday=dateStr===todayStr;
+      var isOther=cellDate.getMonth()!==_calMonth;
+      html+='<div class="cal-cell'+(isToday?' today':'')+(isOther?' other-month':'')+'">';
+      html+='<div class="cal-date'+(isToday?' today-num':'')+'">'+cellDate.getDate()+'</div>';
+      // Events for this date
+      _deployments.forEach(function(dep){
+        var s=new Date(dep.start_date+' 12:00'); var e=dep.end_date?new Date(dep.end_date+' 12:00'):s;
+        if(cellDate>=s&&cellDate<=e){
+          var col=JOB_COLORS[dep.id]||'#1f6feb';
+          html+='<div class="cal-event" style="background:'+col+'18;color:'+col+';border:1px solid '+col+'40" title="'+escHtml(dep.job_name)+'" onclick="editJob(\''+dep.id+'\')">'+(cellDate.getTime()===s.getTime()?escHtml(dep.job_name):' ')+'</div>';
+        }
+      });
       html+='</div>';
-    });
+      cellDate=new Date(cellDate.getTime()+86400000);
+    }
+    if(cellDate.getMonth()!==_calMonth&&week>=3) break;
   }
-  document.getElementById('activity-wrap').innerHTML = html;
+  document.getElementById('cal-body').innerHTML=html;
 }
 
-// ── INIT ──────────────────────────────────────────────────────
-window.addEventListener('load', function(){
-  updateThemeBtn();
-
-  var sess = getSession();
-  if(!sess){
-    // Check if redirected from portal with a fresh session
-    document.getElementById('page').style.display='none';
-    document.getElementById('auth-wall').style.display='';
-    return;
+function renderAvailability(){
+  var daysInMonth=new Date(_calYear,_calMonth+1,0).getDate();
+  var hdr='<div style="display:flex;border-bottom:1px solid var(--border)">';
+  hdr+='<div style="width:130px;flex-shrink:0;padding:5px 10px;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text3);background:var(--bg3)">Engineer</div>';
+  for(var d=1;d<=daysInMonth;d++){
+    var dow=new Date(_calYear,_calMonth,d).getDay();
+    var isWknd=dow===0||dow===6;
+    hdr+='<div style="width:20px;flex-shrink:0;text-align:center;font-size:9px;color:'+(isWknd?'var(--text3)':'var(--text2)')+';background:var(--bg3);padding:5px 0;border-left:1px solid var(--border)">'+d+'</div>';
   }
+  hdr+='</div>';
 
-  // Sign out
-  document.getElementById('signout-btn').addEventListener('click', function(){
-    sessionStorage.clear();
-    window.location.replace('/');
+  var body='';
+  _engineers.forEach(function(eng){
+    body+='<div style="display:flex;border-bottom:1px solid var(--border)">';
+    body+='<div style="width:130px;flex-shrink:0;padding:5px 10px;font-size:11px;font-weight:600;background:var(--bg3);border-right:1px solid var(--border)">'+escHtml(eng.name.split(' ')[0]+' '+eng.name.split(' ').slice(-1)[0])+'</div>';
+    for(var d=1;d<=daysInMonth;d++){
+      var dateStr=_calYear+'-'+String(_calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      var dow=new Date(_calYear,_calMonth,d).getDay();
+      var isWknd=dow===0||dow===6;
+      var dep=_deployments.find(function(dep){return dep.engineers&&dep.engineers.includes(eng.username)&&dep.start_date<=dateStr&&(dep.end_date||dep.start_date)>=dateStr;});
+      var JOB_COLORS={};
+      var colorList=['#1f6feb18','#2D6A4F18','#6e40c918','#E07B0018','#cf222e18','#0ea5e918'];
+      _deployments.forEach(function(dd,i){JOB_COLORS[dd.id]=colorList[i%colorList.length];});
+      var bg=dep?JOB_COLORS[dep.id]||'rgba(31,111,235,.12)':isWknd?'var(--bg3)':'var(--bg2)';
+      body+='<div style="width:20px;flex-shrink:0;height:28px;background:'+bg+';border-left:1px solid var(--border)" title="'+(dep?escHtml(dep.site_name):'')+'"></div>';
+    }
+    body+='</div>';
   });
 
-  loadDashboard();
+  document.getElementById('avail-wrap').innerHTML=hdr+body;
+}
 
-  // Auto-refresh every 60 seconds
-  setInterval(loadDashboard, 60000);
+// ── NEW/EDIT JOB MODAL ────────────────────────────────────────
+function openNewJob(){
+  _editJobId=null;
+  document.getElementById('modal-job-title').textContent='New Deployment';
+  document.getElementById('job-name').value='';
+  document.getElementById('job-start').value='';
+  document.getElementById('job-end').value='';
+  document.getElementById('job-scope').value='';
+  document.getElementById('job-notes').value='';
+  document.getElementById('scope-certs-row').style.display='none';
+  populateScopeSelect([]);
+  buildEngGrid('',null);
+  document.getElementById('job-modal').classList.add('open');
+}
+
+function editJob(id){
+  var dep=_deployments.find(function(d){return d.id===id;});
+  if(!dep) return;
+  _editJobId=id;
+  document.getElementById('modal-job-title').textContent='Edit Deployment';
+  document.getElementById('job-name').value=dep.job_name;
+  document.getElementById('job-start').value=dep.start_date;
+  document.getElementById('job-end').value=dep.end_date||'';
+  document.getElementById('job-notes').value=dep.notes||'';
+  populateScopeSelect(dep.engineers||[]);
+  document.getElementById('job-scope').value=dep.scope_id||'';
+  onScopeChange();
+  buildEngGrid(dep.scope_id||'',dep.engineers||[]);
+  document.getElementById('job-modal').classList.add('open');
+}
+
+function populateScopeSelect(selected){
+  var sel=document.getElementById('job-scope');
+  var cats={lift:'Towerhoists',crane:'Cranes & Hoists',tmse:'TMSE',inspection:'Inspection',offshore:'Offshore',access:'Rope Access',civil:'Civil',training:'Training'};
+  var grouped={};
+  _scopes.forEach(function(s){var c=cats[s.category]||s.category;if(!grouped[c])grouped[c]=[];grouped[c].push(s);});
+  var html='<option value="">Select scope...</option>';
+  Object.keys(grouped).sort().forEach(function(cat){
+    html+='<optgroup label="'+escHtml(cat)+'">';
+    grouped[cat].forEach(function(s){html+='<option value="'+escHtml(s.id)+'">'+escHtml(s.name)+'</option>';});
+    html+='</optgroup>';
+  });
+  sel.innerHTML=html;
+}
+
+function onScopeChange(){
+  var sid=document.getElementById('job-scope').value;
+  var scope=_scopes.find(function(s){return s.id===sid;});
+  if(scope&&scope.required_certs&&scope.required_certs.length){
+    document.getElementById('scope-certs-row').style.display='';
+    document.getElementById('scope-certs').textContent=(scope.required_certs||[]).join(' · ')+(scope.inspector_certs&&scope.inspector_certs.length?' + Inspector: '+(scope.inspector_certs||[]).join(', '):'');
+  } else {
+    document.getElementById('scope-certs-row').style.display='none';
+  }
+  buildEngGrid(sid,null);
+}
+
+function buildEngGrid(scopeId,selected){
+  var scope=_scopes.find(function(s){return s.id===scopeId;});
+  var reqCerts=scope?(scope.required_certs||[]):[]; // + mandatory 7 always checked
+
+  var html='';
+  _engineers.forEach(function(eng){
+    var engT=_training.filter(function(r){return(r.engineer_username||'').toLowerCase()===eng.username.toLowerCase()&&r.verification_status==='verified'&&daysUntil(r.expiry_date)>=0;});
+    var hasIds=engT.map(function(r){return r.certification_id;});
+    var mandOK=_mandatoryCerts.every(function(c){return hasIds.includes(c.id);});
+    var scopeOK=reqCerts.every(function(cid){return hasIds.includes(cid);});
+    var statusClass=!mandOK?'bad':!scopeOK?'warn':'';
+    var isSelected=selected&&selected.includes(eng.username);
+    var statusLbl=!mandOK?'⚠ Missing mandatory':!scopeOK?'⚠ Missing scope cert':'✓ Qualified';
+    html+='<label class="eng-toggle'+(statusClass?' '+statusClass:'')+(isSelected?' selected':'')+'"><input type="checkbox" value="'+escHtml(eng.username)+'"'+(isSelected?' checked':'')+'> <span class="eng-toggle-name">'+escHtml(eng.name)+'</span><span class="eng-toggle-status" style="color:'+(statusClass?'var(--'+(statusClass==='bad'?'red':'amber')+')':'var(--green)')+'">'+statusLbl+'</span></label>';
+  });
+  document.getElementById('eng-select-grid').innerHTML=html;
+
+  // Toggle selected state on click
+  document.querySelectorAll('.eng-toggle').forEach(function(el){
+    el.addEventListener('change',function(){
+      if(el.querySelector('input').checked) el.classList.add('selected');
+      else el.classList.remove('selected');
+    });
+  });
+}
+
+function closeJobModal(){document.getElementById('job-modal').classList.remove('open');}
+
+async function saveJob(){
+  var name=document.getElementById('job-name').value.trim();
+  var start=document.getElementById('job-start').value;
+  var end=document.getElementById('job-end').value||null;
+  var scopeId=document.getElementById('job-scope').value||null;
+  var scope=_scopes.find(function(s){return s.id===scopeId;});
+  var notes=document.getElementById('job-notes').value.trim();
+  if(!name){showToast('Job name required','err');return;}
+  if(!start){showToast('Start date required','err');return;}
+  var engineers=[].slice.call(document.querySelectorAll('.eng-toggle input:checked')).map(function(el){return el.value;});
+  var btn=document.getElementById('job-save-btn');
+  btn.disabled=true;btn.textContent='Saving...';
+
+  var payload={job_name:name,site_name:name.split('—')[1]?name.split('—')[1].trim():name,scope_id:scopeId||null,scope_name:scope?scope.name:null,start_date:start,end_date:end,status:'planned',engineers:engineers,notes:notes||null,created_by:_session.username};
+
+  var url=SUPA_URL+'/rest/v1/deployments';
+  var method='POST';
+  var headers={'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+  if(_editJobId){url+='?id=eq.'+_editJobId;method='PATCH';}
+
+  var res=await fetch(url,{method:method,headers:headers,body:JSON.stringify(payload)});
+  btn.disabled=false;btn.textContent='Save Deployment';
+  if(res.ok){showToast(_editJobId?'Deployment updated':'Deployment created','ok');closeJobModal();location.reload();}
+  else{showToast('Save failed — please try again','err');}
+}
+
+window.addEventListener('load',function(){
+  checkSession();
 });
 </script>
 </body>

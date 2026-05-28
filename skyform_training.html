@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Skyform Wind — Training & Competency</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#2d333b;--border:#30363d;--border2:#444c56;--text:#e6edf3;--text2:#c9d1d9;--text3:#8b949e;--accent:#1f6feb;--green:#3fb950;--gbg:rgba(63,185,80,.12);--amber:#d29922;--abg:rgba(210,153,34,.12);--red:#f85149;--rbg:rgba(248,81,73,.10);--blue:#58a6ff;--r:8px;--rl:12px;}
+[data-theme="light"]{--bg:#f0f2f5;--bg2:#fff;--bg3:#f6f8fa;--bg4:#eaedf0;--border:#d0d7de;--border2:#b8c0cc;--text:#1c2128;--text2:#373e47;--text3:#636c76;--accent:#0969da;--green:#1a7f37;--gbg:rgba(26,127,55,.1);--amber:#9a6700;--abg:rgba(154,103,0,.1);--red:#cf222e;--rbg:rgba(207,34,46,.08);--blue:#0969da;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;padding-bottom:60px;}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;height:48px;gap:12px;position:sticky;top:0;z-index:100;}
+.hdr img{height:28px;border-radius:4px;}
+.hdr-title{font-size:13px;font-weight:600;color:var(--text2);}
+.hdr-nav{display:flex;gap:4px;margin-left:8px;}
+.hdr-nav a{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;color:var(--text3);text-decoration:none;transition:all .15s;}
+.hdr-nav a:hover{background:var(--bg3);color:var(--text);}
+.hdr-nav a.active{background:var(--accent);color:#fff;}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.theme-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;font-size:12px;cursor:pointer;color:var(--text3);font-family:"DM Sans",sans-serif;}
+.hdr-signout{background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.25);color:var(--red);border-radius:6px;padding:4px 10px;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
+.wrap{max-width:760px;margin:0 auto;padding:16px;}
+
+/* STATUS BANNER */
+.status-banner{border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+.status-banner.green{background:var(--gbg);border:1px solid rgba(63,185,80,.3);color:var(--green);}
+.status-banner.amber{background:var(--abg);border:1px solid rgba(210,153,34,.3);color:var(--amber);}
+.status-banner.red{background:var(--rbg);border:1px solid rgba(248,81,73,.3);color:var(--red);}
+
+/* PROFILE STRIP */
+.profile-strip{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:14px;}
+.profile-avatar{width:42px;height:42px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;}
+.profile-name{font-size:16px;font-weight:700;}
+.profile-sub{font-size:12px;color:var(--text3);margin-top:2px;}
+.profile-pct{margin-left:auto;text-align:right;}
+.profile-pct-val{font-size:22px;font-weight:700;}
+.profile-pct-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;}
+
+/* MINI STATS */
+.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.mini-stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;}
+.mini-stat-val{font-size:20px;font-weight:700;line-height:1;}
+.mini-stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-top:3px;}
+
+/* SECTION */
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:12px;}
+.section-hdr{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+.section-hdr:hover{background:var(--bg3);}
+.section-icon{font-size:16px;}
+.section-title{font-size:13px;font-weight:700;flex:1;}
+.section-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;}
+.section-badge.green{background:var(--gbg);color:var(--green);}
+.section-badge.amber{background:var(--abg);color:var(--amber);}
+.section-badge.red{background:var(--rbg);color:var(--red);}
+.section-badge.grey{background:var(--bg3);color:var(--text3);}
+.section-chevron{color:var(--text3);font-size:12px;transition:transform .2s;}
+.section-chevron.open{transform:rotate(180deg);}
+.section-body{display:none;}
+.section-body.open{display:block;}
+
+/* CERT ROW */
+.cert-table{width:100%;border-collapse:collapse;}
+.cert-table th{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:7px 14px;text-align:left;background:var(--bg3);border-bottom:1px solid var(--border);}
+.cert-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.cert-table tr:last-child td{border-bottom:none;}
+.cert-name{font-size:13px;font-weight:500;}
+.cert-issuer{font-size:11px;color:var(--text3);margin-top:2px;}
+.status-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;}
+.status-text{font-size:12px;font-weight:600;}
+.expiry-val{font-size:12px;font-weight:600;}
+.days-pill{font-size:11px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.days-pill.urgent{background:var(--rbg);color:var(--red);}
+.days-pill.warn{background:var(--abg);color:var(--amber);}
+.days-pill.ok{background:var(--gbg);color:var(--green);}
+.days-pill.grey{background:var(--bg3);color:var(--text3);}
+
+/* ACTION BTN */
+.cert-action{font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;border:none;cursor:pointer;font-family:"DM Sans",sans-serif;white-space:nowrap;}
+.cert-action.upload{background:var(--accent);color:#fff;}
+.cert-action.upload:hover{opacity:.9;}
+.cert-action.view{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+.cert-action.view:hover{background:var(--bg4);}
+.cert-action.pending-lbl{background:var(--abg);color:var(--amber);cursor:default;}
+.cert-action.na-lbl{background:var(--bg3);color:var(--text3);cursor:default;}
+
+/* UPLOAD MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);width:90%;max-width:480px;overflow:hidden;}
+.modal-hdr{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:14px;font-weight:700;}
+.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;}
+.modal-body{padding:16px;}
+.form-row{margin-bottom:12px;}
+.form-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:5px;display:block;}
+.form-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;color:var(--text);font-family:"DM Sans",sans-serif;font-size:13px;}
+.form-input:focus{outline:none;border-color:var(--accent);}
+.file-drop{border:2px dashed var(--border);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:border-color .2s;}
+.file-drop:hover,.file-drop.drag{border-color:var(--accent);}
+.file-drop p{font-size:12px;color:var(--text3);}
+.file-drop strong{color:var(--text);}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--border);}
+.btn{padding:7px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:"DM Sans",sans-serif;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+.btn-secondary{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+.cert-img-preview{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:8px;border:1px solid var(--border);}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:300;opacity:0;transition:opacity .3s;}
+.toast.ok{background:var(--green);color:#fff;}
+.toast.err{background:var(--red);color:#fff;}
+.toast.warn{background:var(--amber);color:#fff;}
+.loading{padding:32px;text-align:center;color:var(--text3);}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;margin:0 auto 10px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.not-held{opacity:.5;}
+
+/* LOGIN SCREEN */
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;align-items:center;justify-content:center;}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);width:340px;overflow:hidden;}
+.login-hdr{background:var(--accent);padding:20px;text-align:center;}
+.login-hdr img{height:36px;border-radius:4px;}
+.login-hdr h2{font-size:16px;font-weight:700;color:#fff;margin-top:8px;}
+.login-hdr p{font-size:12px;color:rgba(255,255,255,.7);margin-top:2px;}
+.login-body{padding:20px;}
+.login-err{color:var(--red);font-size:12px;margin-bottom:8px;min-height:16px;}
+.login-body input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;color:var(--text);font-family:"DM Sans",sans-serif;font-size:13px;margin-bottom:10px;}
+.login-body input:focus{outline:none;border-color:var(--accent);}
+.login-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r);padding:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:"DM Sans",sans-serif;}
+.login-btn:hover{opacity:.9;}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;}
+</style>
+</head>
+<body>
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <div class="login-hdr">
+      <img src="logo.png" alt="Skyform Wind">
+      <h2>Training &amp; Competency</h2>
+      <p>Skyform Wind Operations Portal</p>
+    </div>
+    <div class="login-body">
+      <div class="login-err" id="login-err"></div>
+      <input type="text" id="login-user" placeholder="Username" autocomplete="username">
+      <input type="password" id="login-pass" placeholder="Password" autocomplete="current-password">
+      <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In →</button>
+    </div>
+  </div>
+</div>
+
+<header class="hdr">
+  <img src="logo.png" alt="Skyform Wind">
+  <span class="hdr-title">Skyform Wind Portal</span>
+  <nav class="hdr-nav">
+    <a href="skyform_ppe.html">PPE</a>
+    <a href="skyform_training.html" class="active">Training</a>
+    <a href="skyform_calibration.html">Calibration</a>
+  </nav>
+  <div class="hdr-right">
+    <button class="theme-btn" onclick="toggleTheme()">☀</button>
+    <button class="hdr-signout" id="signout-btn">Sign Out</button>
+  </div>
+</header>
+
+<div class="wrap" id="main-wrap" style="display:none">
+  <div id="status-banner" class="status-banner amber">
+    <span id="status-icon">⚠</span>
+    <span id="status-text">Loading certifications...</span>
+  </div>
+
+  <div class="profile-strip">
+    <div class="profile-avatar" id="profile-avatar">JW</div>
+    <div>
+      <div class="profile-name" id="profile-name">Loading...</div>
+      <div class="profile-sub" id="profile-sub">—</div>
+    </div>
+    <div class="profile-pct">
+      <div class="profile-pct-val" id="profile-pct" style="color:var(--amber)">—%</div>
+      <div class="profile-pct-lbl">Cert Compliance</div>
+    </div>
+  </div>
+
+  <div class="mini-stats">
+    <div class="mini-stat">
+      <div class="mini-stat-val" id="stat-verified" style="color:var(--green)">0</div>
+      <div class="mini-stat-lbl">Verified</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-val" id="stat-pending" style="color:var(--amber)">0</div>
+      <div class="mini-stat-lbl">Pending</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-val" id="stat-expiring" style="color:var(--amber)">0</div>
+      <div class="mini-stat-lbl">Expiring 90d</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-val" id="stat-missing" style="color:var(--red)">0</div>
+      <div class="mini-stat-lbl">Missing Mandatory</div>
+    </div>
+  </div>
+
+  <div id="sections-wrap"></div>
+</div>
+
+<!-- UPLOAD MODAL -->
+<div class="modal-overlay" id="upload-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-title" id="modal-title">Upload Certificate</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-label">Issue Date</label>
+        <input type="date" class="form-input" id="modal-issued">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Expiry Date</label>
+        <input type="date" class="form-input" id="modal-expiry">
+      </div>
+      <div class="form-row">
+        <label class="form-label">WINDA ID <span style="color:var(--text3);font-weight:400">(GWO certs only)</span></label>
+        <input type="text" class="form-input" id="modal-winda" placeholder="e.g. WA065363GB">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Certificate Image / PDF</label>
+        <div class="file-drop" id="file-drop" onclick="document.getElementById('file-input').click()"
+             ondragover="event.preventDefault();this.classList.add('drag')"
+             ondragleave="this.classList.remove('drag')"
+             ondrop="handleDrop(event)">
+          <p><strong>Click to browse</strong> or drag &amp; drop</p>
+          <p>JPEG, PNG or PDF — max 5MB</p>
+          <img id="cert-preview" class="cert-img-preview" style="display:none">
+          <p id="cert-filename" style="margin-top:6px;font-size:12px;color:var(--green);display:none"></p>
+        </div>
+        <input type="file" id="file-input" style="display:none" accept="image/*,application/pdf" onchange="handleFile(this.files[0])">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Notes <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+        <input type="text" class="form-input" id="modal-notes" placeholder="Any additional information">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modal-submit" onclick="submitCert()">Submit for Verification</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){ var t=localStorage.getItem('skyform_theme')||'dark'; document.documentElement.setAttribute('data-theme',t); })();
+
+var SUPA_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co";
+var SUPA_KEY = "sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK";
+var AUTH_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co/functions/v1/skyform-auth";
+
+// ── SECURE AUTH ────────────────────────────────────────────────
+// pw_hash and sha256 verification happen server-side only
+var AUTH_KEY = SUPA_KEY;
+async function serverLogin(username, password) {
+  try {
+    var res = await fetch(AUTH_URL, {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+AUTH_KEY}, body:JSON.stringify({action:'login',username:username.trim(),password:password})});
+    return await res.json();
+  } catch(e) { return {success:false,error:'Connection error — please try again'}; }
+}
+
+// ── SESSION ──────────────────────────────────────────────────
+var SESSION_TIMEOUT_MS = 45 * 60 * 1000;
+var _lastActivity = Date.now();
+function touchSession(){_lastActivity=Date.now();}
+function startSessionWatch(fn){ ['click','keydown','mousemove','touchstart'].forEach(function(e){document.addEventListener(e,touchSession,{passive:true});}); setInterval(function(){ if(Date.now()-_lastActivity>SESSION_TIMEOUT_MS){alert('Session expired — please sign in again.');fn();}},60000); }
+
+var _session = null;
+var _certImageData = null;
+var _activeCertId = null;
+var _activeCertName = null;
+var _certifications = [];
+var _myRecords = [];
+
+function toggleTheme(){var t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',t);localStorage.setItem('skyform_theme',t);}
+
+// ── LOGIN ─────────────────────────────────────────────────────
+async function doLogin(){
+  var u=(document.getElementById('login-user').value||'').trim();
+  var p=document.getElementById('login-pass').value||'';
+  var err=document.getElementById('login-err');
+  var btn=document.getElementById('login-btn');
+  if(!u){err.textContent='Please enter your username';return;}
+  if(!p){err.textContent='Please enter your password';return;}
+  btn.disabled=true;btn.textContent='Signing in...';
+  var result=await serverLogin(u,p);
+  btn.disabled=false;btn.textContent='Sign In →';
+  if(!result.success){err.textContent=result.error||'Invalid credentials';return;}
+  _session={username:u,name:result.name,type:result.type,token:result.token};
+  sessionStorage.setItem('skyform_eng_session',JSON.stringify(_session));
+  document.getElementById('login-screen').remove();
+  initTraining();
+}
+document.getElementById('login-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+function checkSession(){
+  var s=sessionStorage.getItem('skyform_eng_session');
+  if(s){try{_session=JSON.parse(s);if(_session&&_session.name){document.getElementById('login-screen').remove();initTraining();return;}}catch(e){}}
+  // Also check mgmt session - they can view too
+  var m=sessionStorage.getItem('skyform_mgmt_session');
+  if(m){try{var ms=JSON.parse(m);if(ms&&ms.name){_session={username:ms.username,name:ms.name,type:'management',token:ms.token};document.getElementById('login-screen').remove();initTraining();return;}}catch(e){}}
+}
+
+document.getElementById('signout-btn').addEventListener('click',function(){sessionStorage.clear();window.location.replace('/');});
+
+// ── INIT ──────────────────────────────────────────────────────
+function dbFetch(path){
+  return fetch(SUPA_URL+'/rest/v1/'+path,{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}}).then(function(r){return r.json();});
+}
+
+async function initTraining(){
+  startSessionWatch(function(){sessionStorage.clear();window.location.replace('/');});
+  document.getElementById('main-wrap').style.display='';
+
+  var engName = _session.name;
+  var initials = engName.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+  document.getElementById('profile-avatar').textContent=initials;
+  document.getElementById('profile-name').textContent=engName;
+
+  // Load certs catalogue + engineer's records in parallel
+  var [certs, engData, records] = await Promise.all([
+    dbFetch('training_certifications?select=*&order=category,id'),
+    dbFetch('engineers?select=name,role,tagged_location&username=ilike.'+encodeURIComponent(_session.username)),
+    dbFetch('training_records?select=*&engineer_username=ilike.'+encodeURIComponent(_session.username)+'&order=created_at.desc')
+  ]);
+
+  _certifications = Array.isArray(certs) ? certs : [];
+  _myRecords = Array.isArray(records) ? records : [];
+  var eng = Array.isArray(engData) && engData.length ? engData[0] : {};
+  var role = eng.role || 'Engineer';
+  var location = eng.tagged_location || '—';
+  document.getElementById('profile-sub').textContent = role+' · '+location;
+
+  renderTraining(role);
+}
+
+function renderTraining(role){
+  var recordMap = {};
+  _myRecords.forEach(function(r){ recordMap[r.certification_id] = r; });
+
+  // Build groups: mandatory, inspector (if applicable), offshore, equipment, inspection, safety
+  var GROUPS = [
+    {key:'mandatory', icon:'🔴', title:'Mandatory Certifications', subtitle:'Required for ALL windfarm entry — every engineer, every site', color:'var(--red)'},
+    {key:'inspector_role', icon:'🏅', title:'Inspector Role Requirements', subtitle:'Required for all engineers with Inspector role', color:'var(--blue)', inspectorOnly:true},
+    {key:'offshore', icon:'🌊', title:'Offshore Additional', subtitle:'Required when deployed to offshore sites'},
+    {key:'equipment_lift', icon:'🏗', title:'Towerhoist Equipment', subtitle:'Man-riding lift certifications'},
+    {key:'equipment_crane', icon:'🏋', title:'Crane & Lifting Equipment', subtitle:'Crane, hoist and lifting operation certifications'},
+    {key:'equipment_tmse', icon:'🔧', title:'TMSE & SGRE Equipment', subtitle:'Turbine Mounted Safety Equipment certifications'},
+    {key:'inspection', icon:'📋', title:'Inspection & Compliance', subtitle:'UKAS, PSSR and inspection qualifications'},
+    {key:'safety', icon:'🧗', title:'Rope Access', subtitle:'IRATA rope access certifications'},
+  ];
+
+  var stats = {verified:0,pending:0,expiring:0,missing_mandatory:0,total_mandatory:0};
+  var wrap = document.getElementById('sections-wrap');
+  wrap.innerHTML = '';
+
+  GROUPS.forEach(function(grp){
+    if(grp.inspectorOnly && role.toLowerCase().indexOf('inspector')===-1) return;
+
+    var certKey = grp.key === 'inspector_role' ? 'mandatory' : grp.key;
+    var filtered = _certifications.filter(function(c){
+      if(grp.key==='mandatory') return c.mandatory_all===true;
+      if(grp.key==='inspector_role') return c.id==='CCNSG';
+      return c.category===c.category && c.category===grp.key && !c.mandatory_all;
+    });
+    if(grp.key!=='mandatory' && grp.key!=='inspector_role') filtered = _certifications.filter(function(c){return c.category===grp.key;});
+    if(!filtered.length) return;
+
+    var verCount=0, pendCount=0, totalHeld=0;
+    filtered.forEach(function(c){
+      var rec = recordMap[c.id];
+      if(!rec) return;
+      totalHeld++;
+      if(rec.verification_status==='verified'){verCount++;if(grp.key==='mandatory'){stats.verified++;}}
+      else if(rec.verification_status==='pending'){pendCount++;}
+    });
+
+    if(grp.key==='mandatory'){
+      stats.total_mandatory=filtered.length;
+      stats.missing_mandatory=filtered.filter(function(c){return !recordMap[c.id];}).length;
+    }
+
+    var badge = verCount===filtered.length&&pendCount===0 ? 'green' : pendCount>0 ? 'amber' : totalHeld<filtered.length&&grp.key==='mandatory' ? 'red' : 'grey';
+    var badgeText = verCount+'/'+filtered.length+' verified';
+
+    var section = document.createElement('div');
+    section.className='section';
+    var hdr = '<div class="section-hdr" onclick="toggleSection(this)">'
+      +'<span class="section-icon">'+grp.icon+'</span>'
+      +'<div style="flex:1"><div class="section-title">'+escHtml(grp.title)+'</div>'
+      +(grp.subtitle?'<div style="font-size:11px;color:var(--text3);margin-top:1px">'+escHtml(grp.subtitle)+'</div>':'')
+      +'</div>'
+      +'<span class="section-badge '+badge+'">'+badgeText+'</span>'
+      +'<span class="section-chevron'+(grp.key==='mandatory'?' open':'')+'">▼</span>'
+      +'</div>';
+
+    var rows='';
+    filtered.forEach(function(c){
+      var rec = recordMap[c.id];
+      var statusHtml,expiryHtml,daysHtml,actionHtml;
+      if(!rec){
+        statusHtml='<span class="status-dot" style="background:var(--border2)"></span><span class="status-text" style="color:var(--text3)">Not submitted</span>';
+        expiryHtml='<span style="color:var(--text3)">—</span>';
+        daysHtml='';
+        if(grp.key==='mandatory'){actionHtml='<button class="cert-action upload" onclick="openUpload(\''+escHtml(c.id)+'\',\''+escHtml(c.name)+'\')">Upload</button>';stats.missing_mandatory++;}
+        else{actionHtml='<button class="cert-action upload" onclick="openUpload(\''+escHtml(c.id)+'\',\''+escHtml(c.name)+'\')">Upload</button>';}
+      } else if(rec.verification_status==='verified'){
+        stats.verified++;
+        statusHtml='<span class="status-dot" style="background:var(--green)"></span><span class="status-text" style="color:var(--green)">Verified</span>';
+        var days=rec.expiry_date?daysUntil(rec.expiry_date):null;
+        expiryHtml=rec.expiry_date?formatDate(rec.expiry_date):'<span style="color:var(--text3)">No expiry</span>';
+        if(days!==null){
+          if(days<0){daysHtml='<span class="days-pill urgent">EXPIRED</span>';stats.expiring++;}
+          else if(days<30){daysHtml='<span class="days-pill urgent">'+days+'d</span>';stats.expiring++;}
+          else if(days<90){daysHtml='<span class="days-pill warn">'+days+'d</span>';stats.expiring++;}
+          else{daysHtml='<span class="days-pill ok">'+days+'d</span>';}
+        } else{daysHtml='';}
+        actionHtml=rec.cert_image_data?'<button class="cert-action view" onclick="viewCert(\''+rec.id+'\')">View Cert</button>':'<button class="cert-action upload" onclick="openUpload(\''+escHtml(c.id)+'\',\''+escHtml(c.name)+'\')">Upload</button>';
+      } else if(rec.verification_status==='pending'){
+        stats.pending++;
+        statusHtml='<span class="status-dot" style="background:var(--amber)"></span><span class="status-text" style="color:var(--amber)">Pending review</span>';
+        expiryHtml=rec.expiry_date?formatDate(rec.expiry_date):'<span style="color:var(--text3)">—</span>';
+        daysHtml='';
+        actionHtml='<button class="cert-action pending-lbl">Awaiting admin</button>';
+      } else {
+        statusHtml='<span class="status-dot" style="background:var(--red)"></span><span class="status-text" style="color:var(--red)">Rejected</span>';
+        expiryHtml='—';daysHtml='';
+        actionHtml='<button class="cert-action upload" onclick="openUpload(\''+escHtml(c.id)+'\',\''+escHtml(c.name)+'\')">Re-upload</button>';
+      }
+      rows+='<tr>'
+        +'<td><div class="cert-name">'+escHtml(c.name)+'</div><div class="cert-issuer">'+escHtml(c.issuing_body||'—')+'</div></td>'
+        +'<td>'+statusHtml+'</td>'
+        +'<td class="expiry-val">'+expiryHtml+'</td>'
+        +'<td>'+daysHtml+'</td>'
+        +'<td>'+actionHtml+'</td>'
+        +'</tr>';
+    });
+
+    var body='<div class="section-body'+(grp.key==='mandatory'?' open':'')+'"><table class="cert-table"><thead><tr>'
+      +'<th>Certification</th><th>Status</th><th>Expiry Date</th><th>Days Left</th><th>Action</th>'
+      +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+
+    section.innerHTML=hdr+body;
+    wrap.appendChild(section);
+  });
+
+  // Update profile stats (deduplicate missing_mandatory count)
+  var totalRelevant = _certifications.filter(function(c){return c.mandatory_all;}).length;
+  var heldVerified = _myRecords.filter(function(r){return r.verification_status==='verified';}).length;
+  var totalHeld = _myRecords.length;
+  var pct = totalHeld>0?Math.round(heldVerified/totalHeld*100):0;
+  var pctColor = pct>=80?'var(--green)':pct>=50?'var(--amber)':'var(--red)';
+  document.getElementById('profile-pct').textContent=pct+'%';
+  document.getElementById('profile-pct').style.color=pctColor;
+  document.getElementById('stat-verified').textContent=stats.verified;
+  document.getElementById('stat-pending').textContent=stats.pending;
+  document.getElementById('stat-expiring').textContent=stats.expiring;
+  // Count truly missing mandatory
+  var mandCerts = _certifications.filter(function(c){return c.mandatory_all;});
+  var missMand = mandCerts.filter(function(c){return !_myRecords.some(function(r){return r.certification_id===c.id;});}).length;
+  document.getElementById('stat-missing').textContent=missMand;
+
+  // Status banner
+  var banner=document.getElementById('status-banner');
+  var icon=document.getElementById('status-icon');
+  var text=document.getElementById('status-text');
+  if(missMand>0){banner.className='status-banner red';icon.textContent='✗';text.textContent=missMand+' mandatory cert'+(missMand>1?'s are':' is')+' missing — not deployable until resolved';}
+  else if(stats.expiring>0||stats.pending>0){banner.className='status-banner amber';icon.textContent='⚠';text.textContent='Action required — '+(stats.expiring>0?stats.expiring+' cert'+(stats.expiring>1?'s':'')+' expiring soon':'')+(stats.expiring>0&&stats.pending>0?', ':'')+( stats.pending>0?stats.pending+' pending verification':'');}
+  else{banner.className='status-banner green';icon.textContent='✓';text.textContent='All mandatory certifications are valid — deployable';}
+}
+
+function toggleSection(hdr){
+  var body=hdr.nextElementSibling;
+  var chev=hdr.querySelector('.section-chevron');
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+// ── UPLOAD MODAL ──────────────────────────────────────────────
+function openUpload(certId, certName){
+  _activeCertId=certId; _activeCertName=certName; _certImageData=null;
+  document.getElementById('modal-title').textContent='Upload — '+certName;
+  document.getElementById('modal-issued').value='';
+  document.getElementById('modal-expiry').value='';
+  document.getElementById('modal-winda').value='';
+  document.getElementById('modal-notes').value='';
+  document.getElementById('cert-preview').style.display='none';
+  document.getElementById('cert-filename').style.display='none';
+  document.getElementById('upload-modal').classList.add('open');
+}
+function closeModal(){document.getElementById('upload-modal').classList.remove('open');}
+
+function handleFile(file){
+  if(!file) return;
+  var valid=validateImageData_training(file);
+  if(!valid.ok){showToast(valid.err,'err');return;}
+  var reader=new FileReader();
+  reader.onload=function(e){
+    _certImageData=e.target.result;
+    if(file.type.startsWith('image/')){
+      var img=document.getElementById('cert-preview');
+      img.src=_certImageData;img.style.display='block';
+    }
+    var fn=document.getElementById('cert-filename');
+    fn.textContent='✓ '+file.name;fn.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+function handleDrop(e){
+  e.preventDefault();document.getElementById('file-drop').classList.remove('drag');
+  var file=e.dataTransfer.files[0];if(file)handleFile(file);
+}
+function validateImageData_training(file){
+  if(!file.type.startsWith('image/')&&file.type!=='application/pdf') return{ok:false,err:'File must be an image or PDF'};
+  if(file.size>7000000) return{ok:false,err:'File too large (max 5MB)'};
+  return{ok:true};
+}
+
+async function submitCert(){
+  var issued=document.getElementById('modal-issued').value;
+  var expiry=document.getElementById('modal-expiry').value;
+  var winda=document.getElementById('modal-winda').value.trim();
+  var notes=document.getElementById('modal-notes').value.trim();
+  var btn=document.getElementById('modal-submit');
+  if(!_certImageData&&!expiry){showToast('Please add an expiry date or upload a certificate','err');return;}
+  btn.disabled=true;btn.textContent='Submitting...';
+  var payload={engineer_username:_session.username,engineer_name:_session.name,certification_id:_activeCertId,certification_name:_activeCertName,issued_date:issued||null,expiry_date:expiry||null,cert_image_data:_certImageData||null,verification_status:'pending',winda_id:winda||null,submitted_by:_session.username,notes:notes||null};
+  try{
+    var res=await fetch(SUPA_URL+'/rest/v1/training_records',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(payload)});
+    if(res.ok){showToast('Certificate submitted — awaiting admin verification','ok');closeModal();await initTraining();}
+    else{showToast('Submit failed — please try again','err');}
+  }catch(e){showToast('Connection error','err');}
+  btn.disabled=false;btn.textContent='Submit for Verification';
+}
+
+function viewCert(recordId){
+  var rec=_myRecords.find(function(r){return r.id===recordId;});
+  if(!rec||!rec.cert_image_data){showToast('No image on file','warn');return;}
+  var w=window.open();
+  w.document.write('<img src="'+rec.cert_image_data+'" style="max-width:100%;"><p>'+escHtml(rec.certification_name)+'</p>');
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function daysUntil(d){return Math.ceil((new Date(d)-new Date())/86400000);}
+function formatDate(d){if(!d)return'—';var p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function showToast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.opacity='1';setTimeout(function(){t.style.opacity='0';},3000);}
+
+// ── BOOT ──────────────────────────────────────────────────────
+window.addEventListener('load', checkSession);
+</script>
+</body>
+</html>

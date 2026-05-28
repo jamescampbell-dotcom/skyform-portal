@@ -315,6 +315,49 @@ function updateThemeBtn() {
 
 document.addEventListener('DOMContentLoaded', function(){ updateThemeBtn(); });
 
+
+
+// ── SESSION SECURITY ─────────────────────────────────────────────────
+// Idle timeout: 45 minutes. Last activity tracked in sessionStorage.
+var SESSION_TIMEOUT_MS = 45 * 60 * 1000;
+var _lastActivity = Date.now();
+var _sessionCheckInterval = null;
+
+function touchSession() { _lastActivity = Date.now(); }
+function startSessionWatch(signOutFn) {
+  ['click','keydown','mousemove','touchstart'].forEach(function(e){
+    document.addEventListener(e, touchSession, {passive:true});
+  });
+  _sessionCheckInterval = setInterval(function(){
+    if(Date.now() - _lastActivity > SESSION_TIMEOUT_MS) {
+      clearInterval(_sessionCheckInterval);
+      alert('Your session has expired due to inactivity. Please sign in again.');
+      signOutFn();
+    }
+  }, 60000); // check every minute
+}
+
+// XSS: safe text setter — never use innerHTML with user data
+function safeText(el, text) {
+  if(el) el.textContent = (text == null ? '' : String(text));
+}
+// Sanitize a string for use in innerHTML where we must use it (badge labels etc)
+function escHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+// Validate cert/image data before saving
+function validateImageData(dataUrl) {
+  if(!dataUrl) return {ok:true, data:''};
+  if(typeof dataUrl !== 'string') return {ok:false, err:'Invalid image data'};
+  if(!dataUrl.startsWith('data:image/') && !dataUrl.startsWith('data:application/pdf')) 
+    return {ok:false, err:'File must be an image or PDF'};
+  // ~5MB limit (base64 is ~1.33x, so 5MB file ≈ 6.7MB base64)
+  if(dataUrl.length > 7_000_000) return {ok:false, err:'File too large (max 5MB)'};
+  return {ok:true, data:dataUrl};
+}
 </script>
 </body>
 </html>

@@ -741,8 +741,30 @@ function _doVerify(verify) {
 
 
 
-var MGMT_MAP = {};
 var _currentMgmt = null;
+
+// ── SECURE AUTH ───────────────────────────────────────────────
+var AUTH_URL = 'https://tdbgakmhkwzyaczqjrxw.supabase.co/functions/v1/skyform-auth';
+async function serverLogin(username, password) {
+  try {
+    var res = await fetch(AUTH_URL, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:username.trim(),password:password})});
+    return await res.json();
+  } catch(e) { return {success:false,error:'Connection error — please try again'}; }
+}
+async function doMgmtLogin() {
+  var username=((document.getElementById('ml-user')||{}).value||'').trim();
+  var password=(document.getElementById('ml-pass')||{}).value||'';
+  var err=document.getElementById('ml-err');
+  var btn=document.getElementById('ml-btn');
+  if(!username){err.textContent='Please enter your username';return;}
+  if(!password){err.textContent='Please enter your password';return;}
+  if(btn){btn.disabled=true;btn.textContent='Signing in...';}
+  err.textContent='';
+  var result=await serverLogin(username,password);
+  if(btn){btn.disabled=false;btn.textContent='Access Dashboard →';}
+  if(!result.success){err.textContent=result.error||'Username not recognised or password incorrect';return;}
+  setMgmtLoggedIn(username,result.name);
+}
 
 function buildMgmtLogin() {
   var saved = sessionStorage.getItem('skyform_mgmt_session');
@@ -768,36 +790,11 @@ function buildMgmtLogin() {
     + '</div>';
   document.body.appendChild(screen);
 
-  fetch(SUPA_URL + '/rest/v1/management_users?select=name,username,pw_hash', {
-    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-  }).then(function(r){return r.json();}).then(function(rows){
-    MGMT_MAP = {};
-    rows.forEach(function(r){ if(r.username) MGMT_MAP[r.username.toLowerCase()]={name:r.name,hash:r.pw_hash}; });
-  }).catch(function(){});
-
   var pass = document.getElementById('ml-pass');
   if(pass) pass.addEventListener('keydown', function(e){ if(e.key==='Enter') doMgmtLogin(); });
 }
 
-async function sha256hex(str) {
-  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-}
 
-async function doMgmtLogin() {
-  var username = ((document.getElementById('ml-user')||{}).value||'').trim();
-  var password = (document.getElementById('ml-pass')||{}).value||'';
-  var err = document.getElementById('ml-err');
-  if(!username){ err.textContent='Please enter your username'; return; }
-  if(!password){ err.textContent='Please enter your password'; return; }
-  var eng = MGMT_MAP[username.toLowerCase()];
-  if(!eng){ err.textContent='Username not recognised'; return; }
-  var hash = await sha256hex(password);
-  if(hash !== eng.hash){ err.textContent='Incorrect password'; return; }
-  err.textContent='';
-  sessionStorage.setItem('skyform_mgmt_session', JSON.stringify({username:username, name:eng.name}));
-  setMgmtLoggedIn(username, eng.name);
-}
 
 function setMgmtLoggedIn(username, name) {
   _currentMgmt = {username:username, name:name};

@@ -951,116 +951,104 @@ function loadEngineerRequirements(engName) {
 
 
 // ── ENGINEER LOGIN ──────────────────────────────────────────────────
-var ENG_PINS = {};  // populated from engineer list: name -> PIN (last 4 of name hash)
+
+// Engineer lookup map: username -> {name, hash}
+var ENG_MAP = {};
 
 function buildLoginScreen() {
-  // If already logged in from session, restore
-  var saved = sessionStorage.getItem('skyform_eng');
+  var saved = sessionStorage.getItem('skyform_eng_session');
   if(saved) {
-    setLoggedInEngineer(saved);
-    return;
+    try {
+      var s = JSON.parse(saved);
+      setLoggedInEngineer(s.username, s.name);
+      return;
+    } catch(e) { sessionStorage.removeItem('skyform_eng_session'); }
   }
   var screen = document.createElement('div');
   screen.id = 'eng-login-screen';
   screen.className = 'eng-login-screen';
-  screen.innerHTML = `
-    <div class="eng-login-box">
-      <div class="eng-login-logo"><img src="logo.png" alt="Skyform" style="height:28px;object-fit:contain;"></div>
-      <div class="eng-login-title">PPE Register</div>
-      <div class="eng-login-sub">Sign in to register your PPE items</div>
-      <div class="eng-login-field">
-        <label>Your Name</label>
-        <select id="login-name"><option value="">- Select your name -</option></select>
-      </div>
-      <div class="eng-login-field">
-        <label>PIN</label>
-        <input type="password" id="login-pin" placeholder="Enter your 4-digit PIN" maxlength="4" inputmode="numeric">
-      </div>
-      <button class="eng-login-btn" onclick="doEngLogin()">Sign In &#8594;</button>
-      <div class="eng-login-err" id="login-err"></div>
-    </div>`;
+  screen.innerHTML =
+    '<div class="eng-login-box">'
+    + '<div class="eng-login-logo"><img src="logo.png" alt="Skyform" style="height:36px;object-fit:contain;"></div>'
+    + '<div class="eng-login-title">PPE Register</div>'
+    + '<div class="eng-login-sub">Enter your username and password to continue</div>'
+    + '<div class="eng-login-field"><label>Username</label>'
+    + '<input type="text" id="login-user" placeholder="e.g. JWwind" autocomplete="username" autocapitalize="off" autocorrect="off"></div>'
+    + '<div class="eng-login-field"><label>Password</label>'
+    + '<input type="password" id="login-pass" placeholder="Your password" autocomplete="current-password"></div>'
+    + '<button class="eng-login-btn" onclick="doEngLogin()">Sign In &#8594;</button>'
+    + '<div class="eng-login-err" id="login-err"></div>'
+    + '</div>';
   document.body.appendChild(screen);
 
-  // Populate name dropdown from engineers list
-  fetch(SUPA_URL + "/rest/v1/engineers?select=name,pin&order=name", {
+  fetch(SUPA_URL + "/rest/v1/engineers?select=name,username,pw_hash&order=name", {
     headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
   }).then(function(r){return r.json();}).then(function(rows){
-    var sel = document.getElementById('login-name');
-    if(!sel) return;
-    ENG_PINS = {};
+    ENG_MAP = {};
     rows.forEach(function(r){
-      ENG_PINS[r.name] = r.pin || '0000';
-      var o = document.createElement('option'); o.value=r.name; o.textContent=r.name;
-      sel.appendChild(o);
+      if(r.username) ENG_MAP[r.username.toLowerCase()] = {name:r.name, hash:r.pw_hash};
     });
-    // Fallback to knownEngs if no pin column
-    if(rows.length === 0) {
-      knownEngs.forEach(function(n){
-        var o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o);
-      });
-    }
-  }).catch(function(){
-    // Fallback
-    setTimeout(function(){
-      var sel = document.getElementById('login-name'); if(!sel) return;
-      knownEngs.forEach(function(n){
-        var o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o);
-      });
-    }, 1500);
-  });
+  }).catch(function(){});
 
-  document.getElementById('login-pin').addEventListener('keydown', function(e){ if(e.key==='Enter') doEngLogin(); });
+  var pass = document.getElementById('login-pass');
+  if(pass) pass.addEventListener('keydown', function(e){ if(e.key==='Enter') doEngLogin(); });
+  var usr = document.getElementById('login-user');
+  if(usr) usr.addEventListener('keydown', function(e){ if(e.key==='Enter'){ var p=document.getElementById('login-pass'); if(p) p.focus(); }});
 }
 
-function doEngLogin() {
-  var name = (document.getElementById('login-name')||{}).value || '';
-  var pin  = (document.getElementById('login-pin')||{}).value || '';
-  var err  = document.getElementById('login-err');
-  if(!name){ err.textContent='Please select your name'; return; }
-  if(!pin || pin.length < 4){ err.textContent='Please enter your 4-digit PIN'; return; }
-  // Check PIN — if ENG_PINS has data use it, otherwise accept any 4-digit PIN for now
-  var expected = ENG_PINS[name];
-  if(expected && expected !== '0000' && pin !== expected){ err.textContent='Incorrect PIN — please try again'; return; }
-  if(expected === undefined){ err.textContent='Name not found — please contact your supervisor'; return; }
+async function sha256hex(str) {
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+async function doEngLogin() {
+  var username = ((document.getElementById('login-user')||{}).value||'').trim();
+  var password = (document.getElementById('login-pass')||{}).value||'';
+  var err = document.getElementById('login-err');
+  if(!username){ err.textContent='Please enter your username'; return; }
+  if(!password){ err.textContent='Please enter your password'; return; }
+  var key = username.toLowerCase();
+  var eng = ENG_MAP[key];
+  if(!eng){ err.textContent='Username not recognised — contact your manager'; return; }
+  var hash = await sha256hex(password);
+  if(hash !== eng.hash){ err.textContent='Incorrect password — please try again'; return; }
   err.textContent='';
-  setLoggedInEngineer(name);
+  var displayName = username.slice(0,2).toUpperCase() + username.slice(2);
+  sessionStorage.setItem('skyform_eng_session', JSON.stringify({username:displayName, name:eng.name}));
+  setLoggedInEngineer(displayName, eng.name);
 }
 
-function setLoggedInEngineer(name) {
-  // Remove login screen
+function setLoggedInEngineer(username, fullName) {
   var screen = document.getElementById('eng-login-screen');
   if(screen) screen.remove();
-  // Store in session
-  sessionStorage.setItem('skyform_eng', name);
-  // Set sub-input (submitter) and ppe-eng (tagged engineer) both to this name
+  // sub-input shows username only (privacy)
   var si = document.getElementById('sub-input');
-  if(si){ si.value = name; si.dispatchEvent(new Event('input')); }
+  if(si){ si.value = username; si.dispatchEvent(new Event('input')); }
+  // ppe-eng stores the REAL name for the database
   var eng = document.getElementById('ppe-eng');
-  if(eng) eng.value = name;
-  // Update sub-status
+  if(eng) eng.value = fullName;
   var st = document.getElementById('sub-status');
-  if(st){ st.className='sub-status known'; st.textContent='Signed in as '+name; }
-  // Load requirements
-  loadEngineerRequirements(name);
-  // Show logged-in bar
-  showLoggedInBar(name);
+  if(st){ st.className='sub-status known'; st.textContent='Signed in as '+username; }
+  // Load requirements using real name
+  loadEngineerRequirements(fullName);
+  showLoggedInBar(username, fullName);
 }
 
-function showLoggedInBar(name) {
+function showLoggedInBar(username, fullName) {
   var existing = document.getElementById('eng-loggedin-bar');
   if(existing) existing.remove();
   var bar = document.createElement('div');
   bar.id = 'eng-loggedin-bar';
   bar.className = 'eng-loggedin-bar';
-  bar.innerHTML = '<span style="font-size:16px">👤</span>'
-    + '<span class="eng-loggedin-name">'+name+'</span>'
-    + '<button class="eng-switch-btn" onclick="switchEngineer()">Switch engineer</button>';
+  bar.innerHTML = '<span style="font-size:16px">&#128100;</span>'
+    + '<span class="eng-loggedin-name">'+username+'</span>'
+    + '<button class="eng-switch-btn" onclick="switchEngineer()">Sign out</button>';
   var wrap = document.querySelector('.wrap');
   if(wrap) wrap.insertBefore(bar, wrap.firstChild);
 }
 
 function switchEngineer() {
-  sessionStorage.removeItem('skyform_eng');
+  sessionStorage.removeItem('skyform_eng_session');
   var bar = document.getElementById('eng-loggedin-bar');
   if(bar) bar.remove();
   var rp = document.getElementById('req-panel-wrap');

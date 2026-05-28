@@ -19,9 +19,10 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 .pause-btn{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:6px 14px;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;}
 
 .wrap{max-width:1100px;margin:0 auto;padding:24px 20px;}
-.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;}
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
 @media(max-width:700px){.stats-bar{grid-template-columns:repeat(3,1fr);}}
-.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;transition:border-color .15s;}
+.stat-card:hover{border-color:var(--border2);}
 .stat-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
 .stat-val{font-size:26px;font-weight:600;font-family:"DM Mono",monospace;line-height:1;}
 .stat-sub{font-size:10px;color:var(--text3);margin-top:5px;}
@@ -47,8 +48,10 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 .srch::placeholder{color:var(--text3);}
 /* engineer cards */
 .eng-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;}
-.eng-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;}
-.eng-card-hdr{padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.eng-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;transition:border-color .15s;margin-bottom:2px;}
+.eng-card:hover{border-color:var(--border2);}
+.eng-card-hdr{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+.eng-card-hdr:hover{background:var(--bg3);}
 .eng-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
 .eng-name{font-size:14px;font-weight:600;flex:1;}
 .eng-count{font-size:12px;color:var(--text3);}
@@ -199,6 +202,51 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 .fr-type{font-size:13px;font-weight:500;color:var(--text);min-width:160px;}
 .fr-eng{font-size:12px;color:var(--text3);min-width:120px;}
 .fr-serial{font-size:11px;color:var(--text3);font-family:"DM Mono",monospace;min-width:100px;}
+
+
+/* ── PROGRESS BAR ─────────────────────────────── */
+.eng-progress{height:3px;background:var(--bg4);margin:0;}
+.eng-progress-fill{height:3px;background:linear-gradient(90deg,var(--green),#059669);transition:width .4s;}
+/* ── ADD RECORD BUTTON ──────────────────────────── */
+.add-record-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-top:1px solid var(--border);background:var(--bg3);border:none;color:var(--blue);font-family:"DM Sans",sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:background .15s;}
+.add-record-btn:hover{background:var(--bg4);}
+/* ── OPTIONAL PPE ACCORDION ──────────────────── */
+.opt-section{border-top:1px solid var(--border);}
+.opt-section-hdr{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;user-select:none;background:var(--bg3);font-size:12px;font-weight:600;color:var(--text3);transition:background .15s;}
+.opt-section-hdr:hover{background:var(--bg4);}
+.opt-section-hdr.open{color:var(--text2);}
+.opt-section-arrow{margin-left:auto;font-size:10px;transition:transform .2s;}
+.opt-section-hdr.open .opt-section-arrow{transform:rotate(180deg);}
+.opt-section-body{display:none;}
+.opt-section-hdr.open + .opt-section-body{display:block;}
+.opt-badge{font-size:10px;padding:1px 6px;border-radius:10px;font-weight:600;}
+.opt-badge-where{background:rgba(88,166,255,.1);color:#58a6ff;}
+.opt-badge-pend{background:rgba(230,126,0,.12);color:#e67e00;}
+.opt-badge-done{background:rgba(63,185,80,.12);color:#3fb950;}
+/* ── REQUIRED SECTION HEADER ─────────────────── */
+.req-section-hdr{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:6px 16px 4px;background:var(--bg3);}
+/* ── ADMIN ENTRY MODAL ───────────────────────── */
+.aem-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);width:100%;max-width:520px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;}
+.aem-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.aem-hdr h3{font-size:14px;font-weight:600;flex:1;margin:0;}
+.aem-body{flex:1;overflow-y:auto;padding:16px;}
+.aem-section{margin-bottom:16px;}
+.aem-section-title{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.aem-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:480px){.aem-grid{grid-template-columns:1fr;}}
+.aem-field label{display:block;font-size:11px;font-weight:600;color:var(--text3);margin-bottom:4px;}
+.aem-field input,.aem-field select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;box-sizing:border-box;}
+.aem-field input:focus,.aem-field select:focus{border-color:var(--accent);}
+.aem-field.full{grid-column:1/-1;}
+.aem-cat-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.aem-cat-chip{padding:4px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);font-size:12px;color:var(--text3);cursor:pointer;transition:all .15s;}
+.aem-cat-chip.sel{color:#fff;}
+.aem-item-chips{display:flex;flex-wrap:wrap;gap:4px;}
+.aem-item-chip{padding:3px 10px;border-radius:16px;border:1px solid var(--border2);background:var(--bg4);font-size:11px;color:var(--text3);cursor:pointer;transition:all .15s;}
+.aem-item-chip.sel{color:#fff;}
+.aem-item-chip.has-data{border-color:var(--green);color:var(--green);}
+.aem-foot{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+.aem-req-note{font-size:11px;color:var(--amber);display:flex;align-items:center;gap:4px;margin-bottom:10px;}
 
 </style>
 <!-- build:1777564249 -->
@@ -372,111 +420,188 @@ function render(){
 }
 
 function renderByEng(items){
-  var TEST_ACCS = ['Test Admin 1', 'Test Admin 2', 'Test Admin 3'];
-  var REQUIRED  = ['Safety Helmet', 'Hi-Vis Workwear', 'Safety Boots', 'Cut Resistant Gloves', 'Noise Protection', 'Safety Glasses', 'Head Lamp', 'Full Body Harness', 'Fall Arrest Lanyard (Twin)', 'Work Restraint Lanyard', 'Fall Arrest Glider', 'Transfer Connector'];
+  var TEST_ACCS = ['Test Admin 1','Test Admin 2','Test Admin 3'];
+  var REQUIRED  = ['Safety Helmet','Hi-Vis Workwear','Safety Boots','Cut Resistant Gloves','Noise Protection','Safety Glasses','Head Lamp','Full Body Harness','Fall Arrest Lanyard (Twin)','Work Restraint Lanyard','Fall Arrest Glider','Transfer Connector'];
+  var OPT_CATS  = [
+    {key:'offshore',icon:'🌊',label:'Offshore Additional',items:['Immersion Suit','Lifejacket 275N','Personal Locator Beacon']},
+    {key:'hv',     icon:'⚡',label:'HV / Electrical',     items:['Arc / FR Clothing','Electrical Gloves','Arc Face & Head Protection']},
+    {key:'hotworks',icon:'🔥',label:'Hot Works',          items:['FR Hot Works Clothing','Hot Works Gloves','Face & Eye Protection','Respiratory Protection']}
+  ];
+  var ALL_OPT = []; OPT_CATS.forEach(function(c){c.items.forEach(function(i){ALL_OPT.push(i);});});
 
-  // Build byEng map from PPE data
   var byEng = {};
   items.forEach(function(r){
-    var e = r.tagged_engineer || 'Unassigned';
-    if(!byEng[e]) byEng[e] = [];
+    var e=r.tagged_engineer||'Unassigned';
+    if(!byEng[e]) byEng[e]=[];
     byEng[e].push(r);
   });
 
-  // Build master engineer list: allEngineers + anyone in PPE data not in the DB list
   var masterSet = {};
-  allEngineers.forEach(function(n){ masterSet[n] = true; });
-  Object.keys(byEng).forEach(function(n){ masterSet[n] = true; });
+  allEngineers.forEach(function(n){masterSet[n]=true;});
+  Object.keys(byEng).forEach(function(n){masterSet[n]=true;});
   var allNames = Object.keys(masterSet);
 
-  // Sort: 1) test accounts in order, 2) engineers with data (alpha), 3) engineers without data (alpha)
-  allNames.sort(function(a, b){
-    var aT = TEST_ACCS.indexOf(a), bT = TEST_ACCS.indexOf(b);
-    if(aT > -1 && bT > -1) return aT - bT;
-    if(aT > -1) return -1;
-    if(bT > -1) return 1;
-    var aHas = !!(byEng[a] && byEng[a].length > 0);
-    var bHas = !!(byEng[b] && byEng[b].length > 0);
-    if(aHas && !bHas) return -1;
-    if(!aHas && bHas) return 1;
+  allNames.sort(function(a,b){
+    var aT=TEST_ACCS.indexOf(a), bT=TEST_ACCS.indexOf(b);
+    if(aT>-1&&bT>-1) return aT-bT;
+    if(aT>-1) return -1; if(bT>-1) return 1;
+    var aH=!!(byEng[a]&&byEng[a].length>0), bH=!!(byEng[b]&&byEng[b].length>0);
+    if(aH&&!bH) return -1; if(!aH&&bH) return 1;
     return a.localeCompare(b);
   });
 
-  var grid = document.getElementById("eng-grid");
-  grid.innerHTML = "";
+  var grid=document.getElementById('eng-grid'); grid.innerHTML='';
 
   allNames.forEach(function(eng){
-    var ePPE = byEng[eng] || [];
-    var hasData = ePPE.length > 0;
+    var ePPE=byEng[eng]||[], hasData=ePPE.length>0;
+    var submitted={};
+    ePPE.forEach(function(r){submitted[r.item_type]=(r.verification_status||'pending');});
 
-    // Card colours — grey if no data
-    var verCounts = {verified:0, pending:0, rejected:0};
-    ePPE.forEach(function(r){
-      var s = r.verification_status || 'pending';
-      if(s === 'verified') verCounts.verified++;
-      else if(s === 'rejected') verCounts.rejected++;
-      else verCounts.pending++;
+    var vCounts={verified:0,pending:0,rejected:0,missing:0};
+    REQUIRED.forEach(function(item){
+      var s=submitted[item];
+      if(!s) vCounts.missing++;
+      else if(s==='verified') vCounts.verified++;
+      else if(s==='rejected') vCounts.rejected++;
+      else vCounts.pending++;
     });
 
-    var ragClass = !hasData ? 'rag-none' :
-      ePPE.some(function(r){return r.condition==='Remove from Service';}) ? 'rag-r' :
-      ePPE.some(function(r){return r.condition==='Monitor'||hasUnknown(r);}) ? 'rag-a' : 'rag-g';
+    var totalRequired=REQUIRED.length;
+    var pctDone=Math.round((vCounts.verified/totalRequired)*100);
+    var ragClass=!hasData?'rag-none':ePPE.some(function(r){return r.condition==='Remove from Service';})?'rag-r':ePPE.some(function(r){return r.condition==='Monitor'||hasUnknown(r);})?'rag-a':'rag-g';
+    var initials=eng.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
 
-    var initials = eng.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+    var card=document.createElement('div'); card.className='eng-card';
 
-    var card = document.createElement('div'); card.className = 'eng-card';
+    // ── HEADER ─────────────────────────────────────────────────
+    var hdr=document.createElement('div'); hdr.className='eng-card-hdr';
+    var av=document.createElement('div'); av.className='eng-av';
+    var bgCols={'rag-g':'rgba(63,185,80,.15)','rag-a':'rgba(210,153,34,.15)','rag-r':'rgba(248,81,73,.12)','rag-none':'rgba(120,120,120,.1)'};
+    var txCols={'rag-g':'var(--green)','rag-a':'var(--amber)','rag-r':'var(--red)','rag-none':'var(--text3)'};
+    av.style.background=bgCols[ragClass]; av.style.color=txCols[ragClass]; av.textContent=initials;
 
-    // ── CARD HEADER ──────────────────────────────────────────────
-    var hdr = document.createElement('div'); hdr.className = 'eng-card-hdr';
-    var av = document.createElement('div'); av.className = 'eng-av';
-    var bgCols = {'rag-g':'rgba(63,185,80,.15)','rag-a':'rgba(210,153,34,.15)','rag-r':'rgba(248,81,73,.12)','rag-none':'rgba(120,120,120,.1)'};
-    var txCols = {'rag-g':'var(--green)','rag-a':'var(--amber)','rag-r':'var(--red)','rag-none':'var(--text3)'};
-    av.style.background = bgCols[ragClass]; av.style.color = txCols[ragClass]; av.textContent = initials;
+    var info=document.createElement('div'); info.style.cssText='flex:1;min-width:0;';
+    var nm=document.createElement('div'); nm.className='eng-name'; nm.textContent=eng;
+    var subLine=document.createElement('div'); subLine.style.cssText='font-size:11px;color:var(--text3);margin-top:1px;';
+    if(hasData){
+      subLine.textContent=vCounts.verified+'/'+totalRequired+' verified';
+      if(vCounts.missing>0) subLine.textContent+=' · '+vCounts.missing+' missing';
+    } else { subLine.textContent='No records submitted'; }
+    info.appendChild(nm); info.appendChild(subLine);
 
-    var nm = document.createElement('div'); nm.className = 'eng-name'; nm.textContent = eng;
-    var cnt = document.createElement('div'); cnt.className = 'eng-count';
-    cnt.textContent = hasData ? ePPE.length + ' item' + (ePPE.length !== 1 ? 's' : '') : 'No data submitted';
-    cnt.style.color = hasData ? '' : 'var(--text3)';
-    var rag = document.createElement('div'); rag.className = 'eng-rag ' + ragClass;
-    hdr.appendChild(av); hdr.appendChild(nm); hdr.appendChild(cnt); hdr.appendChild(rag);
+    var pctBadge=document.createElement('div');
+    pctBadge.style.cssText='font-size:12px;font-weight:700;color:'+(pctDone===100?'var(--green)':pctDone>60?'var(--amber)':'var(--text3)')+';';
+    pctBadge.textContent=hasData?pctDone+'%':'—';
 
-    // ── VERIFICATION SUMMARY BAR ─────────────────────────────────
-    var vBar = document.createElement('div'); vBar.className = 'comp-bar';
-    if(hasData) {
-      if(verCounts.verified > 0){ var pv=document.createElement('span'); pv.className='comp-pill cp-v'; pv.textContent='✓ '+verCounts.verified+' verified'; vBar.appendChild(pv); }
-      if(verCounts.pending  > 0){ var pp=document.createElement('span'); pp.className='comp-pill cp-p'; pp.textContent='⏳ '+verCounts.pending+' pending'; vBar.appendChild(pp); }
-      if(verCounts.rejected > 0){ var pr=document.createElement('span'); pr.className='comp-pill'; pr.style.cssText='background:rgba(248,81,73,.1);color:#f85149;'; pr.textContent='✗ '+verCounts.rejected+' rejected'; vBar.appendChild(pr); }
+    var rag=document.createElement('div'); rag.className='eng-rag '+ragClass;
+
+    hdr.appendChild(av); hdr.appendChild(info); hdr.appendChild(pctBadge); hdr.appendChild(rag);
+
+    // ── PROGRESS BAR ────────────────────────────────────────────
+    var progBar=document.createElement('div'); progBar.className='eng-progress';
+    var progFill=document.createElement('div'); progFill.className='eng-progress-fill';
+    progFill.style.width=pctDone+'%';
+    if(pctDone===100) progFill.style.background='var(--green)';
+    else if(pctDone>60) progFill.style.background='var(--amber)';
+    progBar.appendChild(progFill);
+
+    // ── VERIFICATION PILL BAR ────────────────────────────────────
+    var vBar=document.createElement('div'); vBar.className='comp-bar';
+    if(hasData){
+      if(vCounts.verified>0){var pv=document.createElement('span');pv.className='comp-pill cp-v';pv.textContent='✓ '+vCounts.verified+' verified';vBar.appendChild(pv);}
+      if(vCounts.pending>0){var pp=document.createElement('span');pp.className='comp-pill cp-p';pp.textContent='⏳ '+vCounts.pending+' pending';vBar.appendChild(pp);}
+      if(vCounts.rejected>0){var pr=document.createElement('span');pr.className='comp-pill';pr.style.cssText='background:rgba(248,81,73,.1);color:#f85149;';pr.textContent='✗ '+vCounts.rejected+' rejected';vBar.appendChild(pr);}
+      if(vCounts.missing>0){var pm=document.createElement('span');pm.className='comp-pill';pm.style.cssText='background:var(--bg4);color:var(--text3);';pm.textContent='○ '+vCounts.missing+' missing';vBar.appendChild(pm);}
     } else {
-      var noData = document.createElement('span'); noData.className='comp-pill';
-      noData.style.cssText='background:var(--bg4);color:var(--text3);font-style:italic;';
-      noData.textContent='No PPE records submitted yet'; vBar.appendChild(noData);
+      var nd=document.createElement('span');nd.className='comp-pill';nd.style.cssText='background:var(--bg4);color:var(--text3);font-style:italic;';nd.textContent='No PPE records submitted yet';vBar.appendChild(nd);
     }
 
-    // ── PPE ITEM LIST ─────────────────────────────────────────────
-    var list = document.createElement('div'); list.className = 'ppe-list';
+    // ── PPE LIST ─────────────────────────────────────────────────
+    var list=document.createElement('div'); list.className='ppe-list';
+    var bodyWrap=document.createElement('div'); bodyWrap.className='eng-body';
 
-    // Submitted items
-    ePPE.forEach(function(r){ buildFullRecord(r, list); });
+    // Required section header
+    var reqHdr=document.createElement('div'); reqHdr.className='req-section-hdr';
+    reqHdr.innerHTML='🦺 Required PPE — Baseline & Working at Height';
+    bodyWrap.appendChild(reqHdr);
 
-    // Ghost rows for all required items not submitted
-    var submitted = {};
-    ePPE.forEach(function(r){ submitted[r.item_type] = true; });
+    // Submitted required items first
+    ePPE.filter(function(r){return REQUIRED.indexOf(r.item_type)>-1;}).forEach(function(r){buildFullRecord(r,list);});
+
+    // Ghost rows for missing required items
     REQUIRED.forEach(function(itemName){
       if(!submitted[itemName]){
-        var gr = document.createElement('div'); gr.className = 'ppe-item'; gr.style.opacity = '0.5';
-        var gDot = document.createElement('span');
-        gDot.style.cssText = 'width:10px;height:10px;border-radius:50%;background:#f85149;opacity:.5;display:inline-block;flex-shrink:0;margin-right:5px;vertical-align:middle;';
-        gDot.title = 'Not submitted';
-        var gTp = document.createElement('span'); gTp.className = 'ppe-type';
-        gTp.textContent = itemName; gTp.style.color = 'var(--text3)';
-        var gSr = document.createElement('span'); gSr.className = 'ppe-serial';
-        gSr.textContent = 'Not submitted'; gSr.style.cssText = 'font-style:italic;color:var(--text3);font-size:11px;';
+        var gr=document.createElement('div'); gr.className='ppe-item'; gr.style.opacity='0.5';
+        var gDot=document.createElement('span');
+        gDot.style.cssText='width:10px;height:10px;border-radius:50%;background:#f85149;opacity:.5;display:inline-block;flex-shrink:0;margin-right:5px;vertical-align:middle;';
+        gDot.title='Not submitted';
+        var gTp=document.createElement('span'); gTp.className='ppe-type'; gTp.textContent=itemName; gTp.style.color='var(--text3)';
+        var gSr=document.createElement('span'); gSr.className='ppe-serial'; gSr.textContent='Not submitted'; gSr.style.cssText='font-style:italic;color:var(--text3);font-size:11px;';
         gr.appendChild(gDot); gr.appendChild(gTp); gr.appendChild(gSr);
         list.appendChild(gr);
       }
     });
+    bodyWrap.appendChild(list);
 
-    card.appendChild(hdr); card.appendChild(vBar); card.appendChild(list);
+    // ── OPTIONAL SECTIONS ─────────────────────────────────────────
+    OPT_CATS.forEach(function(cat){
+      var catItems=ePPE.filter(function(r){return cat.items.indexOf(r.item_type)>-1;});
+      var catSubmitted={};
+      catItems.forEach(function(r){catSubmitted[r.item_type]=r.verification_status||'pending';});
+
+      var vDone=catItems.filter(function(r){return r.verification_status==='verified';}).length;
+      var vPend=catItems.filter(function(r){return (r.verification_status||'pending')==='pending';}).length;
+
+      var optSec=document.createElement('div'); optSec.className='opt-section';
+      var optHdr=document.createElement('div'); optHdr.className='opt-section-hdr';
+      var badgeHTML='';
+      if(catItems.length===0) badgeHTML='<span class="opt-badge opt-badge-where">Where applicable</span>';
+      else if(vDone===cat.items.length) badgeHTML='<span class="opt-badge opt-badge-done">✓ All verified</span>';
+      else if(vDone>0) badgeHTML='<span class="opt-badge opt-badge-done">✓ '+vDone+'</span><span class="opt-badge opt-badge-pend">⏳ '+vPend+'</span>';
+      else badgeHTML='<span class="opt-badge opt-badge-pend">⏳ '+vPend+' pending</span>';
+      optHdr.innerHTML=cat.icon+' <span style="flex:1">'+cat.label+'</span>'+badgeHTML+'<span class="opt-section-arrow">▼</span>';
+      optHdr.addEventListener('click',function(){
+        optHdr.classList.toggle('open');
+      });
+
+      var optBody=document.createElement('div'); optBody.className='opt-section-body';
+      if(catItems.length>0){
+        catItems.forEach(function(r){buildFullRecord(r,optBody);});
+      }
+      // Ghost rows for unsubmitted optional items (only show if section opened)
+      cat.items.forEach(function(itemName){
+        if(!catSubmitted[itemName]){
+          var gr=document.createElement('div'); gr.className='ppe-item'; gr.style.opacity='0.45';
+          var gDot=document.createElement('span');
+          gDot.style.cssText='width:8px;height:8px;border-radius:50%;background:var(--border2);display:inline-block;flex-shrink:0;margin-right:5px;vertical-align:middle;';
+          var gTp=document.createElement('span'); gTp.className='ppe-type'; gTp.textContent=itemName; gTp.style.color='var(--text3)';
+          var gSr=document.createElement('span'); gSr.className='ppe-serial'; gSr.textContent='Not submitted'; gSr.style.cssText='font-style:italic;color:var(--text3);font-size:11px;';
+          gr.appendChild(gDot); gr.appendChild(gTp); gr.appendChild(gSr);
+          optBody.appendChild(gr);
+        }
+      });
+
+      optSec.appendChild(optHdr); optSec.appendChild(optBody);
+      bodyWrap.appendChild(optSec);
+    });
+
+    // ── ADD RECORD BUTTON ─────────────────────────────────────────
+    var addBtn=document.createElement('button'); addBtn.className='add-record-btn';
+    addBtn.innerHTML='<span style="font-size:14px">+</span> Add PPE Record for '+eng;
+    (function(engName){
+      addBtn.addEventListener('click',function(e){
+        e.stopPropagation();
+        showAddRecordModal(engName, byEng[engName]||[]);
+      });
+    })(eng);
+    bodyWrap.appendChild(addBtn);
+
+    // ── COLLAPSE / EXPAND card body ───────────────────────────────
+    hdr.addEventListener('click',function(){
+      bodyWrap.style.display = bodyWrap.style.display==='none' ? 'block' : 'none';
+    });
+
+    card.appendChild(hdr); card.appendChild(progBar); card.appendChild(vBar); card.appendChild(bodyWrap);
     grid.appendChild(card);
   });
 }
@@ -1392,6 +1517,235 @@ function uploadCertForRecord(recordId) {
   });
   btns.appendChild(cancel); btns.appendChild(upload); inner.appendChild(btns);
   m.appendChild(inner); document.body.appendChild(m);
+}
+
+
+// ── ADMIN DATA ENTRY MODAL ───────────────────────────────────────────
+var AEM_CAT_DEFS = [
+  {key:'baseline', icon:'🦺', label:'Baseline PPE', col:'#1f6feb',
+   items:[
+    {name:'Safety Helmet',       std:'EN 397'},
+    {name:'Hi-Vis Workwear',     std:'EN 20471 Cl2'},
+    {name:'Safety Boots',        std:'EN 20345 S3 SRC'},
+    {name:'Cut Resistant Gloves',std:'EN 388 4X44F'},
+    {name:'Noise Protection',    std:'EN 352-1'},
+    {name:'Safety Glasses',      std:'EN 166'},
+    {name:'Head Lamp',           std:'N/A'},
+   ]},
+  {key:'height', icon:'🧗', label:'Working at Height', col:'#8b5cf6',
+   items:[
+    {name:'Full Body Harness',         std:'EN 361 + EN 358'},
+    {name:'Fall Arrest Lanyard (Twin)',std:'EN 355'},
+    {name:'Work Restraint Lanyard',    std:'EN 358'},
+    {name:'Fall Arrest Glider',        std:'EN 353-1/2'},
+    {name:'Transfer Connector',        std:'EN 362'},
+   ]},
+  {key:'offshore', icon:'🌊', label:'Offshore Additional', col:'#0ea5e9',
+   items:[
+    {name:'Immersion Suit',          std:'ISO 15027-1'},
+    {name:'Lifejacket 275N',         std:'ISO 12402-2'},
+    {name:'Personal Locator Beacon', std:'AIS/121.5MHz'},
+   ]},
+  {key:'hv', icon:'⚡', label:'HV / Electrical', col:'#f59e0b',
+   items:[
+    {name:'Arc / FR Clothing',         std:'EN ISO 11612'},
+    {name:'Electrical Gloves',         std:'EN 60903 Cl0'},
+    {name:'Arc Face & Head Protection',std:'ASTM F2178'},
+   ]},
+  {key:'hotworks', icon:'🔥', label:'Hot Works', col:'#ef4444',
+   items:[
+    {name:'FR Hot Works Clothing',  std:'EN 11611'},
+    {name:'Hot Works Gloves',       std:'EN 388 + EN 407'},
+    {name:'Face & Eye Protection',  std:'EN 166'},
+    {name:'Respiratory Protection', std:'EN 149'},
+   ]},
+];
+
+function showAddRecordModal(engName, existingRecords) {
+  var old = document.getElementById('_aem'); if(old) old.remove();
+  var existingMap = {};
+  existingRecords.forEach(function(r){ existingMap[r.item_type] = r.verification_status||'pending'; });
+
+  var overlay = document.createElement('div');
+  overlay.id = '_aem'; overlay.className = 'cert-viewer-overlay';
+
+  var box = document.createElement('div'); box.className = 'aem-box';
+
+  // Header
+  var hdr = document.createElement('div'); hdr.className = 'aem-hdr';
+  var h3 = document.createElement('h3'); h3.textContent = 'Add PPE Record — ' + engName;
+  var closeBtn = document.createElement('button'); closeBtn.className = 'cert-viewer-close';
+  closeBtn.innerHTML = '&times;'; closeBtn.addEventListener('click',function(){ overlay.remove(); });
+  hdr.appendChild(h3); hdr.appendChild(closeBtn); box.appendChild(hdr);
+
+  // Body
+  var body = document.createElement('div'); body.className = 'aem-body';
+
+  // Note about mandatory
+  var note = document.createElement('div'); note.className = 'aem-req-note';
+  note.innerHTML = '⚠️ Baseline and Working at Height items are <strong>mandatory</strong>. Offshore, HV and Hot Works items are where applicable.';
+  body.appendChild(note);
+
+  // Category chips
+  var catSec = document.createElement('div'); catSec.className = 'aem-section';
+  var catTitle = document.createElement('div'); catTitle.className = 'aem-section-title'; catTitle.textContent = '1. Select Category';
+  catSec.appendChild(catTitle);
+  var catChips = document.createElement('div'); catChips.className = 'aem-cat-chips';
+  var selectedCat = null, selectedItem = null, selectedStd = '';
+
+  // Item chips container
+  var itemSec = document.createElement('div'); itemSec.className = 'aem-section';
+  var itemTitle = document.createElement('div'); itemTitle.className = 'aem-section-title'; itemTitle.textContent = '2. Select Item Type';
+  itemSec.appendChild(itemTitle);
+  var itemChips = document.createElement('div'); itemChips.className = 'aem-item-chips';
+
+  AEM_CAT_DEFS.forEach(function(cat){
+    var chip = document.createElement('button'); chip.className = 'aem-cat-chip';
+    chip.innerHTML = cat.icon + ' ' + cat.label;
+    var isOptional = ['offshore','hv','hotworks'].indexOf(cat.key) > -1;
+    if(isOptional) chip.style.opacity = '0.7';
+    chip.addEventListener('click',function(){
+      catChips.querySelectorAll('.aem-cat-chip').forEach(function(c){c.classList.remove('sel');c.style.background='';c.style.borderColor='';});
+      chip.classList.add('sel');chip.style.background=cat.col;chip.style.borderColor=cat.col;chip.style.opacity='1';
+      selectedCat = cat; selectedItem = null; selectedStd = '';
+      // Update standard field
+      var stdField = document.getElementById('_aem_std');
+      if(stdField) stdField.value = '';
+      // Build item chips
+      itemChips.innerHTML = '';
+      cat.items.forEach(function(item){
+        var ic = document.createElement('button'); ic.className = 'aem-item-chip';
+        if(existingMap[item.name]) ic.classList.add('has-data');
+        ic.textContent = item.name;
+        if(existingMap[item.name]) ic.title = 'Already submitted: ' + existingMap[item.name];
+        ic.addEventListener('click',function(){
+          itemChips.querySelectorAll('.aem-item-chip').forEach(function(c){c.classList.remove('sel');c.style.background='';c.style.borderColor='';});
+          ic.classList.add('sel');ic.style.background=cat.col;ic.style.borderColor=cat.col;ic.style.color='#fff';
+          selectedItem = item.name; selectedStd = item.std;
+          var sf=document.getElementById('_aem_std'); if(sf) sf.value=item.std;
+        });
+        itemChips.appendChild(ic);
+      });
+      // Also add Other chip
+      var otherChip=document.createElement('button'); otherChip.className='aem-item-chip'; otherChip.textContent='Other';
+      otherChip.addEventListener('click',function(){
+        itemChips.querySelectorAll('.aem-item-chip').forEach(function(c){c.classList.remove('sel');c.style.background='';c.style.borderColor='';});
+        otherChip.classList.add('sel');otherChip.style.background='#6b7280';otherChip.style.borderColor='#6b7280';otherChip.style.color='#fff';
+        selectedItem='Other';selectedStd='';
+        var sf=document.getElementById('_aem_std'); if(sf) sf.value='';
+      });
+      itemChips.appendChild(otherChip);
+    });
+    catChips.appendChild(chip);
+  });
+  catSec.appendChild(catChips);
+  body.appendChild(catSec);
+  itemSec.appendChild(itemChips);
+  body.appendChild(itemSec);
+
+  // Detail fields
+  var detailSec = document.createElement('div'); detailSec.className = 'aem-section';
+  var detTitle = document.createElement('div'); detTitle.className = 'aem-section-title'; detTitle.textContent = '3. Item Details';
+  detailSec.appendChild(detTitle);
+  var grid = document.createElement('div'); grid.className = 'aem-grid';
+
+  function field(id, label, type, placeholder, full) {
+    var wrap = document.createElement('div'); wrap.className = 'aem-field' + (full?' full':'');
+    var lbl = document.createElement('label'); lbl.textContent = label;
+    var inp; if(type==='select'){inp=document.createElement('select');} else {inp=document.createElement('input');inp.type=type||'text';inp.placeholder=placeholder||'';}
+    inp.id = '_aem_'+id;
+    wrap.appendChild(lbl); wrap.appendChild(inp); grid.appendChild(wrap);
+    return inp;
+  }
+
+  var fBrand=field('brand','Brand / Manufacturer','text','e.g. Skylotec');
+  var fModel=field('model','Model','text','e.g. Orizont 2');
+  var fSerial=field('serial','Serial Number','text','From label');
+  var fStd=field('std','EN / ISO Standard','text','Auto-filled from item');
+  var fMfg=field('mfg','Manufacture Date','date');
+  var fFirstUse=field('first_use','First Use Date','date');
+  var fLastInsp=field('last_insp','Last Inspection','date');
+  var fNextInsp=field('next_insp','Next Inspection','date');
+  var fInspector=field('inspector','Inspector Name','text','Who inspected it');
+  var fLoc=field('loc','Current Location','text','e.g. Whitelee');
+
+  // Condition select
+  var condWrap=document.createElement('div'); condWrap.className='aem-field';
+  var condLbl=document.createElement('label'); condLbl.textContent='Condition';
+  var condSel=document.createElement('select'); condSel.id='_aem_cond';
+  ['Good','Monitor','Remove from Service'].forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;condSel.appendChild(o);});
+  condWrap.appendChild(condLbl); condWrap.appendChild(condSel); grid.appendChild(condWrap);
+
+  detailSec.appendChild(grid);
+
+  // Cert upload field
+  var certWrap=document.createElement('div'); certWrap.className='aem-field full'; certWrap.style.marginTop='10px';
+  var certLbl=document.createElement('label'); certLbl.textContent='Certificate / Test Report (where applicable)';
+  var certInput=document.createElement('input'); certInput.type='file'; certInput.accept='image/*,.pdf';
+  certInput.style.cssText='display:block;font-size:12px;margin-top:4px;';
+  var certPreview=document.createElement('div'); certPreview.id='_aem_cert_preview';
+  certPreview.style.cssText='margin-top:6px;';
+  certInput.addEventListener('change',function(){
+    var file=certInput.files[0]; if(!file) return;
+    var reader=new FileReader(); reader.onload=function(e){
+      certPreview.innerHTML='';
+      if(file.type.startsWith('image/')){var img=document.createElement('img');img.src=e.target.result;img.style.cssText='max-height:80px;border-radius:4px;';certPreview.appendChild(img);}
+      else{certPreview.textContent='📄 '+file.name;}
+    }; reader.readAsDataURL(file);
+  });
+  certWrap.appendChild(certLbl); certWrap.appendChild(certInput); certWrap.appendChild(certPreview);
+  grid.appendChild(certWrap);
+
+  body.appendChild(detailSec);
+  box.appendChild(body);
+
+  // Footer
+  var foot=document.createElement('div'); foot.className='aem-foot';
+  var cancel=document.createElement('button'); cancel.className='modal-cancel'; cancel.textContent='Cancel';
+  cancel.addEventListener('click',function(){ overlay.remove(); });
+  var save=document.createElement('button'); save.className='modal-confirm'; save.textContent='Save Record';
+  save.addEventListener('click',function(){
+    if(!selectedItem){ alert('Please select a PPE item type'); return; }
+    var serial=(document.getElementById('_aem_serial')||{}).value||'';
+    if(!serial){ alert('Please enter a serial number'); return; }
+    // Read cert if any
+    var certData='';
+    var file=certInput.files[0];
+    function doSave(cert){
+      var payload={
+        item_type: selectedItem,
+        en_standard: (document.getElementById('_aem_std')||{}).value||selectedStd,
+        brand: (document.getElementById('_aem_brand')||{}).value||'',
+        model: (document.getElementById('_aem_model')||{}).value||'',
+        serial_number: serial,
+        manufacture_date: (document.getElementById('_aem_mfg')||{}).value||null,
+        first_use_date: (document.getElementById('_aem_first_use')||{}).value||null,
+        last_inspection_date: (document.getElementById('_aem_last_insp')||{}).value||null,
+        next_inspection_date: (document.getElementById('_aem_next_insp')||{}).value||null,
+        inspector_name: (document.getElementById('_aem_inspector')||{}).value||'',
+        condition: document.getElementById('_aem_cond').value||'Good',
+        tagged_engineer: engName,
+        tagged_location: (document.getElementById('_aem_loc')||{}).value||'',
+        submitted_by: _currentMgmt?_currentMgmt.username:'admin',
+        verification_status: 'pending',
+        cert_image_data: cert||''
+      };
+      fetch(SUPA_URL+'/rest/v1/ppe_register',{
+        method:'POST',
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify(payload)
+      }).then(function(res){
+        if(res.ok){ overlay.remove(); showToast('Record saved for '+engName,'ok'); fetchData(); }
+        else showToast('Save failed','err');
+      }).catch(function(){showToast('Connection error','err');});
+    }
+    if(file){var r=new FileReader();r.onload=function(e){doSave(e.target.result);};r.readAsDataURL(file);}
+    else doSave('');
+  });
+  foot.appendChild(cancel); foot.appendChild(save); box.appendChild(foot);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
 }
 </script>
 </body>

@@ -157,11 +157,19 @@ async function loadUsers() {
     var engs  = await engRes.json();
     var mgmts = await mgmtRes.json();
 
+    // Build name->engineer lookup for dual-role detection
+    var engByName = {};
     engs.forEach(function(r){
       if(r.username) _engMap[r.username.toLowerCase()] = {name:r.name, hash:r.pw_hash, type:'engineer'};
+      engByName[r.name.toLowerCase()] = {name:r.name, hash:r.pw_hash, username:r.username};
     });
     mgmts.forEach(function(r){
-      if(r.username) _mgmtMap[r.username.toLowerCase()] = {name:r.name, hash:r.pw_hash, type:'management'};
+      if(!r.username) return;
+      var mgmtRec = {name:r.name, hash:r.pw_hash, type:'management'};
+      // Check if this management user also exists as an engineer (by name)
+      var engMatch = engByName[r.name.toLowerCase()];
+      if(engMatch) mgmtRec.dualEng = engMatch;
+      _mgmtMap[r.username.toLowerCase()] = mgmtRec;
     });
     _loaded = true;
     document.getElementById('p-loading').textContent = '';
@@ -200,10 +208,10 @@ async function doPortalLogin() {
   var mgmt = _mgmtMap[key];
   var eng  = _engMap[key];
 
-  // ── DUAL ROLE: found in both tables ──────────────────────────────
-  if(mgmt && eng && hash === mgmt.hash) {
+  // ── DUAL ROLE: management user who also has an engineer record ───
+  if(mgmt && mgmt.dualEng && hash === mgmt.hash) {
     btn.disabled = false; btn.textContent = 'Sign In →';
-    showRolePicker(username, mgmt, eng);
+    showRolePicker(username, mgmt, mgmt.dualEng);
     return;
   }
 

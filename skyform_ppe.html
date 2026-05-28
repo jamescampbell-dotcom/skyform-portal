@@ -991,9 +991,25 @@ function loadEngineerRequirements(engName) {
 
 // Engineer lookup map: username -> {name, hash}
 
-// ── SECURE AUTH ───────────────────────────────────────────────
+// ── SECURE AUTH — server-side Edge Function ──────────────────
+// pw_hash and sha256 verification happen server-side only
 var AUTH_URL = 'https://tdbgakmhkwzyaczqjrxw.supabase.co/functions/v1/skyform-auth';
+var AUTH_KEY = 'sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK';
 async function serverLogin(username, password) {
+  try {
+    var res = await fetch(AUTH_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + AUTH_KEY
+      },
+      body: JSON.stringify({username: username.trim(), password: password})
+    });
+    return await res.json();
+  } catch(e) {
+    return {success: false, error: 'Connection error — please try again'};
+  }
+}async function serverLogin(username, password) {
   try {
     var res = await fetch(AUTH_URL, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:username.trim(),password:password})});
     return await res.json();

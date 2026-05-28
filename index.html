@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Skyform Wind Operations Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;--border2:#444c56;
+  --text:#e6edf3;--text2:#c9d1d9;--text3:#8b949e;
+  --green:#3fb950;--gbg:rgba(63,185,80,.12);
+  --blue:#58a6ff;--accent:#1f6feb;
+  --red:#f85149;--amber:#d29922;
+  --r:8px;--rl:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+
+/* ── PORTAL CARD ─────────────────────────────── */
+.portal-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);
+  width:100%;max-width:380px;overflow:hidden;
+}
+.portal-header{
+  background:linear-gradient(135deg,#0d2818 0%,#1B4332 100%);
+  padding:28px 24px 22px;text-align:center;border-bottom:1px solid #2D6A4F;
+}
+.portal-logo{height:44px;object-fit:contain;margin-bottom:14px;}
+.portal-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px;}
+.portal-sub{font-size:12px;color:#52B788;letter-spacing:.02em;}
+
+.portal-body{padding:24px;}
+
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:10.5px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.field input{
+  width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);
+  padding:10px 13px;font-family:"DM Sans",sans-serif;font-size:14px;color:var(--text);
+  outline:none;transition:border-color .15s;
+}
+.field input:focus{border-color:var(--accent);}
+.field input::placeholder{color:var(--text3);}
+
+.login-btn{
+  width:100%;padding:12px;margin-top:6px;
+  background:linear-gradient(135deg,#1B4332,#2D6A4F);
+  border:1px solid #52B788;border-radius:var(--r);
+  font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;
+  color:#fff;cursor:pointer;transition:all .15s;
+}
+.login-btn:hover{background:linear-gradient(135deg,#2D6A4F,#3fb950);}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+.err{
+  font-size:12px;color:var(--red);text-align:center;margin-top:10px;
+  min-height:18px;transition:opacity .2s;
+}
+.loading-msg{font-size:12px;color:var(--text3);text-align:center;margin-top:8px;}
+
+/* ── FOOTER ─────────────────────────────────── */
+.portal-footer{
+  margin-top:24px;text-align:center;font-size:11px;color:var(--text3);
+}
+.portal-footer a{color:var(--text3);text-decoration:none;}
+
+/* ── STATUS DOTS ─────────────────────────────── */
+.status-row{display:flex;gap:6px;justify-content:center;margin-top:16px;
+  padding-top:16px;border-top:1px solid var(--border);}
+.status-dot{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3);}
+.status-dot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);
+  animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+</style>
+</head>
+<body>
+
+<div class="portal-card">
+  <div class="portal-header">
+    <img class="portal-logo" src="logo.png" alt="Skyform Wind">
+    <div class="portal-title">Skyform Wind Portal</div>
+    <div class="portal-sub">Operations Management System</div>
+  </div>
+
+  <div class="portal-body">
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="p-user" placeholder="Enter your username"
+        autocomplete="username" autocapitalize="off" autocorrect="off">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="p-pass" placeholder="Enter your password"
+        autocomplete="current-password">
+    </div>
+    <button class="login-btn" id="p-btn" onclick="doPortalLogin()">Sign In →</button>
+    <div class="err" id="p-err"></div>
+    <div class="loading-msg" id="p-loading"></div>
+
+    <div class="status-row">
+      <span class="status-dot">System live</span>
+    </div>
+  </div>
+</div>
+
+<div class="portal-footer">
+  Skyform (Scotland) Limited &nbsp;·&nbsp; SC165115<br>
+  <a href="#">skyform-portal.netlify.app</a>
+</div>
+
+<script>
+var SUPA_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co";
+var SUPA_KEY = "sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK";
+
+var _engMap  = {};
+var _mgmtMap = {};
+var _loaded  = false;
+
+// Load both user tables on page load
+async function loadUsers() {
+  try {
+    var [engRes, mgmtRes] = await Promise.all([
+      fetch(SUPA_URL + "/rest/v1/engineers?select=name,username,pw_hash", {
+        headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
+      }),
+      fetch(SUPA_URL + "/rest/v1/management_users?select=name,username,pw_hash", {
+        headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
+      })
+    ]);
+    var engs  = await engRes.json();
+    var mgmts = await mgmtRes.json();
+
+    engs.forEach(function(r){
+      if(r.username) _engMap[r.username.toLowerCase()] = {name:r.name, hash:r.pw_hash, type:'engineer'};
+    });
+    mgmts.forEach(function(r){
+      if(r.username) _mgmtMap[r.username.toLowerCase()] = {name:r.name, hash:r.pw_hash, type:'management'};
+    });
+    _loaded = true;
+    document.getElementById('p-loading').textContent = '';
+  } catch(e) {
+    document.getElementById('p-loading').textContent = 'Connection issue — please refresh';
+  }
+}
+
+async function sha256hex(str) {
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+async function doPortalLogin() {
+  var username = (document.getElementById('p-user').value||'').trim();
+  var password = document.getElementById('p-pass').value||'';
+  var err = document.getElementById('p-err');
+  var btn = document.getElementById('p-btn');
+
+  err.textContent = '';
+  if(!username){ err.textContent = 'Please enter your username'; return; }
+  if(!password){ err.textContent = 'Please enter your password'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+
+  // Re-load if not yet loaded
+  if(!_loaded) {
+    document.getElementById('p-loading').textContent = 'Loading...';
+    await loadUsers();
+  }
+
+  var key  = username.toLowerCase();
+  var hash = await sha256hex(password);
+
+  // Check management first
+  var mgmt = _mgmtMap[key];
+  if(mgmt) {
+    if(hash !== mgmt.hash){ err.textContent = 'Incorrect password — please try again'; btn.disabled=false; btn.textContent='Sign In →'; return; }
+    // Store management session and redirect
+    sessionStorage.setItem('skyform_mgmt_session', JSON.stringify({
+      username: username,
+      name: mgmt.name
+    }));
+    window.location.href = 'skyform_ppe_live.html';
+    return;
+  }
+
+  // Check engineers
+  var eng = _engMap[key];
+  if(eng) {
+    if(hash !== eng.hash){ err.textContent = 'Incorrect password — please try again'; btn.disabled=false; btn.textContent='Sign In →'; return; }
+    // Store engineer session and redirect
+    var displayName = username.slice(0,2).toUpperCase() + username.slice(2);
+    sessionStorage.setItem('skyform_eng_session', JSON.stringify({
+      username: displayName,
+      name: eng.name
+    }));
+    window.location.href = 'skyform_ppe.html';
+    return;
+  }
+
+  err.textContent = 'Username not recognised — please check and try again';
+  btn.disabled = false;
+  btn.textContent = 'Sign In →';
+}
+
+// Wire up Enter key
+document.addEventListener('DOMContentLoaded', function(){
+  loadUsers();
+  document.getElementById('p-pass').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') doPortalLogin();
+  });
+  document.getElementById('p-user').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') document.getElementById('p-pass').focus();
+  });
+});
+</script>
+</body>
+</html>

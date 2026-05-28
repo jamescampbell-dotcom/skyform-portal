@@ -138,6 +138,35 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px;}
 .req-pill.verified::before{background:var(--green);}
 .req-cert-badge{font-size:10px;color:var(--amber);margin-left:4px;}
 
+
+/* ── CATEGORY ACCORDION ─────────────────────────────── */
+.cat-accordion{display:flex;flex-direction:column;gap:4px;}
+.cat-acc-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;user-select:none;transition:all .15s;}
+.cat-acc-hdr:hover{border-color:var(--border);background:var(--bg4);}
+.cat-acc-hdr.open{border-color:var(--accent);background:rgba(31,111,235,.07);}
+.cat-acc-icon{font-size:16px;flex-shrink:0;}
+.cat-acc-info{flex:1;min-width:0;}
+.cat-acc-title{font-size:12px;font-weight:600;color:var(--text2);}
+.cat-acc-sub{font-size:10.5px;color:var(--text3);margin-top:1px;}
+.cat-acc-badges{display:flex;gap:4px;align-items:center;flex-shrink:0;}
+.cat-badge-count{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;}
+.cat-badge-count.cb-done{background:rgba(63,185,80,.15);color:#3fb950;}
+.cat-badge-count.cb-pend{background:rgba(230,126,0,.14);color:#e67e00;}
+.cat-badge-count.cb-miss{background:rgba(248,81,73,.10);color:#f85149;}
+.cat-acc-arrow{font-size:10px;color:var(--text3);transition:transform .2s;flex-shrink:0;}
+.cat-acc-hdr.open .cat-acc-arrow{transform:rotate(180deg);}
+.cat-acc-body{display:none;padding:10px 12px;border:1px solid var(--border2);border-top:none;border-radius:0 0 8px 8px;background:var(--bg2);margin-top:-4px;}
+.cat-acc-hdr.open + .cat-acc-body{display:block;}
+/* item chips with status dots */
+.item-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;margin:3px;}
+.item-chip:hover{border-color:var(--accent);color:var(--blue);}
+.item-chip.sel{color:#fff;}
+.item-chip .ic-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.item-chip .ic-dot.dot-none{background:var(--border2);}
+.item-chip .ic-dot.dot-pend{background:#e67e00;}
+.item-chip .ic-dot.dot-ok{background:#3fb950;}
+.item-chip .ic-cert{font-size:9px;color:var(--amber);opacity:.8;}
+
 </style>
 <!-- build:1777564249 -->
 </head>
@@ -186,7 +215,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px;}
 
     <!-- PPE TYPE -->
     <div class="card">
-      <div class="card-hdr"><div class="card-icon" style="background:rgba(63,185,80,.15)">&#128737;</div><div><div class="card-title">PPE Item Type</div><div class="card-sub">Select the type of PPE being registered</div></div></div>
+      <div class="card-hdr"><div class="card-icon" style="background:rgba(63,185,80,.15)">&#128737;</div><div><div class="card-title">PPE Item Type</div><div class="card-sub">Select category then choose item — status shown per item</div></div></div>
       <div class="card-body">
         <div class="field" style="margin-bottom:18px;">
           <label>Item Type <span class="req">*</span></label>
@@ -329,7 +358,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px;}
 var SUPA_URL = "https://tdbgakmhkwzyaczqjrxw.supabase.co";
 var SUPA_KEY = "sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK";
 var FALLBACK_ENGS = ["Alexander Agathokleous", "Alex Miller", "Billy Allison", "Billy McAllister", "Charlie Marshall", "Daniel Bucklee", "David Wood", "Dylan Buckley", "Garry McCabe", "Iain Gordon", "Jack Holland", "John Peters", "Josh Boyce", "Kevin George", "Kevin Lochrie", "Kris Allan", "Lewis Gook", "Matt Docwra", "Matthew Burgess", "Michael Allan", "Paul McLaughlin", "Peter Canero", "Ryan Anderson", "Tyler King"];
-var ALL_SITES = ["Beatrice", "Hornsea 1", "Hornsea 2", "Aikengall 2", "Whitelee", "Blacklaw", "Bhlaraidh", "Rothes 2", "Pauls Hill", "Andershaw", "Carcant", "Minsca", "Ewe Hill", "Dunmaglass", "Clyde East", "Clyde South", "NNG Dundee", "Crystal Rig 1", "Midhill", "Hywind", "Office - Skyform HQ", "In Transit / Vehicle", "Other"];
+var ALL_SITES = ["Beatrice", "Hornsea 1", "Hornsea 2", "Aikengall 2", "Whitelee", "Blacklaw", "Bhlaraidh", "Rothes 2", "Pauls Hill", "Andershaw", "Carcant", "Minsca", "Ewe Hill", "Dunmaglass", "Clyde East", "Clyde South", "NNG Dundee", "Crystal Rig 1", "Midhill", "Hywind", "Office - Skyform HQ", "In Transit / Vehicle", "Home — Off Shift", "Other"];
 var PPE_TYPES = ["Safety Helmet", "Full Body Harness", "Fall Arrest Lanyard (Twin)", "Work Restraint Lanyard", "Fall Arrest Glider", "Transfer Connector", "Hi-Vis Workwear", "Safety Boots", "Cut Resistant Gloves", "Noise Protection", "Safety Glasses", "Immersion Suit", "Lifejacket 275N", "Personal Locator Beacon", "Head Lamp", "Arc / FR Clothing", "Electrical Gloves", "Arc Face & Head Protection", "FR Hot Works Clothing", "Hot Works Gloves", "Face & Eye Protection", "Respiratory Protection", "Other"];
 var PPE_META  = {"Safety Helmet": {"std": "EN 397 (<25 dN chin strap)", "life": 5, "insp": 12, "cat": "Standard"}, "Full Body Harness": {"std": "EN 361 / EN 358", "life": 10, "insp": 6, "cat": "Standard"}, "Fall Arrest Lanyard (Twin)": {"std": "EN 355 (ANSI Standard gate)", "life": 10, "insp": 6, "cat": "Standard"}, "Work Restraint Lanyard": {"std": "EN 358 (Adjustable)", "life": 10, "insp": 6, "cat": "Standard"}, "Fall Arrest Glider": {"std": "EN 353-1 / EN 353-2", "life": 10, "insp": 6, "cat": "Standard"}, "Transfer Connector": {"std": "EN 362", "life": 10, "insp": 6, "cat": "Standard"}, "Hi-Vis Workwear": {"std": "EN 13688 / EN 20471 Class 2", "life": null, "insp": 12, "cat": "Standard"}, "Safety Boots": {"std": "EN 20345 S3 SRC", "life": null, "insp": 12, "cat": "Standard"}, "Cut Resistant Gloves": {"std": "EN 388 4X44F Min.", "life": null, "insp": 12, "cat": "Standard"}, "Noise Protection": {"std": "EN 352-1 to 7", "life": null, "insp": 12, "cat": "Standard"}, "Safety Glasses": {"std": "EN 166 (Clear lens)", "life": null, "insp": 12, "cat": "Standard"}, "Immersion Suit": {"std": "ISO 15027-1", "life": 5, "insp": 12, "cat": "Offshore"}, "Lifejacket 275N": {"std": "ISO 12402-2 / ISO 12402-6", "life": 10, "insp": 12, "cat": "Offshore"}, "Personal Locator Beacon": {"std": "AIS / 121.5MHz", "life": null, "insp": 12, "cat": "Offshore"}, "Head Lamp": {"std": "N/A", "life": null, "insp": 12, "cat": "Standard"}, "Arc / FR Clothing": {"std": "EN ISO 11612 / IEC 61482-2", "life": null, "insp": 12, "cat": "Electrical"}, "Electrical Gloves": {"std": "EN 60903 / IEC 61482 Class 0", "life": null, "insp": 6, "cat": "Electrical"}, "Arc Face & Head Protection": {"std": "ASTM F2178 HRC 4", "life": null, "insp": 12, "cat": "Electrical"}, "FR Hot Works Clothing": {"std": "EN 11611 / EN 11612 / EN 14116", "life": null, "insp": 12, "cat": "Hot Works"}, "Hot Works Gloves": {"std": "EN 388 / EN 407 / EN 12477", "life": null, "insp": 12, "cat": "Hot Works"}, "Face & Eye Protection": {"std": "EN 166 Task Specific", "life": null, "insp": 12, "cat": "Hot Works"}, "Respiratory Protection": {"std": "EN 149 Task Specific", "life": null, "insp": 12, "cat": "Hot Works"}, "Other": {"std": "N/A", "life": null, "insp": 12, "cat": "Other"}};
 var CERT_REQUIRED = ["Full Body Harness", "Fall Arrest Lanyard (Twin)", "Work Restraint Lanyard", "Fall Arrest Glider", "Transfer Connector", "Lifejacket 275N", "Immersion Suit", "Personal Locator Beacon", "Electrical Gloves"];
@@ -363,7 +392,7 @@ function updateCertRequirement(itemType) {
 }
 
 window.addEventListener("load", function() {
-  buildPPEGrid(); buildCondBtns(); populateSelects();
+  buildPPEGrid([]); buildCondBtns(); populateSelects();
   wireSubmitter(); wireImgZone("item-zone","item-photo-data","&#128247;","Tap to upload item photo");
   wireImgZone("label-zone","label-photo-data","&#127991;","Tap to upload label photo");
   wireImgZone("cert-zone","cert-photo-data","&#128196;","Tap to upload certificate / test report");
@@ -451,32 +480,94 @@ function pickName(name,known){
   if(!known&&knownEngs.indexOf(name)===-1){knownEngs.push(name);knownEngs.sort();}
 }
 
-function buildPPEGrid() {
-  var cats = {}, catOrder = [];
-  PPE_TYPES.forEach(function(t){
-    var cat = PPE_META[t].cat;
-    if(!cats[cat]){cats[cat]=[];catOrder.push(cat);}
-    cats[cat].push(t);
-  });
+
+var CAT_DEFS = [
+  { key:"baseline", icon:"🦺", title:"Baseline PPE",
+    sub:"Required for ALL work — Onshore, Offshore, HV & Hot Works",
+    col:"#1f6feb",
+    items:["Safety Helmet","Hi-Vis Workwear","Safety Boots","Cut Resistant Gloves","Noise Protection","Safety Glasses","Head Lamp"]
+  },
+  { key:"height", icon:"🧗", title:"Working at Height",
+    sub:"Mandatory for all crane / turbine tower tasks",
+    col:"#8b5cf6",
+    items:["Full Body Harness","Fall Arrest Lanyard (Twin)","Work Restraint Lanyard","Fall Arrest Glider","Transfer Connector"]
+  },
+  { key:"offshore", icon:"🌊", title:"Offshore Additional",
+    sub:"Required in addition to Baseline when working offshore",
+    col:"#0ea5e9",
+    items:["Immersion Suit","Lifejacket 275N","Personal Locator Beacon"]
+  },
+  { key:"hv", icon:"⚡", title:"HV / Electrical",
+    sub:"Required when performing HV or Low Voltage electrical work",
+    col:"#f59e0b",
+    items:["Arc / FR Clothing","Electrical Gloves","Arc Face & Head Protection"]
+  },
+  { key:"hotworks", icon:"🔥", title:"Hot Works",
+    sub:"Required for welding, grinding, cutting and abrasive work",
+    col:"#ef4444",
+    items:["FR Hot Works Clothing","Hot Works Gloves","Face & Eye Protection","Respiratory Protection"]
+  }
+];
+
+function buildPPEGrid(engRecords) {
   var grid = document.getElementById("ppe-type-grid");
-  catOrder.forEach(function(cat){
-    var wrap=document.createElement("div");
-    var lbl=document.createElement("div"); lbl.className="cat-label"; lbl.textContent=cat+" PPE";
-    var row=document.createElement("div"); row.className="chip-row";
-    cats[cat].forEach(function(t){
-      var chip=document.createElement("div"); chip.className="chip"; chip.textContent=t;
-      var catCols={"Standard":"#1f6feb","Offshore":"#0ea5e9","Electrical":"#f59e0b","Hot Works":"#ef4444"};
-      chip.addEventListener("click",function(){
-        document.querySelectorAll(".chip").forEach(function(c){c.classList.remove("sel");c.style.background="";c.style.borderColor="";});
-        chip.classList.add("sel");
-        var col=catCols[cat]||"#1f6feb";
-        chip.style.background=col; chip.style.borderColor=col;
-        selectedType=t;
-        document.getElementById("ppe-type").value=t;
-        // Show/hide Other description field
-        var otherGrp=document.getElementById("other-desc-group");
-        if(otherGrp) otherGrp.style.display=(t==="Other")?"block":"none";
-        if(t!=="Other"){var od=document.getElementById("ppe-other-desc");if(od)od.value="";}
+  grid.className = "cat-accordion";
+  grid.innerHTML = "";
+  // Build status map from existing records
+  var statusMap = {};
+  if(engRecords) {
+    engRecords.forEach(function(r){
+      var s = r.verification_status || 'pending';
+      if(!statusMap[r.item_type] || s === 'verified') statusMap[r.item_type] = s;
+    });
+  }
+  CAT_DEFS.forEach(function(cat, catIdx) {
+    // Count statuses for this category
+    var done=0, pend=0, miss=0;
+    cat.items.forEach(function(item){
+      var s = statusMap[item];
+      if(s === 'verified') done++;
+      else if(s === 'pending') pend++;
+      else miss++;
+    });
+    // Header
+    var hdr = document.createElement('div');
+    hdr.className = 'cat-acc-hdr';
+    var badgeHTML = '';
+    if(done > 0) badgeHTML += '<span class="cat-badge-count cb-done">✓ '+done+'</span>';
+    if(pend > 0) badgeHTML += '<span class="cat-badge-count cb-pend">⏳ '+pend+'</span>';
+    if(miss > 0) badgeHTML += '<span class="cat-badge-count cb-miss">'+miss+' needed</span>';
+    hdr.innerHTML = '<span class="cat-acc-icon">'+cat.icon+'</span>'
+      + '<div class="cat-acc-info"><div class="cat-acc-title">'+cat.title+'</div>'
+      + '<div class="cat-acc-sub">'+cat.sub+'</div></div>'
+      + '<div class="cat-acc-badges">'+badgeHTML+'</div>'
+      + '<span class="cat-acc-arrow">▼</span>';
+    // Toggle open/close
+    hdr.addEventListener('click', function(){
+      var wasOpen = hdr.classList.contains('open');
+      document.querySelectorAll('.cat-acc-hdr').forEach(function(h){ h.classList.remove('open'); });
+      if(!wasOpen) hdr.classList.add('open');
+    });
+    // Body with item chips
+    var body = document.createElement('div');
+    body.className = 'cat-acc-body';
+    cat.items.forEach(function(t){
+      var chip = document.createElement('span');
+      chip.className = 'item-chip';
+      var dotClass = statusMap[t] === 'verified' ? 'dot-ok' : statusMap[t] === 'pending' ? 'dot-pend' : 'dot-none';
+      var certMark = CERT_REQUIRED.indexOf(t) > -1 ? '<span class="ic-cert">⚡</span>' : '';
+      chip.innerHTML = '<span class="ic-dot '+dotClass+'"></span>' + t + certMark;
+      chip.addEventListener('click', function(){
+        document.querySelectorAll('.item-chip').forEach(function(c){
+          c.classList.remove('sel'); c.style.background=''; c.style.borderColor='';
+        });
+        chip.classList.add('sel');
+        chip.style.background = cat.col; chip.style.borderColor = cat.col;
+        selectedType = t;
+        document.getElementById('ppe-type').value = t;
+        var otherGrp = document.getElementById('other-desc-group');
+        if(otherGrp) otherGrp.style.display = (t==='Other') ? 'block' : 'none';
+        if(t !== 'Other'){var od=document.getElementById('ppe-other-desc');if(od)od.value='';}
         // Show/hide cert requirement
         updateCertRequirement(t);
         var meta=PPE_META[t];
@@ -793,12 +884,16 @@ function buildRequirementsPanel(engName, existingRecords) {
 }
 
 function loadEngineerRequirements(engName) {
-  if(!engName) { buildRequirementsPanel(null, []); return; }
+  if(!engName) { buildRequirementsPanel(null, []); buildPPEGrid([]); return; }
   fetch(SUPA_URL + '/rest/v1/ppe_register?tagged_engineer=eq.' + encodeURIComponent(engName) + '&select=item_type,verification_status', {
     headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}
   }).then(function(r){return r.json();}).then(function(data){
     buildRequirementsPanel(engName, data);
-  }).catch(function(){ buildRequirementsPanel(engName, []); });
+    buildPPEGrid(data);
+  }).catch(function(){
+    buildRequirementsPanel(engName, []);
+    buildPPEGrid([]);
+  });
 }
 
 </script>

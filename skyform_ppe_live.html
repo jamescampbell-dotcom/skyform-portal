@@ -169,6 +169,16 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 .tl-dot.tl-rejected::before{background:#f85149;}
 .rejection-note{font-size:11px;color:#f85149;font-style:italic;margin-top:4px;}
 
+
+/* pending filter active */
+.pending-filter-active{background:rgba(230,126,0,.3) !important;border-color:#e67e00 !important;}
+/* photo strip in details */
+.detail-photos{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.detail-photo-thumb{position:relative;width:80px;height:80px;border-radius:6px;overflow:hidden;cursor:pointer;border:1px solid var(--border2);flex-shrink:0;}
+.detail-photo-thumb img{width:100%;height:100%;object-fit:cover;}
+.detail-photo-thumb .photo-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:8px;font-weight:600;text-align:center;padding:2px 0;}
+.detail-photo-thumb .verified-badge{position:absolute;top:3px;right:3px;background:rgba(63,185,80,.9);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;}
+
 </style>
 <!-- build:1777564249 -->
 </head>
@@ -200,8 +210,9 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
     <span class="toolbar-count" id="tc">0 items</span>
     <div class="spacer"></div>
     <input class="srch" id="srch" type="text" placeholder="&#128269; Search...">
-    <select class="fsel" id="f-cond"><option value="">All conditions</option><option>Good</option><option>Monitor</option><option value="Remove from Service">Remove from Service</option></select>
+    <select class="fsel" id="f-cond"><option value="">All conditions</option><option>Good</option><option>Monitor</option><option value="Remove from Service">Remove from Service</option><option value="__pending__">Pending Verification</option><option value="__rejected__">Rejected</option></select>
     <select class="fsel" id="f-cat"><option value="">All types</option></select>
+    <button id="btn-pending-filter" style="background:rgba(230,126,0,.15);border:1px solid rgba(230,126,0,.3);color:#e67e00;border-radius:6px;padding:5px 12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;" onclick="togglePendingFilter(this)">&#9203; Pending Review</button>
     <div class="view-toggle"><button class="vt-btn active" id="vt-eng">By Engineer</button><button class="vt-btn" id="vt-list">All Items</button></div>
   </div>
   <div id="eng-view"><div class="eng-grid" id="eng-grid"></div></div>
@@ -246,7 +257,7 @@ function fetchData(){
     document.getElementById("last-upd").textContent="Last refreshed: "+new Date().toLocaleTimeString("en-GB");
   }).catch(function(){});
 }
-function startRefresh(){setInterval(function(){if(!paused)fetchData();},5000);}
+function startRefresh(){setInterval(function(){if(!paused)fetchData();},30000);}
 function togglePause(){
   paused=!paused;
   var btn=document.getElementById("pause-btn"),dot=document.getElementById("live-dot"),lbl=document.getElementById("live-lbl");
@@ -317,7 +328,9 @@ function getFiltered(){
   var fCond=document.getElementById("f-cond").value;
   var fCat=document.getElementById("f-cat").value;
   return allData.filter(function(r){
-    if(fCond&&r.condition!==fCond)return false;
+    if(fCond==="__pending__"&&(r.verification_status||"pending")!=="pending")return false;
+    if(fCond==="__rejected__"&&r.verification_status!=="rejected")return false;
+    if(fCond&&fCond!=="__pending__"&&fCond!=="__rejected__"&&r.condition!==fCond)return false;
     if(fCat&&r.item_type!==fCat)return false;
     if(srch){var hay=((r.item_type||"")+" "+(r.serial_number||"")+" "+(r.tagged_engineer||"")+" "+(r.brand||"")+" "+(r.model||"")).toLowerCase();if(hay.indexOf(srch)===-1)return false;}
     return true;
@@ -391,6 +404,26 @@ function renderByEng(items){
       });
       det.appendChild(pg);
 
+      // ── PHOTO STRIP ──────────────────────────────────
+      var photos = [];
+      if(r.image_data && r.image_data.length > 50) photos.push({data:r.image_data, label:'Item Photo', type:'item'});
+      if(r.label_image_data && r.label_image_data.length > 50) photos.push({data:r.label_image_data, label:'Label', type:'label'});
+      // cert handled separately via View Cert btn
+
+      if(photos.length > 0) {
+        var photoStrip = document.createElement('div'); photoStrip.className = 'detail-photos';
+        photos.forEach(function(ph){
+          var thumb = document.createElement('div'); thumb.className = 'detail-photo-thumb';
+          var img = document.createElement('img'); img.src = ph.data;
+          var lbl = document.createElement('div'); lbl.className = 'photo-label'; lbl.textContent = ph.label;
+          thumb.appendChild(img); thumb.appendChild(lbl);
+          thumb.addEventListener('click', function(e){ e.stopPropagation(); openPhotoViewer(ph.data, ph.label, null); });
+          photoStrip.appendChild(thumb);
+        });
+        det.appendChild(photoStrip);
+      }
+      // ── END PHOTO STRIP ──────────────────────────────
+
       // ── VERIFICATION ROW ──────────────────────────────
       var vStatus = r.verification_status || 'pending';
       var vRow = document.createElement('div'); vRow.className='verif-row';
@@ -421,10 +454,24 @@ function renderByEng(items){
         vBtn.className = 'unverify-btn'; vBtn.textContent = 'Remove';
         (function(rid){ vBtn.addEventListener('click', function(e){ e.stopPropagation(); if(!canVerify()){showNoPermissionMsg();return;} showVerifyModal(rid, 'verified'); }); })(r.id);
       } else {
-        vBtn.className = 'verify-btn'; vBtn.textContent = vStatus === 'rejected' ? '&#8635; Re-review' : '&#10003; Verify';
+        vBtn.className = 'verify-btn'; vBtn.textContent = vStatus === 'rejected' ? '↻ Re-review' : '✓ Verify';
         (function(rid, vstatus){ vBtn.addEventListener('click', function(e){ e.stopPropagation(); if(!canVerify()){showNoPermissionMsg();return;} showVerifyModal(rid, vstatus); }); })(r.id, vStatus);
       }
       vRow.appendChild(vBtn);
+
+      // Standalone Reject button (when pending or verified)
+      if(vStatus !== 'rejected') {
+        var rBtn = document.createElement('button');
+        rBtn.className = 'cert-reject-btn';
+        rBtn.style.cssText = 'padding:3px 9px;font-size:11px;';
+        rBtn.textContent = '✗ Reject';
+        (function(rid){ rBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          if(!canVerify()){ showNoPermissionMsg(); return; }
+          promptRejectionReason(function(reason){ updateVerification(rid, 'rejected', null, reason); });
+        }); })(r.id);
+        vRow.appendChild(rBtn);
+      }
 
       // Rejection reason
       if(vStatus === 'rejected' && r.rejection_reason) {
@@ -742,11 +789,34 @@ function viewCertificate(recordId, currentStatus, hasCertData) {
       var certData = rows[0].cert_image_data;
       var outstanding = rows[0].cert_outstanding;
       if(certData && certData.length > 50) {
-        var img = document.createElement('img');
-        img.src = certData;
-        img.onerror = function(){ imgArea.innerHTML = '<div class="cert-viewer-no-img">&#128196; Could not display certificate.<br>The file may not be a supported image format.</div>'; };
-        imgArea.innerHTML = '';
-        imgArea.appendChild(img);
+        var isVerif = (window._certRecordStatus === 'verified');
+        if(isVerif) {
+          // Draw verified watermark on canvas
+          var canvas = document.createElement('canvas');
+          var imgEl = new Image();
+          imgEl.onload = function() {
+            canvas.width = imgEl.naturalWidth; canvas.height = imgEl.naturalHeight;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(imgEl, 0, 0);
+            ctx.save();
+            ctx.globalAlpha = 0.2; ctx.fillStyle = '#3fb950';
+            ctx.font = 'bold ' + Math.floor(canvas.width/7) + 'px sans-serif';
+            ctx.translate(canvas.width/2, canvas.height/2);
+            ctx.rotate(-0.4); ctx.textAlign = 'center';
+            ctx.fillText('✓ VERIFIED', 0, 0);
+            ctx.restore();
+            canvas.style.cssText = 'max-width:100%;max-height:60vh;border-radius:6px;display:block;';
+            imgArea.innerHTML = ''; imgArea.appendChild(canvas);
+          };
+          imgEl.src = certData;
+          imgArea.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:20px;">Loading...</div>';
+        } else {
+          var img = document.createElement('img');
+          img.src = certData;
+          img.onerror = function(){ imgArea.innerHTML = '<div class="cert-viewer-no-img">&#128196; Could not display certificate.<br>The file may not be a supported image format.</div>'; };
+          img.style.cssText = 'max-width:100%;max-height:60vh;border-radius:6px;object-fit:contain;';
+          imgArea.innerHTML = ''; imgArea.appendChild(img);
+        }
       } else if(outstanding === 'cert_outstanding') {
         imgArea.innerHTML = '<div class="cert-viewer-no-img">&#128203; Engineer marked certificate as not available.<br>Follow up required.</div>';
       } else {
@@ -837,6 +907,79 @@ function updateVerification(id, status, verifiedBy, rejectionReason) {
   }).catch(function(){ showToast('Connection error','err'); });
 }
 
+
+function togglePendingFilter(btn) {
+  var sel = document.getElementById('f-cond');
+  if(sel.value === '__pending__') {
+    sel.value = '';
+    btn.classList.remove('pending-filter-active');
+  } else {
+    sel.value = '__pending__';
+    btn.classList.add('pending-filter-active');
+  }
+  render();
+}
+
+
+function openPhotoViewer(imgData, title, verifiedOverlay) {
+  var old = document.getElementById('_photo_viewer'); if(old) old.remove();
+  var overlay = document.createElement('div');
+  overlay.id = '_photo_viewer';
+  overlay.className = 'cert-viewer-overlay';
+
+  var box = document.createElement('div'); box.className = 'cert-viewer-box';
+
+  var hdr = document.createElement('div'); hdr.className = 'cert-viewer-hdr';
+  var h3 = document.createElement('h3'); h3.textContent = title || 'Photo';
+  var closeBtn = document.createElement('button'); closeBtn.className = 'cert-viewer-close';
+  closeBtn.innerHTML = '&times;';
+  closeBtn.addEventListener('click', function(){ overlay.remove(); });
+  hdr.appendChild(h3); hdr.appendChild(closeBtn); box.appendChild(hdr);
+
+  var imgArea = document.createElement('div'); imgArea.className = 'cert-viewer-img';
+  if(verifiedOverlay) {
+    // Draw watermark on a canvas
+    var canvas = document.createElement('canvas');
+    var imgEl = new Image();
+    imgEl.onload = function() {
+      canvas.width = imgEl.naturalWidth;
+      canvas.height = imgEl.naturalHeight;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(imgEl, 0, 0);
+      ctx.save();
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = '#3fb950';
+      ctx.font = 'bold ' + Math.floor(canvas.width / 8) + 'px sans-serif';
+      ctx.translate(canvas.width/2, canvas.height/2);
+      ctx.rotate(-0.4);
+      ctx.textAlign = 'center';
+      ctx.fillText('VERIFIED', 0, 0);
+      ctx.restore();
+      canvas.style.cssText = 'max-width:100%;max-height:60vh;border-radius:6px;display:block;';
+      imgArea.innerHTML = '';
+      imgArea.appendChild(canvas);
+    };
+    imgEl.src = imgData;
+    imgArea.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:20px;">Loading...</div>';
+  } else {
+    var img = document.createElement('img');
+    img.src = imgData;
+    img.style.cssText = 'max-width:100%;max-height:60vh;border-radius:6px;object-fit:contain;';
+    imgArea.appendChild(img);
+  }
+
+  box.appendChild(imgArea);
+
+  // Just a close button for photo viewer
+  var actions = document.createElement('div'); actions.className = 'cert-viewer-actions';
+  var closeAction = document.createElement('button');
+  closeAction.className = 'cert-approve-btn'; closeAction.style.flex = '1';
+  closeAction.textContent = 'Close';
+  closeAction.addEventListener('click', function(){ overlay.remove(); });
+  actions.appendChild(closeAction); box.appendChild(actions);
+
+  overlay.appendChild(box); document.body.appendChild(overlay);
+}
 </script>
 </body>
 </html>

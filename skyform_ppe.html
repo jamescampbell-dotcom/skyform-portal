@@ -973,7 +973,7 @@ function buildLoginScreen() {
     + '<div class="eng-login-title">PPE Register</div>'
     + '<div class="eng-login-sub">Enter your username and password to continue</div>'
     + '<div class="eng-login-field"><label>Username</label>'
-    + '<input type="text" id="login-user" placeholder="e.g. JWwind" autocomplete="username" autocapitalize="off" autocorrect="off"></div>'
+    + '<input type="text" id="login-user" placeholder="Enter username" autocomplete="username" autocapitalize="off" autocorrect="off"></div>'
     + '<div class="eng-login-field"><label>Password</label>'
     + '<input type="password" id="login-pass" placeholder="Your password" autocomplete="current-password"></div>'
     + '<button class="eng-login-btn" onclick="doEngLogin()">Sign In &#8594;</button>'
@@ -1007,9 +1007,22 @@ async function doEngLogin() {
   var err = document.getElementById('login-err');
   if(!username){ err.textContent='Please enter your username'; return; }
   if(!password){ err.textContent='Please enter your password'; return; }
+  // If ENG_MAP not loaded yet, fetch now and retry
+  if(Object.keys(ENG_MAP).length === 0) {
+    err.textContent='Loading... please try again in a moment';
+    try {
+      var r = await fetch(SUPA_URL + "/rest/v1/engineers?select=name,username,pw_hash&order=name", {
+        headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
+      });
+      var rows = await r.json();
+      ENG_MAP = {};
+      rows.forEach(function(row){ if(row.username) ENG_MAP[row.username.toLowerCase()]={name:row.name,hash:row.pw_hash}; });
+    } catch(e) {}
+    err.textContent='';
+  }
   var key = username.toLowerCase();
   var eng = ENG_MAP[key];
-  if(!eng){ err.textContent='Username not recognised — contact your manager'; return; }
+  if(!eng){ err.textContent='Username not recognised — please check and try again'; return; }
   var hash = await sha256hex(password);
   if(hash !== eng.hash){ err.textContent='Incorrect password — please try again'; return; }
   err.textContent='';

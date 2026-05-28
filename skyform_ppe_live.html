@@ -724,7 +724,7 @@ function buildMgmtLogin() {
     + '<div class="mgmt-login-title">PPE Live View</div>'
     + '<div class="mgmt-login-sub">Management access — enter your credentials</div>'
     + '<div class="mgmt-field"><label>Username</label>'
-    + '<input type="text" id="ml-user" placeholder="Admin name" autocapitalize="off" autocorrect="off"></div>'
+    + '<input type="text" id="ml-user" placeholder="Enter username" autocapitalize="off" autocorrect="off"></div>'
     + '<div class="mgmt-field"><label>Password</label>'
     + '<input type="password" id="ml-pass" placeholder="Your password"></div>'
     + '<button class="mgmt-login-btn" onclick="doMgmtLogin()">Access Dashboard &#8594;</button>'
@@ -789,7 +789,7 @@ function mgmtSignOut() {
 
 
 // ── VERIFICATION PERMISSIONS ─────────────────────────────────────────
-var VERIFY_ALLOWED = ['James Campbell', 'Steven Cox', 'Andrew Maxwell'];
+var VERIFY_ALLOWED = ['James Campbell', 'Steven Cox', 'Paul Heath', 'Suzanne Thomson', 'Andrew Maxwell'];
 
 function canVerify() {
   return !!(_currentMgmt && VERIFY_ALLOWED.indexOf(_currentMgmt.name) > -1);
@@ -802,7 +802,7 @@ function showNoPermissionMsg() {
   var h3 = document.createElement('h3'); h3.textContent = 'Access Restricted'; inner.appendChild(h3);
   var p = document.createElement('p');
   p.style.cssText = 'font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.6;';
-  p.innerHTML = 'Only <strong>James Campbell</strong>, <strong>Steven Cox</strong> and <strong>Andrew Maxwell</strong> are authorised to verify or reject certificates.';
+  p.innerHTML = 'Please sign in with a management account to verify or reject certificates.';
   inner.appendChild(p);
   var btns = document.createElement('div'); btns.className = 'modal-btns';
   var ok = document.createElement('button'); ok.className = 'modal-confirm'; ok.textContent = 'OK';
@@ -1028,7 +1028,7 @@ function showNoPermissionMsg() {
   var h3 = document.createElement('h3'); h3.textContent = 'Access Restricted'; inner.appendChild(h3);
   var p = document.createElement('p');
   p.style.cssText = 'font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.6;';
-  p.innerHTML = 'Only <strong>James Campbell</strong>, <strong>Steven Cox</strong> and <strong>Andrew Maxwell</strong> are authorised to verify or reject certificates.';
+  p.innerHTML = 'Please sign in with a management account to verify or reject certificates.';
   inner.appendChild(p);
   var btns = document.createElement('div'); btns.className = 'modal-btns';
   var ok = document.createElement('button'); ok.className = 'modal-confirm'; ok.textContent = 'OK';

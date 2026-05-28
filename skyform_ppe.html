@@ -331,21 +331,15 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px;}
       </div>
     </div>
 
-    <!-- TAGGING -->
+    <!-- LOCATION -->
     <div class="card">
-      <div class="card-hdr"><div class="card-icon" style="background:rgba(63,185,80,.12)">&#127991;</div><div><div class="card-title">Asset Tagging</div><div class="card-sub">PPE must be tagged to the engineer who owns it</div></div></div>
+      <div class="card-hdr"><div class="card-icon" style="background:rgba(88,166,255,.12)">&#128205;</div><div><div class="card-title">Current Location</div><div class="card-sub">Where is this PPE item right now?</div></div></div>
       <div class="card-body">
-        <div class="tag-grid">
-          <div class="tag-card" style="border-color:rgba(63,185,80,.3)">
-            <div class="tag-label">&#128100; Assigned to Engineer <span class="req">*</span></div>
-            <select class="tag-sel tag-required" id="ppe-eng"><option value="">- Select engineer -</option></select>
-          </div>
-          <div class="tag-card">
-            <div class="tag-label">&#128205; Currently at Location</div>
-            <select class="tag-sel" id="ppe-loc"><option value="">- Select location -</option></select>
-          </div>
+        <div class="field">
+          <label>Location</label>
+          <select id="ppe-loc" style="width:100%"><option value="">- Select location -</option></select>
         </div>
-        <p style="font-size:11px;color:var(--text3);margin-top:12px;">PPE is assigned to a specific engineer. Location shows where they currently are.</p>
+        <input type="hidden" id="ppe-eng" value="">
       </div>
     </div>
 
@@ -513,6 +507,7 @@ function buildPPEGrid(engRecords) {
   var grid = document.getElementById("ppe-type-grid");
   grid.className = "cat-accordion";
   grid.innerHTML = "";
+
   // Build status map from existing records
   var statusMap = {};
   if(engRecords) {
@@ -521,6 +516,7 @@ function buildPPEGrid(engRecords) {
       if(!statusMap[r.item_type] || s === 'verified') statusMap[r.item_type] = s;
     });
   }
+
   CAT_DEFS.forEach(function(cat, catIdx) {
     // Count statuses for this category
     var done=0, pend=0, miss=0;
@@ -530,60 +526,90 @@ function buildPPEGrid(engRecords) {
       else if(s === 'pending') pend++;
       else miss++;
     });
+
     // Header
     var hdr = document.createElement('div');
     hdr.className = 'cat-acc-hdr';
     var badgeHTML = '';
-    if(done > 0) badgeHTML += '<span class="cat-badge-count cb-done">✓ '+done+'</span>';
-    if(pend > 0) badgeHTML += '<span class="cat-badge-count cb-pend">⏳ '+pend+'</span>';
+    if(done > 0) badgeHTML += '<span class="cat-badge-count cb-done">&#10003; '+done+'</span>';
+    if(pend > 0) badgeHTML += '<span class="cat-badge-count cb-pend">&#9203; '+pend+'</span>';
     if(miss > 0) badgeHTML += '<span class="cat-badge-count cb-miss">'+miss+' needed</span>';
     hdr.innerHTML = '<span class="cat-acc-icon">'+cat.icon+'</span>'
       + '<div class="cat-acc-info"><div class="cat-acc-title">'+cat.title+'</div>'
       + '<div class="cat-acc-sub">'+cat.sub+'</div></div>'
       + '<div class="cat-acc-badges">'+badgeHTML+'</div>'
-      + '<span class="cat-acc-arrow">▼</span>';
-    // Toggle open/close
+      + '<span class="cat-acc-arrow">&#9660;</span>';
+
+    // Toggle accordion
     hdr.addEventListener('click', function(){
       var wasOpen = hdr.classList.contains('open');
       document.querySelectorAll('.cat-acc-hdr').forEach(function(h){ h.classList.remove('open'); });
-      if(!wasOpen) hdr.classList.add('open');
+      document.querySelectorAll('.cat-acc-body').forEach(function(b){ b.style.display='none'; });
+      if(!wasOpen){ hdr.classList.add('open'); body.style.display='block'; }
     });
+
     // Body with item chips
     var body = document.createElement('div');
     body.className = 'cat-acc-body';
+    body.style.display = 'none';
+
     cat.items.forEach(function(t){
       var chip = document.createElement('span');
       chip.className = 'item-chip';
       var dotClass = statusMap[t] === 'verified' ? 'dot-ok' : statusMap[t] === 'pending' ? 'dot-pend' : 'dot-none';
-      var certMark = CERT_REQUIRED.indexOf(t) > -1 ? '<span class="ic-cert">⚡</span>' : '';
+      var certMark = CERT_REQUIRED && CERT_REQUIRED.indexOf(t) > -1 ? '<span class="ic-cert"> &#9889;</span>' : '';
       chip.innerHTML = '<span class="ic-dot '+dotClass+'"></span>' + t + certMark;
-      chip.addEventListener('click', function(){
-        document.querySelectorAll('.item-chip').forEach(function(c){
-          c.classList.remove('sel'); c.style.background=''; c.style.borderColor='';
+
+      (function(item, category){
+        chip.addEventListener('click', function(){
+          document.querySelectorAll('.item-chip').forEach(function(c){
+            c.classList.remove('sel'); c.style.background=''; c.style.borderColor='';
+          });
+          chip.classList.add('sel');
+          chip.style.background = category.col;
+          chip.style.borderColor = category.col;
+          selectedType = item;
+          document.getElementById('ppe-type').value = item;
+          var otherGrp = document.getElementById('other-desc-group');
+          if(otherGrp) otherGrp.style.display = (item==='Other') ? 'block' : 'none';
+          if(item !== 'Other'){ var od=document.getElementById('ppe-other-desc'); if(od) od.value=''; }
+          updateCertRequirement(item);
+          var meta = PPE_META[item];
+          if(meta){
+            var enBadge = document.getElementById('en-badge');
+            enBadge.textContent = meta.std; enBadge.className = 'en-badge set';
+            document.getElementById('ppe-std').value = meta.std;
+            var catBadge = document.getElementById('cat-badge');
+            catBadge.textContent = category.title; catBadge.className = 'en-badge set';
+          }
+          updateRetirement();
         });
-        chip.classList.add('sel');
-        chip.style.background = cat.col; chip.style.borderColor = cat.col;
-        selectedType = t;
-        document.getElementById('ppe-type').value = t;
-        var otherGrp = document.getElementById('other-desc-group');
-        if(otherGrp) otherGrp.style.display = (t==='Other') ? 'block' : 'none';
-        if(t !== 'Other'){var od=document.getElementById('ppe-other-desc');if(od)od.value='';}
-        // Show/hide cert requirement
-        updateCertRequirement(t);
-        var meta=PPE_META[t];
-        var enBadge=document.getElementById("en-badge");
-        enBadge.textContent=meta.std; enBadge.className="en-badge set";
-        document.getElementById("ppe-std").value=meta.std;
-        var catBadge=document.getElementById("cat-badge");
-        catBadge.textContent=cat; catBadge.className="en-badge set";
-        updateRetirement();
-      });
-      row.appendChild(chip);
+      })(t, cat);
+
+      body.appendChild(chip);
     });
-    wrap.appendChild(lbl); wrap.appendChild(row);
-    grid.appendChild(wrap);
+
+    // Add Other to last category
+    if(catIdx === CAT_DEFS.length - 1){
+      var otherChip = document.createElement('span');
+      otherChip.className = 'item-chip';
+      var oDot = statusMap['Other'] === 'verified' ? 'dot-ok' : statusMap['Other'] === 'pending' ? 'dot-pend' : 'dot-none';
+      otherChip.innerHTML = '<span class="ic-dot '+oDot+'"></span>Other';
+      otherChip.addEventListener('click', function(){
+        document.querySelectorAll('.item-chip').forEach(function(c){ c.classList.remove('sel'); c.style.background=''; c.style.borderColor=''; });
+        otherChip.classList.add('sel'); otherChip.style.background='#6b7280'; otherChip.style.borderColor='#6b7280';
+        selectedType='Other'; document.getElementById('ppe-type').value='Other';
+        var og=document.getElementById('other-desc-group'); if(og) og.style.display='block';
+        updateCertRequirement('Other');
+      });
+      body.appendChild(otherChip);
+    }
+
+    grid.appendChild(hdr);
+    grid.appendChild(body);
   });
 }
+
 
 function buildCondBtns() {
   var grp=document.getElementById("cond-grp");

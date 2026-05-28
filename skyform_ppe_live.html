@@ -246,7 +246,7 @@ var SUPA_KEY = "sb_publishable_9oyvfPblr9XVvFZixKJMrg_qX8cCFIK";
 var PPE_TYPES = ["Safety Helmet","Full Body Harness","Fall Arrest Lanyard (Twin)","Work Restraint Lanyard","Fall Arrest Glider","Transfer Connector","Hi-Vis Workwear","Safety Boots","Cut Resistant Gloves","Noise Protection","Safety Glasses","Immersion Suit","Lifejacket 275N","Personal Locator Beacon","Head Lamp","Arc / FR Clothing","Electrical Gloves","Arc Face & Head Protection","FR Hot Works Clothing","Hot Works Gloves","Face & Eye Protection","Respiratory Protection"];
 var PPE_LIFESPAN = {"Safety Helmet":5,"Full Body Harness":10,"Fall Arrest Lanyard (Twin)":10,"Work Restraint Lanyard":10,"Fall Arrest Glider":10,"Transfer Connector":10,"Immersion Suit":5,"Lifejacket 275N":10};
 
-var allData=[], paused=false, viewMode="eng", knownIds={}, openItems={};
+var allData=[], paused=false, viewMode="eng", knownIds={}, openItems={}, allEngineers=[];
 
 window.addEventListener("load",function(){
   buildTypeFilter(); buildMgmtLogin();
@@ -264,6 +264,13 @@ function buildTypeFilter(){
 }
 
 function fetchData(){
+  // Fetch engineers list in parallel
+  fetch(SUPA_URL+"/rest/v1/engineers?select=name,username,role&order=name",{
+    headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
+  }).then(function(r){return r.json();}).then(function(rows){
+    if(rows&&Array.isArray(rows)) allEngineers=rows.map(function(r){return r.name;});
+  }).catch(function(){});
+
   fetch(SUPA_URL+"/rest/v1/ppe_register?order=created_at.desc&limit=500&select=*",{
     headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
   }).then(function(r){return r.json();}).then(function(rows){
@@ -365,60 +372,112 @@ function render(){
 }
 
 function renderByEng(items){
-  var byEng={}, engOrder=[];
+  var TEST_ACCS = ['Test Admin 1', 'Test Admin 2', 'Test Admin 3'];
+  var REQUIRED  = ['Safety Helmet', 'Hi-Vis Workwear', 'Safety Boots', 'Cut Resistant Gloves', 'Noise Protection', 'Safety Glasses', 'Head Lamp', 'Full Body Harness', 'Fall Arrest Lanyard (Twin)', 'Work Restraint Lanyard', 'Fall Arrest Glider', 'Transfer Connector'];
+
+  // Build byEng map from PPE data
+  var byEng = {};
   items.forEach(function(r){
-    var e=r.tagged_engineer||"Unassigned";
-    if(!byEng[e]){byEng[e]=[];engOrder.push(e);}
+    var e = r.tagged_engineer || 'Unassigned';
+    if(!byEng[e]) byEng[e] = [];
     byEng[e].push(r);
   });
-  var grid=document.getElementById("eng-grid");
-  grid.innerHTML="";
-  engOrder.forEach(function(eng){
-    var ePPE=byEng[eng];
-    var hasRfs=ePPE.some(function(r){return r.condition==="Remove from Service";});
-    var hasMon=ePPE.some(function(r){return r.condition==="Monitor"||hasUnknown(r);});
-    var ragClass=hasRfs?"rag-r":hasMon?"rag-a":"rag-g";
-    var initials=eng.split(" ").map(function(w){return w[0];}).join("").slice(0,2).toUpperCase();
-    var card=document.createElement("div"); card.className="eng-card";
-    var hdr=document.createElement("div"); hdr.className="eng-card-hdr";
-    var av=document.createElement("div"); av.className="eng-av";
-    var bgCols={"rag-g":"rgba(63,185,80,.15)","rag-a":"rgba(210,153,34,.15)","rag-r":"rgba(248,81,73,.12)"};
-    var txCols={"rag-g":"var(--green)","rag-a":"var(--amber)","rag-r":"var(--red)"};
-    av.style.background=bgCols[ragClass]; av.style.color=txCols[ragClass]; av.textContent=initials;
-    var nm=document.createElement("div"); nm.className="eng-name"; nm.textContent=eng;
-    var cnt=document.createElement("div"); cnt.className="eng-count"; cnt.textContent=ePPE.length+" items";
-    // verification summary counts
-    var vCounts={verified:0,pending:0};
-    ePPE.forEach(function(r){ var s=r.verification_status||'pending'; if(s==='verified') vCounts.verified++; else vCounts.pending++; });
-    var vBar=document.createElement("div"); vBar.className="comp-bar";
-    if(vCounts.verified>0){ var p=document.createElement("span"); p.className="comp-pill cp-v"; p.textContent="✓ "+vCounts.verified+" verified"; vBar.appendChild(p); }
-    if(vCounts.pending>0){ var p2=document.createElement("span"); p2.className="comp-pill cp-p"; p2.textContent="⏳ "+vCounts.pending+" pending"; vBar.appendChild(p2); }
-    var rag=document.createElement("div"); rag.className="eng-rag "+ragClass;
-    hdr.appendChild(av); hdr.appendChild(nm); hdr.appendChild(cnt); hdr.appendChild(rag);
-    var list=document.createElement("div"); list.className="ppe-list";
+
+  // Build master engineer list: allEngineers + anyone in PPE data not in the DB list
+  var masterSet = {};
+  allEngineers.forEach(function(n){ masterSet[n] = true; });
+  Object.keys(byEng).forEach(function(n){ masterSet[n] = true; });
+  var allNames = Object.keys(masterSet);
+
+  // Sort: 1) test accounts in order, 2) engineers with data (alpha), 3) engineers without data (alpha)
+  allNames.sort(function(a, b){
+    var aT = TEST_ACCS.indexOf(a), bT = TEST_ACCS.indexOf(b);
+    if(aT > -1 && bT > -1) return aT - bT;
+    if(aT > -1) return -1;
+    if(bT > -1) return 1;
+    var aHas = !!(byEng[a] && byEng[a].length > 0);
+    var bHas = !!(byEng[b] && byEng[b].length > 0);
+    if(aHas && !bHas) return -1;
+    if(!aHas && bHas) return 1;
+    return a.localeCompare(b);
+  });
+
+  var grid = document.getElementById("eng-grid");
+  grid.innerHTML = "";
+
+  allNames.forEach(function(eng){
+    var ePPE = byEng[eng] || [];
+    var hasData = ePPE.length > 0;
+
+    // Card colours — grey if no data
+    var verCounts = {verified:0, pending:0, rejected:0};
     ePPE.forEach(function(r){
-      buildFullRecord(r, list);
+      var s = r.verification_status || 'pending';
+      if(s === 'verified') verCounts.verified++;
+      else if(s === 'rejected') verCounts.rejected++;
+      else verCounts.pending++;
     });
-        // Ghost rows for required items not submitted
-    var _req = ['Safety Helmet', 'Hi-Vis Workwear', 'Safety Boots', 'Cut Resistant Gloves', 'Noise Protection', 'Safety Glasses', 'Head Lamp', 'Full Body Harness', 'Fall Arrest Lanyard (Twin)', 'Work Restraint Lanyard', 'Fall Arrest Glider', 'Transfer Connector'];
-    var _submitted = {};
-    ePPE.forEach(function(r){ _submitted[r.item_type]=true; });
-    _req.forEach(function(itemName){
-      if(!_submitted[itemName]){
-        var gr=document.createElement('div'); gr.className='ppe-item';
-        gr.style.opacity='0.55';
-        var gDot=document.createElement('span');
-        gDot.style.cssText='width:10px;height:10px;border-radius:50%;background:#f85149;opacity:.5;display:inline-block;flex-shrink:0;margin-right:4px;vertical-align:middle;';
-        gDot.title='Not submitted';
-        var gTp=document.createElement('span'); gTp.className='ppe-type';
-        gTp.textContent=itemName; gTp.style.color='var(--text3)';
-        var gSr=document.createElement('span'); gSr.className='ppe-serial';
-        gSr.textContent='Not submitted'; gSr.style.fontStyle='italic'; gSr.style.color='var(--text3)';
+
+    var ragClass = !hasData ? 'rag-none' :
+      ePPE.some(function(r){return r.condition==='Remove from Service';}) ? 'rag-r' :
+      ePPE.some(function(r){return r.condition==='Monitor'||hasUnknown(r);}) ? 'rag-a' : 'rag-g';
+
+    var initials = eng.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+
+    var card = document.createElement('div'); card.className = 'eng-card';
+
+    // ── CARD HEADER ──────────────────────────────────────────────
+    var hdr = document.createElement('div'); hdr.className = 'eng-card-hdr';
+    var av = document.createElement('div'); av.className = 'eng-av';
+    var bgCols = {'rag-g':'rgba(63,185,80,.15)','rag-a':'rgba(210,153,34,.15)','rag-r':'rgba(248,81,73,.12)','rag-none':'rgba(120,120,120,.1)'};
+    var txCols = {'rag-g':'var(--green)','rag-a':'var(--amber)','rag-r':'var(--red)','rag-none':'var(--text3)'};
+    av.style.background = bgCols[ragClass]; av.style.color = txCols[ragClass]; av.textContent = initials;
+
+    var nm = document.createElement('div'); nm.className = 'eng-name'; nm.textContent = eng;
+    var cnt = document.createElement('div'); cnt.className = 'eng-count';
+    cnt.textContent = hasData ? ePPE.length + ' item' + (ePPE.length !== 1 ? 's' : '') : 'No data submitted';
+    cnt.style.color = hasData ? '' : 'var(--text3)';
+    var rag = document.createElement('div'); rag.className = 'eng-rag ' + ragClass;
+    hdr.appendChild(av); hdr.appendChild(nm); hdr.appendChild(cnt); hdr.appendChild(rag);
+
+    // ── VERIFICATION SUMMARY BAR ─────────────────────────────────
+    var vBar = document.createElement('div'); vBar.className = 'comp-bar';
+    if(hasData) {
+      if(verCounts.verified > 0){ var pv=document.createElement('span'); pv.className='comp-pill cp-v'; pv.textContent='✓ '+verCounts.verified+' verified'; vBar.appendChild(pv); }
+      if(verCounts.pending  > 0){ var pp=document.createElement('span'); pp.className='comp-pill cp-p'; pp.textContent='⏳ '+verCounts.pending+' pending'; vBar.appendChild(pp); }
+      if(verCounts.rejected > 0){ var pr=document.createElement('span'); pr.className='comp-pill'; pr.style.cssText='background:rgba(248,81,73,.1);color:#f85149;'; pr.textContent='✗ '+verCounts.rejected+' rejected'; vBar.appendChild(pr); }
+    } else {
+      var noData = document.createElement('span'); noData.className='comp-pill';
+      noData.style.cssText='background:var(--bg4);color:var(--text3);font-style:italic;';
+      noData.textContent='No PPE records submitted yet'; vBar.appendChild(noData);
+    }
+
+    // ── PPE ITEM LIST ─────────────────────────────────────────────
+    var list = document.createElement('div'); list.className = 'ppe-list';
+
+    // Submitted items
+    ePPE.forEach(function(r){ buildFullRecord(r, list); });
+
+    // Ghost rows for all required items not submitted
+    var submitted = {};
+    ePPE.forEach(function(r){ submitted[r.item_type] = true; });
+    REQUIRED.forEach(function(itemName){
+      if(!submitted[itemName]){
+        var gr = document.createElement('div'); gr.className = 'ppe-item'; gr.style.opacity = '0.5';
+        var gDot = document.createElement('span');
+        gDot.style.cssText = 'width:10px;height:10px;border-radius:50%;background:#f85149;opacity:.5;display:inline-block;flex-shrink:0;margin-right:5px;vertical-align:middle;';
+        gDot.title = 'Not submitted';
+        var gTp = document.createElement('span'); gTp.className = 'ppe-type';
+        gTp.textContent = itemName; gTp.style.color = 'var(--text3)';
+        var gSr = document.createElement('span'); gSr.className = 'ppe-serial';
+        gSr.textContent = 'Not submitted'; gSr.style.cssText = 'font-style:italic;color:var(--text3);font-size:11px;';
         gr.appendChild(gDot); gr.appendChild(gTp); gr.appendChild(gSr);
         list.appendChild(gr);
       }
     });
-    card.appendChild(hdr); card.appendChild(vBar); card.appendChild(list); grid.appendChild(card);
+
+    card.appendChild(hdr); card.appendChild(vBar); card.appendChild(list);
+    grid.appendChild(card);
   });
 }
 

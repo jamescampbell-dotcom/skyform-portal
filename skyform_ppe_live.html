@@ -99,6 +99,36 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);fon
 .view-toggle{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
 .vt-btn{padding:6px 12px;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:500;color:var(--text3);background:none;border:none;cursor:pointer;transition:all .15s;}
 .vt-btn.active{background:var(--accent);color:#fff;}
+
+/* ── TRAFFIC LIGHTS ─────────────────────────────────────── */
+.tl-dot{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+.tl-dot.tl-missing{background:rgba(248,81,73,.12);color:#f85149;border:1px solid rgba(248,81,73,.25);}
+.tl-dot.tl-pending{background:rgba(230,126,0,.14);color:#e67e00;border:1px solid rgba(230,126,0,.28);}
+.tl-dot.tl-verified{background:rgba(63,185,80,.14);color:#3fb950;border:1px solid rgba(63,185,80,.28);}
+.tl-dot::before{content:"";width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.tl-dot.tl-missing::before{background:#f85149;}
+.tl-dot.tl-pending::before{background:#e67e00;}
+.tl-dot.tl-verified::before{background:#3fb950;}
+.verify-btn{background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.3);color:#3fb950;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:"DM Sans",sans-serif;}
+.verify-btn:hover{background:rgba(63,185,80,.28);}
+.unverify-btn{background:rgba(248,81,73,.09);border:1px solid rgba(248,81,73,.2);color:#f85149;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;}
+.verif-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);}
+.verif-meta{font-size:11px;color:var(--text3);font-style:italic;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);padding:24px;width:340px;max-width:90vw;}
+.modal-box h3{font-size:15px;font-weight:600;margin:0 0 12px;color:var(--text);}
+.modal-box p{font-size:13px;color:var(--text3);margin-bottom:14px;line-height:1.5;}
+.modal-box input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:9px 12px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;margin-bottom:14px;box-sizing:border-box;}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;}
+.modal-confirm{background:var(--green);border:none;border-radius:6px;padding:8px 18px;color:#fff;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.modal-cancel{background:var(--bg4);border:1px solid var(--border2);border-radius:6px;padding:8px 16px;color:var(--text3);font-family:"DM Sans",sans-serif;font-size:13px;cursor:pointer;}
+/* eng card compliance bar */
+.comp-bar{display:flex;gap:4px;flex-wrap:wrap;padding:8px 14px;border-bottom:1px solid var(--border);background:var(--bg3);}
+.comp-pill{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;}
+.comp-pill.cp-v{background:rgba(63,185,80,.15);color:#3fb950;}
+.comp-pill.cp-p{background:rgba(230,126,0,.14);color:#e67e00;}
+.comp-pill.cp-m{background:rgba(248,81,73,.10);color:#f85149;}
+
 </style>
 <!-- build:1777564249 -->
 </head>
@@ -162,7 +192,7 @@ function buildTypeFilter(){
 }
 
 function fetchData(){
-  fetch(SUPA_URL+"/rest/v1/ppe_register?order=created_at.desc&limit=500",{
+  fetch(SUPA_URL+"/rest/v1/ppe_register?order=created_at.desc&limit=500&select=*",{
     headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
   }).then(function(r){return r.json();}).then(function(rows){
     if(!rows||!Array.isArray(rows))return;
@@ -283,6 +313,12 @@ function renderByEng(items){
     av.style.background=bgCols[ragClass]; av.style.color=txCols[ragClass]; av.textContent=initials;
     var nm=document.createElement("div"); nm.className="eng-name"; nm.textContent=eng;
     var cnt=document.createElement("div"); cnt.className="eng-count"; cnt.textContent=ePPE.length+" items";
+    // verification summary counts
+    var vCounts={verified:0,pending:0};
+    ePPE.forEach(function(r){ var s=r.verification_status||'pending'; if(s==='verified') vCounts.verified++; else vCounts.pending++; });
+    var vBar=document.createElement("div"); vBar.className="comp-bar";
+    if(vCounts.verified>0){ var p=document.createElement("span"); p.className="comp-pill cp-v"; p.textContent="✓ "+vCounts.verified+" verified"; vBar.appendChild(p); }
+    if(vCounts.pending>0){ var p2=document.createElement("span"); p2.className="comp-pill cp-p"; p2.textContent="⏳ "+vCounts.pending+" pending"; vBar.appendChild(p2); }
     var rag=document.createElement("div"); rag.className="eng-rag "+ragClass;
     hdr.appendChild(av); hdr.appendChild(nm); hdr.appendChild(cnt); hdr.appendChild(rag);
     var list=document.createElement("div"); list.className="ppe-list";
@@ -318,7 +354,7 @@ function renderByEng(items){
       row.addEventListener("click",function(){det.classList.toggle("open");});
       list.appendChild(row); list.appendChild(det);
     });
-    card.appendChild(hdr); card.appendChild(list); grid.appendChild(card);
+    card.appendChild(hdr); card.appendChild(vBar); card.appendChild(list); grid.appendChild(card);
   });
 }
 
@@ -335,6 +371,55 @@ function renderList(items){
     feed.appendChild(row);
   });
 }
+
+
+var _pendingId = null;
+
+function tlDot(status) {
+  var cfg = {
+    'verified': ['tl-verified', '✓ Verified'],
+    'pending':  ['tl-pending',  '⏳ Pending Verification'],
+    'missing':  ['tl-missing',  '○ Not Submitted']
+  };
+  var c = cfg[status] || cfg['pending'];
+  return '<span class="tl-dot ' + c[0] + '">' + c[1] + '</span>';
+}
+
+function showVerifyModal(id, currentStatus) {
+  _pendingId = id;
+  var isVerified = (currentStatus === 'verified');
+  var old = document.getElementById('_vmodal'); if(old) old.remove();
+  var m = document.createElement('div'); m.id = '_vmodal'; m.className = 'modal-overlay';
+  if(isVerified) {
+    m.innerHTML = '<div class="modal-box"><h3>Remove Verification</h3><p>This will reset the record to Pending Verification. Are you sure?</p><div class="modal-btns"><button class="modal-cancel" onclick="document.getElementById('_vmodal').remove()">Cancel</button><button class="modal-confirm" style="background:#f85149" onclick="_doVerify(false)">Remove</button></div></div>';
+  } else {
+    m.innerHTML = '<div class="modal-box"><h3>Verify Certificate</h3><p>Confirm you have reviewed and approved this certificate/entry.</p><input id="_vname" placeholder="Your name (e.g. Suzanne Thomson)" autocomplete="off" onkeydown="if(event.key==='Enter')_doVerify(true)"><div class="modal-btns"><button class="modal-cancel" onclick="document.getElementById('_vmodal').remove()">Cancel</button><button class="modal-confirm" onclick="_doVerify(true)">Verify ✓</button></div></div>';
+  }
+  document.body.appendChild(m);
+  setTimeout(function(){ var el=document.getElementById('_vname'); if(el) el.focus(); },100);
+}
+
+function _doVerify(verify) {
+  var name = '';
+  if(verify) {
+    var el = document.getElementById('_vname');
+    name = el ? el.value.trim() : '';
+    if(!name) { alert('Please enter your name'); return; }
+  }
+  document.getElementById('_vmodal').remove();
+  var payload = { verification_status: verify ? 'verified' : 'pending' };
+  if(verify) { payload.verified_by = name; payload.verified_at = new Date().toISOString(); }
+  else { payload.verified_by = null; payload.verified_at = null; }
+  fetch(SUPA_URL + '/rest/v1/ppe_register?id=eq.' + _pendingId, {
+    method: 'PATCH',
+    headers: {'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+    body: JSON.stringify(payload)
+  }).then(function(r){
+    if(r.ok){ showToast(verify ? '✓ Verified by ' + name : 'Verification removed', verify?'ok':'warn'); loadData(); }
+    else showToast('Update failed','err');
+  }).catch(function(){ showToast('Connection error','err'); });
+}
+
 </script>
 </body>
 </html>

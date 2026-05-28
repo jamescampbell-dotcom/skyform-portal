@@ -117,6 +117,27 @@ h1{font-size:22px;font-weight:600;margin-bottom:6px;}
 .toast.show{opacity:1;}
 .toast.ok{border-color:var(--green);color:var(--green);}
 .toast.err{border-color:var(--red);color:var(--red);}
+
+/* ── REQUIREMENTS PANEL ────────────────────────── */
+.req-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:16px;overflow:hidden;}
+.req-panel-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.req-panel-hdr h3{font-size:13px;font-weight:600;margin:0;}
+.req-cat-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:10px 16px 4px;}
+.req-item{display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--border);}
+.req-item:last-child{border-bottom:none;}
+.req-item-info{flex:1;min-width:0;}
+.req-item-name{font-size:13px;font-weight:500;color:var(--text2);}
+.req-item-std{font-size:11px;color:var(--text3);margin-top:2px;}
+.req-pill{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+.req-pill.not-submitted{background:var(--bg4);color:var(--text3);border:1px solid var(--border2);}
+.req-pill.pending{background:rgba(230,126,0,.15);color:#e67e00;border:1px solid rgba(230,126,0,.3);}
+.req-pill.verified{background:rgba(63,185,80,.15);color:var(--green);border:1px solid rgba(63,185,80,.3);}
+.req-pill::before{content:"";width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.req-pill.not-submitted::before{background:var(--text3);}
+.req-pill.pending::before{background:#e67e00;}
+.req-pill.verified::before{background:var(--green);}
+.req-cert-badge{font-size:10px;color:var(--amber);margin-left:4px;}
+
 </style>
 <!-- build:1777564249 -->
 </head>
@@ -640,7 +661,8 @@ function doSubmit(){
     submitted_by:sub,
     cert_image_data:document.getElementById("cert-photo-data").value?"[cert attached]":"",
     cert_outstanding:document.getElementById("cert-missing-flag")?document.getElementById("cert-missing-flag").value:"",
-    other_description:document.getElementById("ppe-other-desc")?document.getElementById("ppe-other-desc").value.trim():""
+    other_description:document.getElementById("ppe-other-desc")?document.getElementById("ppe-other-desc").value.trim():"",
+    verification_status:"pending"
   };
 
   fetch(SUPA_URL+"/rest/v1/ppe_register",{
@@ -692,6 +714,94 @@ function showToast(msg,type){
   t.textContent=msg;t.className="toast show"+(type?" "+type:"");
   setTimeout(function(){t.className="toast";},3500);
 }
+
+
+var PPE_REQUIREMENTS = {
+  baseline: [
+    {item:"Safety Helmet",        std:"EN 397 (<25 dN chin strap)",          cert:false},
+    {item:"Hi-Vis Workwear",       std:"EN 13688 + EN 20471 Class 2 min.",    cert:false},
+    {item:"Safety Boots",          std:"EN 20345 S3 SRC min.",                cert:false},
+    {item:"Cut Resistant Gloves",  std:"EN 388 4X44F min.",                   cert:false},
+    {item:"Noise Protection",      std:"EN 352-1 to 7",                       cert:false},
+    {item:"Safety Glasses",        std:"EN 166 clear lens",                   cert:false},
+    {item:"Head Lamp",             std:"N/A",                                 cert:false},
+    {item:"Full Body Harness",     std:"EN 361 + EN 358",                     cert:true},
+    {item:"Fall Arrest Lanyard (Twin)", std:"EN 355",                         cert:true},
+    {item:"Work Restraint Lanyard",std:"EN 358 adjustable",                   cert:true},
+    {item:"Fall Arrest Glider",    std:"EN 353-1/2 Skylotec Claw",            cert:true},
+    {item:"Transfer Connector",    std:"EN 362 Kong Frog V2",                 cert:true}
+  ],
+  offshore: [
+    {item:"Immersion Suit",         std:"ISO 15027-1",                        cert:true},
+    {item:"Lifejacket 275N",        std:"ISO 12402-2 + ISO 12402-6 275N",     cert:true},
+    {item:"Personal Locator Beacon",std:"AIS / 121.5 MHz",                    cert:true}
+  ],
+  hv: [
+    {item:"Arc / FR Clothing",      std:"EN ISO 11612, min 8 cal/cm²",        cert:false},
+    {item:"Electrical Gloves",      std:"EN 60903 Class 0 71.6 cal/cm²",      cert:true},
+    {item:"Arc Face & Head Protection",std:"ASTM F2178 ATPV 40 cal/cm² HRC4", cert:false}
+  ],
+  hotworks: [
+    {item:"FR Hot Works Clothing",  std:"EN 11611, EN 11612, EN 14116",        cert:false},
+    {item:"Hot Works Gloves",       std:"EN 388 + EN 407 + EN 12477",          cert:false},
+    {item:"Face & Eye Protection",  std:"EN 166 task specific",                cert:false},
+    {item:"Respiratory Protection", std:"EN 149 task specific",                cert:false}
+  ]
+};
+
+function buildRequirementsPanel(engName, existingRecords) {
+  var panel = document.getElementById('req-panel-wrap');
+  if(!panel) return;
+  if(!engName) { panel.innerHTML = ''; return; }
+
+  // Build lookup: item -> status
+  var statusMap = {};
+  if(existingRecords) {
+    existingRecords.forEach(function(r) {
+      if(!statusMap[r.item_type] || r.verification_status === 'verified') {
+        statusMap[r.item_type] = r.verification_status || 'pending';
+      }
+    });
+  }
+
+  function pillHTML(item) {
+    var status = statusMap[item.item] || 'not-submitted';
+    var labels = {'not-submitted':'Not Submitted','pending':'Submitted — Pending','verified':'Verified'};
+    return '<span class="req-pill ' + status + '">' + (labels[status]||status) + '</span>';
+  }
+
+  var cats = [
+    {key:'baseline', label:'Baseline PPE — Required for ALL work'},
+    {key:'offshore', label:'Offshore Additional'},
+    {key:'hv',       label:'HV / Electrical Additional'},
+    {key:'hotworks', label:'Hot Works Additional'}
+  ];
+
+  var html = '<div class="req-panel"><div class="req-panel-hdr"><span style="font-size:16px">📋</span><h3>PPE Requirements — ' + engName + '</h3></div>';
+  cats.forEach(function(cat) {
+    html += '<div class="req-cat-label">' + cat.label + '</div>';
+    PPE_REQUIREMENTS[cat.key].forEach(function(item) {
+      html += '<div class="req-item">';
+      html += '<div class="req-item-info"><div class="req-item-name">' + item.item;
+      if(item.cert) html += ' <span class="req-cert-badge">⚡ cert</span>';
+      html += '</div><div class="req-item-std">' + item.std + '</div></div>';
+      html += pillHTML(item);
+      html += '</div>';
+    });
+  });
+  html += '</div>';
+  panel.innerHTML = html;
+}
+
+function loadEngineerRequirements(engName) {
+  if(!engName) { buildRequirementsPanel(null, []); return; }
+  fetch(SUPA_URL + '/rest/v1/ppe_register?tagged_engineer=eq.' + encodeURIComponent(engName) + '&select=item_type,verification_status', {
+    headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY}
+  }).then(function(r){return r.json();}).then(function(data){
+    buildRequirementsPanel(engName, data);
+  }).catch(function(){ buildRequirementsPanel(engName, []); });
+}
+
 </script>
 </body>
 </html><!-- deployed Wed May 27 17:28:06 UTC 2026 -->

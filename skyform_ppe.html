@@ -957,6 +957,7 @@ var ENG_MAP = {};
 
 function buildLoginScreen() {
   var saved = sessionStorage.getItem('skyform_eng_session');
+  if(!saved) { window.location.replace('/'); return; }
   if(saved) {
     try {
       var s = JSON.parse(saved);
@@ -970,8 +971,8 @@ function buildLoginScreen() {
   screen.innerHTML =
     '<div class="eng-login-box">'
     + '<div class="eng-login-logo"><img src="logo.png" alt="Skyform" style="height:36px;object-fit:contain;"></div>'
-    + '<div class="eng-login-title">PPE Register</div>'
-    + '<div class="eng-login-sub">Enter your username and password to continue</div>'
+    + '<div class="eng-login-title">Skyform Wind Portal</div>'
+    + '<div class="eng-login-sub">PPE Register — enter your credentials</div>'
     + '<div class="eng-login-field"><label>Username</label>'
     + '<input type="text" id="login-user" placeholder="Enter username" autocomplete="username" autocapitalize="off" autocorrect="off"></div>'
     + '<div class="eng-login-field"><label>Password</label>'

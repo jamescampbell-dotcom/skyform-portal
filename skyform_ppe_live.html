@@ -711,6 +711,7 @@ var _currentMgmt = null;
 
 function buildMgmtLogin() {
   var saved = sessionStorage.getItem('skyform_mgmt_session');
+  if(!saved) { window.location.replace('/'); return; }
   if(saved) {
     try { var s=JSON.parse(saved); setMgmtLoggedIn(s.username, s.name); return; }
     catch(e){ sessionStorage.removeItem('skyform_mgmt_session'); }
@@ -722,7 +723,7 @@ function buildMgmtLogin() {
     '<div class="mgmt-login-box">'
     + '<div class="mgmt-login-logo"><img src="logo.png" alt="Skyform"></div>'
     + '<div class="mgmt-login-title">Skyform Wind Portal</div>'
-    + '<div class="mgmt-login-sub">Management access — enter your credentials</div>'
+    + '<div class="mgmt-login-sub">PPE Live View — enter your credentials</div>'
     + '<div class="mgmt-field"><label>Username</label>'
     + '<input type="text" id="ml-user" placeholder="Enter username" autocapitalize="off" autocorrect="off"></div>'
     + '<div class="mgmt-field"><label>Password</label>'

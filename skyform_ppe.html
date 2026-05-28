@@ -167,12 +167,30 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px;}
 .item-chip .ic-dot.dot-ok{background:#3fb950;}
 .item-chip .ic-cert{font-size:9px;color:var(--amber);opacity:.8;}
 
+
+/* ── ENGINEER LOGIN ─────────────────────────────── */
+.eng-login-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;}
+.eng-login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);padding:28px 24px;width:100%;max-width:360px;}
+.eng-login-logo{text-align:center;margin-bottom:20px;}
+.eng-login-logo img{height:36px;object-fit:contain;}
+.eng-login-title{font-size:17px;font-weight:600;text-align:center;margin-bottom:4px;}
+.eng-login-sub{font-size:12px;color:var(--text3);text-align:center;margin-bottom:20px;}
+.eng-login-field{margin-bottom:12px;}
+.eng-login-field label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:5px;}
+.eng-login-field input, .eng-login-field select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:10px 12px;font-family:"DM Sans",sans-serif;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;}
+.eng-login-field input:focus, .eng-login-field select:focus{border-color:var(--accent);}
+.eng-login-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--green),#059669);border:none;border-radius:var(--r);font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;color:#fff;cursor:pointer;margin-top:4px;}
+.eng-login-err{font-size:12px;color:var(--red);text-align:center;margin-top:8px;min-height:18px;}
+.eng-loggedin-bar{display:flex;align-items:center;gap:10px;background:var(--gbg);border:1px solid rgba(63,185,80,.25);border-radius:var(--r);padding:8px 14px;margin-bottom:14px;}
+.eng-loggedin-name{font-size:13px;font-weight:600;color:var(--green);flex:1;}
+.eng-switch-btn{font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;font-family:"DM Sans",sans-serif;text-decoration:underline;}
+
 </style>
 <!-- build:1777564249 -->
 </head>
 <body>
 <header class="hdr">
-  <img src="logo.png" alt="Skyform">
+  <img src="logo.png" alt="Skyform" style="height:28px;object-fit:contain;">
   <span class="hdr-title">PPE Register</span>
   <span class="hdr-pill">&#128737; PPE Tracking</span>
 </header>
@@ -181,7 +199,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px;}
   <p class="intro">Register each PPE item below. Retirement dates are calculated automatically and HSEQ is alerted to any items requiring attention.</p>
 
   <!-- SUBMITTER -->
-  <div class="sub-bar">
+  <div class="sub-bar" style="display:none">
     <label style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);padding-top:10px;white-space:nowrap;">Engineer</label>
     <div class="sub-wrap">
       <input class="sub-input" id="sub-input" type="text" placeholder="Start typing your name..." autocomplete="off">
@@ -387,6 +405,7 @@ function updateCertRequirement(itemType) {
 
 window.addEventListener("load", function() {
   buildPPEGrid([]); buildCondBtns(); populateSelects();
+  buildLoginScreen();
   wireSubmitter(); wireImgZone("item-zone","item-photo-data","&#128247;","Tap to upload item photo");
   wireImgZone("label-zone","label-photo-data","&#127991;","Tap to upload label photo");
   wireImgZone("cert-zone","cert-photo-data","&#128196;","Tap to upload certificate / test report");
@@ -533,7 +552,14 @@ function buildPPEGrid(engRecords) {
     var badgeHTML = '';
     if(done > 0) badgeHTML += '<span class="cat-badge-count cb-done">&#10003; '+done+'</span>';
     if(pend > 0) badgeHTML += '<span class="cat-badge-count cb-pend">&#9203; '+pend+'</span>';
-    if(miss > 0) badgeHTML += '<span class="cat-badge-count cb-miss">'+miss+' needed</span>';
+    var optionalCats = ['offshore','hv','hotworks'];
+    if(miss > 0) {
+      if(optionalCats.indexOf(cat.key) > -1) {
+        badgeHTML += '<span class="cat-badge-count" style="background:rgba(88,166,255,.1);color:#58a6ff;border:1px solid rgba(88,166,255,.2);">Where applicable</span>';
+      } else {
+        badgeHTML += '<span class="cat-badge-count cb-miss">'+miss+' needed</span>';
+      }
+    }
     hdr.innerHTML = '<span class="cat-acc-icon">'+cat.icon+'</span>'
       + '<div class="cat-acc-info"><div class="cat-acc-title">'+cat.title+'</div>'
       + '<div class="cat-acc-sub">'+cat.sub+'</div></div>'
@@ -920,6 +946,127 @@ function loadEngineerRequirements(engName) {
     buildRequirementsPanel(engName, []);
     buildPPEGrid([]);
   });
+}
+
+
+
+// ── ENGINEER LOGIN ──────────────────────────────────────────────────
+var ENG_PINS = {};  // populated from engineer list: name -> PIN (last 4 of name hash)
+
+function buildLoginScreen() {
+  // If already logged in from session, restore
+  var saved = sessionStorage.getItem('skyform_eng');
+  if(saved) {
+    setLoggedInEngineer(saved);
+    return;
+  }
+  var screen = document.createElement('div');
+  screen.id = 'eng-login-screen';
+  screen.className = 'eng-login-screen';
+  screen.innerHTML = `
+    <div class="eng-login-box">
+      <div class="eng-login-logo"><img src="logo.png" alt="Skyform" style="height:28px;object-fit:contain;"></div>
+      <div class="eng-login-title">PPE Register</div>
+      <div class="eng-login-sub">Sign in to register your PPE items</div>
+      <div class="eng-login-field">
+        <label>Your Name</label>
+        <select id="login-name"><option value="">- Select your name -</option></select>
+      </div>
+      <div class="eng-login-field">
+        <label>PIN</label>
+        <input type="password" id="login-pin" placeholder="Enter your 4-digit PIN" maxlength="4" inputmode="numeric">
+      </div>
+      <button class="eng-login-btn" onclick="doEngLogin()">Sign In &#8594;</button>
+      <div class="eng-login-err" id="login-err"></div>
+    </div>`;
+  document.body.appendChild(screen);
+
+  // Populate name dropdown from engineers list
+  fetch(SUPA_URL + "/rest/v1/engineers?select=name,pin&order=name", {
+    headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
+  }).then(function(r){return r.json();}).then(function(rows){
+    var sel = document.getElementById('login-name');
+    if(!sel) return;
+    ENG_PINS = {};
+    rows.forEach(function(r){
+      ENG_PINS[r.name] = r.pin || '0000';
+      var o = document.createElement('option'); o.value=r.name; o.textContent=r.name;
+      sel.appendChild(o);
+    });
+    // Fallback to knownEngs if no pin column
+    if(rows.length === 0) {
+      knownEngs.forEach(function(n){
+        var o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o);
+      });
+    }
+  }).catch(function(){
+    // Fallback
+    setTimeout(function(){
+      var sel = document.getElementById('login-name'); if(!sel) return;
+      knownEngs.forEach(function(n){
+        var o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o);
+      });
+    }, 1500);
+  });
+
+  document.getElementById('login-pin').addEventListener('keydown', function(e){ if(e.key==='Enter') doEngLogin(); });
+}
+
+function doEngLogin() {
+  var name = (document.getElementById('login-name')||{}).value || '';
+  var pin  = (document.getElementById('login-pin')||{}).value || '';
+  var err  = document.getElementById('login-err');
+  if(!name){ err.textContent='Please select your name'; return; }
+  if(!pin || pin.length < 4){ err.textContent='Please enter your 4-digit PIN'; return; }
+  // Check PIN — if ENG_PINS has data use it, otherwise accept any 4-digit PIN for now
+  var expected = ENG_PINS[name];
+  if(expected && expected !== '0000' && pin !== expected){ err.textContent='Incorrect PIN — please try again'; return; }
+  if(expected === undefined){ err.textContent='Name not found — please contact your supervisor'; return; }
+  err.textContent='';
+  setLoggedInEngineer(name);
+}
+
+function setLoggedInEngineer(name) {
+  // Remove login screen
+  var screen = document.getElementById('eng-login-screen');
+  if(screen) screen.remove();
+  // Store in session
+  sessionStorage.setItem('skyform_eng', name);
+  // Set sub-input (submitter) and ppe-eng (tagged engineer) both to this name
+  var si = document.getElementById('sub-input');
+  if(si){ si.value = name; si.dispatchEvent(new Event('input')); }
+  var eng = document.getElementById('ppe-eng');
+  if(eng) eng.value = name;
+  // Update sub-status
+  var st = document.getElementById('sub-status');
+  if(st){ st.className='sub-status known'; st.textContent='Signed in as '+name; }
+  // Load requirements
+  loadEngineerRequirements(name);
+  // Show logged-in bar
+  showLoggedInBar(name);
+}
+
+function showLoggedInBar(name) {
+  var existing = document.getElementById('eng-loggedin-bar');
+  if(existing) existing.remove();
+  var bar = document.createElement('div');
+  bar.id = 'eng-loggedin-bar';
+  bar.className = 'eng-loggedin-bar';
+  bar.innerHTML = '<span style="font-size:16px">👤</span>'
+    + '<span class="eng-loggedin-name">'+name+'</span>'
+    + '<button class="eng-switch-btn" onclick="switchEngineer()">Switch engineer</button>';
+  var wrap = document.querySelector('.wrap');
+  if(wrap) wrap.insertBefore(bar, wrap.firstChild);
+}
+
+function switchEngineer() {
+  sessionStorage.removeItem('skyform_eng');
+  var bar = document.getElementById('eng-loggedin-bar');
+  if(bar) bar.remove();
+  var rp = document.getElementById('req-panel-wrap');
+  if(rp) rp.innerHTML='';
+  buildPPEGrid([]);
+  buildLoginScreen();
 }
 
 </script>

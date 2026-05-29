@@ -20,22 +20,63 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .wrap{padding-top:26px}
 
 /* LOGIN / ROLE PICKER */
-#login{min-height:calc(100vh - 26px);display:flex;align-items:center;justify-content:center;padding:24px;
-background:radial-gradient(ellipse at 30% 20%,rgba(0,212,255,.08),transparent 60%),var(--bg)}
-.login-card{width:100%;max-width:540px;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.5)}
-.login-top{background:linear-gradient(135deg,var(--card2),var(--card));padding:30px 32px;border-bottom:1px solid var(--border);text-align:center}
-.logo-badge{width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:inline-flex;align-items:center;justify-content:center;font-family:var(--fhead);font-weight:700;font-size:20px;color:#fff;box-shadow:0 0 26px rgba(0,212,255,.5);margin-bottom:12px}
-.login-top h1{font-family:var(--fhead);font-size:24px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-.login-top p{color:var(--text3);font-size:12px;margin-top:4px}
-.login-body{padding:24px 32px 30px}
-.login-body .lead{font-size:12.5px;color:var(--text2);text-align:center;margin-bottom:18px}
-.role-btn{width:100%;display:flex;align-items:center;gap:14px;background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:14px 16px;margin-bottom:11px;cursor:pointer;transition:.15s;text-align:left;color:var(--text)}
-.role-btn:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,212,255,.12)}
-.role-ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
-.role-meta .rn{font-family:var(--fdisp);font-weight:700;font-size:15px}
-.role-meta .rd{font-size:11px;color:var(--text3);margin-top:1px}
-.role-go{margin-left:auto;color:var(--text3);font-size:18px}
-.login-foot{text-align:center;font-size:10px;color:var(--text3);margin-top:8px;line-height:1.6}
+#login{position:relative;min-height:calc(100vh - 26px);display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;
+ background:radial-gradient(ellipse 70% 55% at 22% 12%,rgba(0,212,255,.11),transparent 60%),radial-gradient(ellipse 60% 50% at 86% 92%,rgba(124,58,237,.13),transparent 62%),var(--bg)}
+.lx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.lx-grid{position:absolute;left:-20%;right:-20%;bottom:-12%;height:75%;
+ background-image:linear-gradient(rgba(0,212,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.07) 1px,transparent 1px);background-size:48px 48px;
+ transform:perspective(440px) rotateX(64deg);transform-origin:center bottom;
+ -webkit-mask-image:linear-gradient(to top,#000,transparent 78%);mask-image:linear-gradient(to top,#000,transparent 78%);
+ animation:gridmove 16s linear infinite}
+@keyframes gridmove{from{background-position:0 0}to{background-position:0 48px}}
+.lx-turb{position:absolute;color:var(--accent)}
+.lx-turb.a{right:-30px;bottom:-20px;width:360px;height:460px;opacity:.10}
+.lx-turb.b{left:-26px;top:24px;width:210px;height:270px;opacity:.06}
+.blades{transform-box:view-box;transform-origin:60px 60px;animation:spin 10s linear infinite}
+.blades.slow{animation-duration:18s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.glow1{position:absolute;width:560px;height:560px;left:4%;top:2%;background:radial-gradient(circle,rgba(0,212,255,.15),transparent 70%);filter:blur(26px);animation:float1 12s ease-in-out infinite}
+@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(34px,26px)}}
+.particles span{position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);opacity:0;animation:rise linear infinite}
+@keyframes rise{0%{transform:translateY(0);opacity:0}12%{opacity:.7}100%{transform:translateY(-104vh);opacity:0}}
+
+.login-card{position:relative;z-index:2;width:100%;max-width:560px;border-radius:22px;overflow:hidden;
+ background:linear-gradient(180deg,rgba(13,33,55,.80),rgba(9,19,36,.93));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+ border:1px solid rgba(0,212,255,.22);box-shadow:0 32px 90px rgba(0,0,0,.62),0 0 0 1px rgba(255,255,255,.02) inset,0 0 80px rgba(0,212,255,.08);
+ animation:cardin .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes cardin{from{opacity:0;transform:translateY(22px) scale(.985)}to{opacity:1;transform:none}}
+.login-top{position:relative;padding:34px 34px 24px;text-align:center;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(0,212,255,.06),transparent 55%)}
+.login-top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:sweep 4.5s ease-in-out infinite}
+@keyframes sweep{0%,100%{opacity:.15}50%{opacity:.75}}
+.logo-badge{position:relative;width:62px;height:62px;border-radius:17px;background:linear-gradient(135deg,#0D2137,#0A1628);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;border:1px solid rgba(0,212,255,.4);box-shadow:0 0 32px rgba(0,212,255,.38),0 0 0 1px rgba(0,212,255,.1) inset}
+.logo-badge svg{width:40px;height:40px;color:var(--accent)}
+.login-top h1{font-family:var(--fhead);font-size:28px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;line-height:1;
+ background:linear-gradient(180deg,#ffffff,#9fdcff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.login-top .tag{display:inline-flex;align-items:center;gap:8px;margin-top:11px;font-family:var(--fdata);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
+.login-top .tag .pd{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green);animation:pulse 2s infinite}
+.login-body{padding:24px 30px 12px}
+.login-body .lead{font-size:12.5px;color:var(--text2);text-align:center;margin-bottom:20px;line-height:1.55}
+.login-body .lead b{color:var(--text)}
+.role-btn{position:relative;width:100%;display:flex;align-items:center;gap:15px;border:1px solid var(--border);border-radius:14px;padding:15px 16px 15px 19px;margin-bottom:12px;cursor:pointer;text-align:left;color:var(--text);overflow:hidden;opacity:0;
+ background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.012));
+ transition:transform .18s cubic-bezier(.2,.8,.2,1),border-color .18s,box-shadow .18s,background .18s;animation:rolein .5s ease both}
+.role-btn::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--rc,var(--accent));opacity:0;transition:.18s}
+.role-btn:hover{transform:translateY(-2px);border-color:var(--rc,var(--accent));background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02));box-shadow:0 12px 32px rgba(0,0,0,.42),0 0 26px -8px var(--rc,var(--accent))}
+.role-btn:hover::before{opacity:.95}
+.role-btn:hover .role-go{transform:translateX(4px);color:var(--rc,var(--accent))}
+.role-btn:hover .role-ic{box-shadow:0 0 24px -3px var(--rc,var(--accent));transform:scale(1.05)}
+@keyframes rolein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.role-ic{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--rc,var(--accent));background:var(--ricb);border:1px solid var(--border);transition:.18s}
+.role-ic svg{width:24px;height:24px}
+.role-meta{flex:1;min-width:0}
+.role-meta .rn{font-family:var(--fdisp);font-weight:700;font-size:15.5px;letter-spacing:-.01em}
+.role-meta .rd{font-size:11px;color:var(--text3);margin-top:2px}
+.role-go{margin-left:auto;color:var(--text3);font-size:21px;transition:.18s;flex-shrink:0;line-height:1}
+.login-foot{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;padding:15px 30px 22px;border-top:1px solid var(--border);margin-top:8px}
+.login-foot .fitem{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text3);letter-spacing:.02em}
+.login-foot .pd{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+.login-foot .clk{font-family:var(--fdata);color:var(--text2)}
+@media(max-width:540px){.login-top h1{font-size:23px}.role-meta .rd{display:none}}
 
 /* APP SHELL */
 #app{display:none}
@@ -106,34 +147,64 @@ body.alpine .mapwrap{background:radial-gradient(ellipse at 40% 30%,#EEF1FA,#FFF 
 
 <!-- LOGIN -->
 <div id="login">
+  <div class="lx">
+    <div class="glow1"></div>
+    <div class="lx-grid"></div>
+    <svg class="lx-turb a" viewBox="0 0 120 150" fill="none" aria-hidden="true"><line x1="60" y1="60" x2="60" y2="150" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><g class="blades"><g transform="rotate(0 60 60)"><path d="M60 60 L56 10 Q60 2 64 10 Z" fill="currentColor"/></g><g transform="rotate(120 60 60)"><path d="M60 60 L56 10 Q60 2 64 10 Z" fill="currentColor"/></g><g transform="rotate(240 60 60)"><path d="M60 60 L56 10 Q60 2 64 10 Z" fill="currentColor"/></g></g><circle cx="60" cy="60" r="6" fill="currentColor"/></svg>
+    <svg class="lx-turb b" viewBox="0 0 120 150" fill="none" aria-hidden="true"><line x1="60" y1="60" x2="60" y2="150" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><g class="blades slow"><g transform="rotate(0 60 60)"><path d="M60 60 L56 10 Q60 2 64 10 Z" fill="currentColor"/></g><g transform="rotate(120 60 60)"><path d="M60 60 L56 10 Q60 2 64 10 Z" fill="currentColor"/></g><g transform="rotate(240 60 60)"><path d="M60 60 L56 10 Q60 2 64 10 Z" fill="currentColor"/></g></g><circle cx="60" cy="60" r="6" fill="currentColor"/></svg>
+    <div class="particles">
+      <span style="left:12%;animation-duration:9s;animation-delay:0s"></span>
+      <span style="left:23%;animation-duration:12s;animation-delay:2s"></span>
+      <span style="left:38%;animation-duration:10s;animation-delay:4s"></span>
+      <span style="left:50%;animation-duration:14s;animation-delay:1s"></span>
+      <span style="left:62%;animation-duration:11s;animation-delay:5s"></span>
+      <span style="left:71%;animation-duration:9s;animation-delay:3s"></span>
+      <span style="left:84%;animation-duration:13s;animation-delay:6s"></span>
+      <span style="left:92%;animation-duration:10s;animation-delay:2.5s"></span>
+      <span style="left:30%;animation-duration:15s;animation-delay:7s"></span>
+      <span style="left:57%;animation-duration:8s;animation-delay:4.5s"></span>
+    </div>
+  </div>
+
   <div class="login-card">
     <div class="login-top">
-      <div class="logo-badge">SW</div>
-      <h1>Skyform Wind Portal</h1>
-      <p>Operations Management System · Demo</p>
+      <div class="logo-badge"><svg viewBox="0 0 120 150" fill="none" aria-hidden="true"><line x1="60" y1="60" x2="60" y2="150" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><g class="blades"><g transform="rotate(0 60 60)"><path d="M60 60 L55 8 Q60 0 65 8 Z" fill="currentColor"/></g><g transform="rotate(120 60 60)"><path d="M60 60 L55 8 Q60 0 65 8 Z" fill="currentColor"/></g><g transform="rotate(240 60 60)"><path d="M60 60 L55 8 Q60 0 65 8 Z" fill="currentColor"/></g></g><circle cx="60" cy="60" r="7" fill="currentColor"/></svg></div>
+      <h1>Skyform Wind</h1>
+      <div class="tag"><span class="pd"></span>Operations Portal · Demo</div>
     </div>
     <div class="login-body">
-      <div class="lead">This is a demo with made-up data. Pick a role to see exactly what that person can access:</div>
-      <button class="role-btn" onclick="signIn('engineer')">
-        <div class="role-ic" style="background:var(--bbg);color:var(--accent)">👷</div>
-        <div class="role-meta"><div class="rn">Sign in as an Engineer</div><div class="rd">Sees only their own compliance · uploads certs</div></div><div class="role-go">→</div>
+      <div class="lead">Simulated data — nothing real. <b>Pick a role</b> to see exactly what that person can access.</div>
+
+      <button class="role-btn" style="--rc:var(--accent);--ricb:linear-gradient(135deg,rgba(0,212,255,.18),rgba(0,212,255,.05));animation-delay:.05s" onclick="signIn('engineer')">
+        <div class="role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18"/><path d="M5 18a7 7 0 0 1 14 0"/><path d="M12 5v6"/><path d="M9 11V6.5A1.5 1.5 0 0 1 10.5 5h3A1.5 1.5 0 0 1 15 6.5V11"/></svg></div>
+        <div class="role-meta"><div class="rn">Engineer</div><div class="rd">Sees only their own compliance · uploads certs</div></div><div class="role-go">→</div>
       </button>
-      <button class="role-btn" onclick="signIn('manager')">
-        <div class="role-ic" style="background:var(--pbg);color:var(--purple)">🗂️</div>
-        <div class="role-meta"><div class="rn">Sign in as a Manager / Admin</div><div class="rd">Full fleet visibility · all certs · planning</div></div><div class="role-go">→</div>
+
+      <button class="role-btn" style="--rc:var(--purple);--ricb:linear-gradient(135deg,rgba(167,139,250,.20),rgba(167,139,250,.05));animation-delay:.12s" onclick="signIn('manager')">
+        <div class="role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 16 9 5 9-5"/></svg></div>
+        <div class="role-meta"><div class="rn">Manager / Admin</div><div class="rd">Full fleet visibility · all certs · planning</div></div><div class="role-go">→</div>
       </button>
-      <button class="role-btn" onclick="signIn('director')">
-        <div class="role-ic" style="background:var(--rbg);color:var(--red)">🛡️</div>
-        <div class="role-meta"><div class="rn">Sign in as a Director</div><div class="rd">Everything a manager has · plus permanent delete</div></div><div class="role-go">→</div>
+
+      <button class="role-btn" style="--rc:var(--red);--ricb:linear-gradient(135deg,rgba(255,107,53,.20),rgba(255,107,53,.05));animation-delay:.19s" onclick="signIn('director')">
+        <div class="role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <div class="role-meta"><div class="rn">Director</div><div class="rd">Everything a manager has · plus permanent delete</div></div><div class="role-go">→</div>
       </button>
-      <button class="role-btn" onclick="signIn('dual')">
-        <div class="role-ic" style="background:var(--gbg);color:var(--green)">🔀</div>
-        <div class="role-meta"><div class="rn">Sign in as a Dual-role user</div><div class="rd">Manager + their own engineer profile</div></div><div class="role-go">→</div>
+
+      <button class="role-btn" style="--rc:var(--green);--ricb:linear-gradient(135deg,rgba(0,255,136,.18),rgba(0,255,136,.05));animation-delay:.26s" onclick="signIn('dual')">
+        <div class="role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 3 8l4 4"/><path d="M3 8h13a4 4 0 0 1 4 4"/><path d="m17 20 4-4-4-4"/><path d="M21 16H8a4 4 0 0 1-4-4"/></svg></div>
+        <div class="role-meta"><div class="rn">Dual-role user</div><div class="rd">Manager + their own engineer profile</div></div><div class="role-go">→</div>
       </button>
-      <div class="login-foot">No real data is used anywhere in this demo.<br>Built to the Skyform Night Ops design scheme.</div>
+    </div>
+    <div class="login-foot">
+      <span class="fitem"><span class="pd"></span>System live</span>
+      <span class="fitem">·</span>
+      <span class="fitem">No real data used</span>
+      <span class="fitem">·</span>
+      <span class="fitem clk" id="clk">--:--:--</span>
     </div>
   </div>
 </div>
+<script>(function(){function t(){var e=document.getElementById('clk');if(e)e.textContent=new Date().toLocaleTimeString('en-GB');}t();setInterval(t,1000);})();</script>
 
 <!-- APP -->
 <div id="app">

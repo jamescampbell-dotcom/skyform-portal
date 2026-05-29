@@ -244,11 +244,7 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px;}
         <label class="field-label">Item Description <span style="color:var(--danger)">*</span></label>
         <textarea id="ppe-other-desc" placeholder="Please describe the PPE item — type, standard, purpose and any relevant details..." style="min-height:80px"></textarea>
       </div>
-<div class="field-group" id="cert-upload-group">
-        <label class="field-label">Certificate / Test Report <span style="font-size:11px;color:var(--text-muted);font-weight:400">(where applicable)</span></label>
-        <div id="cert-zone" style="border:2px dashed var(--border);border-radius:8px;padding:14px 16px;text-align:center;cursor:pointer;background:var(--card);transition:border-color .2s;margin-top:4px;display:flex;align-items:center;gap:10px;justify-content:center">
-          <span style="font-size:20px;flex-shrink:0">&#128196;</span><span style="font-size:13px;color:var(--text-muted)">Tap to upload certificate or test report</span>
-        </div>
+</div>
       </div>
       <div class="sub-status" id="sub-status"></div>
     </div>
@@ -368,16 +364,32 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px;}
     <div class="card">
       <div class="card-hdr"><div class="card-icon" style="background:rgba(88,166,255,.12)">&#128247;</div><div><div class="card-title">Photos</div><div class="card-sub">Photo of the item and the manufacturer label</div></div></div>
       <div class="card-body">
-        <div class="fg c2">
+        <div class="fg c3">
           <div class="field">
             <label>Item Photo</label>
             <div class="img-zone" id="item-zone"><span class="iz-icon">&#128247;</span><div class="iz-text">Tap to upload item photo</div><div class="iz-sub">JPG or PNG - max 5MB</div></div>
             <input type="hidden" id="item-photo-data">
           </div>
           <div class="field">
-            <label>Label Photo <span style="color:var(--text3);font-weight:400;font-size:10px">(serial/mfg date)</span></label>
+            <label>Label Photo <span style="color:var(--text3);font-weight:400;font-size:10px">(serial / mfg date)</span></label>
             <div class="img-zone" id="label-zone"><span class="iz-icon">&#127991;</span><div class="iz-text">Tap to upload label photo</div><div class="iz-sub">Shows serial number and date</div></div>
-            <input type="hidden" id="label-photo-data"><input type="hidden" id="cert-photo-data">
+            <input type="hidden" id="label-photo-data">
+          </div>
+          <div class="field">
+            <label>Certificate <span id="cert-req-badge" style="display:none;color:var(--amber);font-weight:700;font-size:10px">&#9888; Required</span><span id="cert-opt-note" style="color:var(--text3);font-weight:400;font-size:10px"> (optional)</span></label>
+            <div class="img-zone" id="cert-zone" style="border-color:var(--border2)"><span class="iz-icon">&#128196;</span><div class="iz-text">Upload certificate or test report</div><div class="iz-sub">JPG, PNG or PDF - max 5MB</div></div>
+            <input type="hidden" id="cert-photo-data">
+            <!-- Papertrail reference (Phase 2) -->
+            <div style="margin-top:6px;display:flex;align-items:center;gap:6px;">
+              <span style="font-size:10px;color:var(--text3);flex-shrink:0">or Papertrail ref:</span>
+              <input type="text" id="cert-papertrail-ref" placeholder="e.g. PT-12345" style="flex:1;font-size:11px;padding:4px 7px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:inherit;" title="Phase 2: enter the Papertrail asset/record ID to link directly">
+            </div>
+            <div id="no-cert-wrap" style="display:none;margin-top:6px;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3);cursor:pointer;text-transform:none;letter-spacing:0">
+                <input type="checkbox" id="no-cert-chk"> I don't currently have the certificate
+              </label>
+              <input type="hidden" id="cert-missing-flag">
+            </div>
           </div>
         </div>
       </div>
@@ -652,21 +664,27 @@ function buildPPEGrid(engRecords) {
       body.appendChild(chip);
     });
 
-    // Add Other to last category
-    if(catIdx === CAT_DEFS.length - 1){
-      var otherChip = document.createElement('span');
-      otherChip.className = 'item-chip';
-      var oDot = statusMap['Other'] === 'verified' ? 'dot-ok' : statusMap['Other'] === 'pending' ? 'dot-pend' : 'dot-none';
-      otherChip.innerHTML = '<span class="ic-dot '+oDot+'"></span>Other';
+    // Add "Other" to EVERY category as a fallback option
+    var otherKey = cat.key + '-Other';
+    var otherChip = document.createElement('span');
+    otherChip.className = 'item-chip';
+    var oDot = statusMap[otherKey] === 'verified' ? 'dot-ok' : statusMap[otherKey] === 'pending' ? 'dot-pend' : 'dot-none';
+    otherChip.innerHTML = '<span class="ic-dot '+oDot+'"></span>Other';
+    otherChip.style.borderStyle = 'dashed';
+    otherChip.title = 'Use if your item is not listed above';
+    (function(category){
       otherChip.addEventListener('click', function(){
-        document.querySelectorAll('.item-chip').forEach(function(c){ c.classList.remove('sel'); c.style.background=''; c.style.borderColor=''; });
+        document.querySelectorAll('.item-chip').forEach(function(ch){ ch.classList.remove('sel'); ch.style.background=''; ch.style.borderColor=''; });
         otherChip.classList.add('sel'); otherChip.style.background='#6b7280'; otherChip.style.borderColor='#6b7280';
         selectedType='Other'; document.getElementById('ppe-type').value='Other';
         var og=document.getElementById('other-desc-group'); if(og) og.style.display='block';
         updateCertRequirement('Other');
+        // Show which category this Other belongs to
+        var catBadge=document.getElementById('cat-badge');
+        if(catBadge){catBadge.textContent=category.title+' — Other';catBadge.className='en-badge set';}
       });
-      body.appendChild(otherChip);
-    }
+    })(cat);
+    body.appendChild(otherChip);
 
     grid.appendChild(hdr);
     grid.appendChild(body);
@@ -839,6 +857,7 @@ function doSubmit(){
     tagged_location:document.getElementById("ppe-loc").value,
     submitted_by:sub,
     cert_image_data:document.getElementById("cert-photo-data").value?"[cert attached]":"",
+    papertrail_ref:(document.getElementById("cert-papertrail-ref")?document.getElementById("cert-papertrail-ref").value.trim():""),
     cert_outstanding:document.getElementById("cert-missing-flag")?document.getElementById("cert-missing-flag").value:"",
     other_description:document.getElementById("ppe-other-desc")?document.getElementById("ppe-other-desc").value.trim():"",
     verification_status:"pending"

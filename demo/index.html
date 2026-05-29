@@ -1,412 +1,757 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Skyform Wind — Operations Portal (DEMO)</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#070C16;--card:#0A1628;--card2:#0D2137;--border:#1E3A5A;--text:#E2E8F0;--text2:#94A3B8;--text3:#536179;
---accent:#00D4FF;--accent2:#0080FF;--green:#00FF88;--amber:#FFB703;--red:#FF6B35;--purple:#A78BFA;
---gbg:rgba(0,255,136,.13);--abg:rgba(255,183,3,.13);--rbg:rgba(255,107,53,.13);--bbg:rgba(0,212,255,.12);--pbg:rgba(167,139,250,.14);
---fhead:'Rajdhani';--fdisp:'Plus Jakarta Sans';--fdata:'JetBrains Mono'}
-body.alpine{--bg:#EEF0F5;--card:#FFFFFF;--card2:#F7F8FC;--border:#E2E5EE;--text:#15192E;--text2:#3F4760;--text3:#8A91A6;
---accent:#4F46E5;--accent2:#7C3AED;--green:#059669;--amber:#D97706;--red:#DC2626;--purple:#7C3AED;
---gbg:#D1FAE5;--abg:#FEF3C7;--rbg:#FEE2E2;--bbg:#EEF2FF;--pbg:#F3E8FF}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.mono{font-family:var(--fdata),monospace}
-.demo-flag{position:fixed;top:0;left:0;right:0;height:26px;background:repeating-linear-gradient(45deg,#FFB703,#FFB703 14px,#0A1628 14px,#0A1628 28px);z-index:200;display:flex;align-items:center;justify-content:center}
-.demo-flag span{background:#0A1628;color:#FFB703;font-family:var(--fhead);font-weight:700;font-size:11px;letter-spacing:.25em;padding:2px 16px;border-radius:0 0 8px 8px;text-transform:uppercase}
-.wrap{padding-top:26px}
-
-/* LOGIN / ROLE PICKER */
-#login{position:relative;min-height:calc(100vh - 26px);display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;
+:root{--bg:#070C16;--bg2:#0A1424;--card:#0C1B30;--card2:#0E2238;--card3:#102A44;--border:#1E3A5A;--hair:#16304C;
+--text:#E6EDF6;--text2:#AEBCD0;--text3:#7C8CA6;--accent:#00D4FF;--acc2:#3B82F6;--green:#00FF88;--green2:#1FD18B;
+--amber:#FFB703;--red:#FF6B35;--purple:#A78BFA;--pink:#F472B6;
+--gbg:rgba(31,209,139,.14);--abg:rgba(255,183,3,.14);--rbg:rgba(255,107,53,.14);--bbg:rgba(0,212,255,.13);--pbg:rgba(167,139,250,.15);
+--fh:'Rajdhani';--fd:'Plus Jakarta Sans';--fm:'JetBrains Mono';--shadow:0 18px 50px rgba(0,0,0,.5)}
+body.alpine{--bg:#EDF0F6;--bg2:#E6EAF3;--card:#FFFFFF;--card2:#F6F8FC;--card3:#EEF2FA;--border:#DEE3EE;--hair:#E7EBF3;
+--text:#141A2E;--text2:#3D4663;--text3:#8089A1;--accent:#0E7CC4;--acc2:#3B82F6;--green:#059669;--green2:#0F9D6B;
+--amber:#C77800;--red:#DC4B1E;--purple:#7C3AED;--gbg:#D7F5E8;--abg:#FCEFCD;--rbg:#FBE2D8;--bbg:#DDF2FB;--pbg:#EEE6FE;--shadow:0 14px 40px rgba(30,50,90,.14)}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+.mono{font-family:var(--fm)} button{font-family:inherit;cursor:pointer}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px}::-webkit-scrollbar-track{background:transparent}
+.demo-flag{position:fixed;top:0;left:0;right:0;height:24px;z-index:300;background:repeating-linear-gradient(45deg,#FFB703,#FFB703 13px,#0A1628 13px,#0A1628 26px);display:flex;align-items:center;justify-content:center}
+.demo-flag span{background:#0A1628;color:#FFB703;font-family:var(--fh);font-weight:700;font-size:10px;letter-spacing:.22em;padding:2px 14px;border-radius:0 0 7px 7px;text-transform:uppercase}
+.wrap{padding-top:24px}
+/* ---------- LOGIN ---------- */
+#login{position:relative;min-height:calc(100vh - 24px);display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;
  background:radial-gradient(ellipse 70% 55% at 22% 12%,rgba(0,212,255,.11),transparent 60%),radial-gradient(ellipse 60% 50% at 86% 92%,rgba(124,58,237,.13),transparent 62%),var(--bg)}
 .lx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
-.lx-grid{position:absolute;left:-20%;right:-20%;bottom:-12%;height:75%;
- background-image:linear-gradient(rgba(0,212,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.07) 1px,transparent 1px);background-size:48px 48px;
- transform:perspective(440px) rotateX(64deg);transform-origin:center bottom;
- -webkit-mask-image:linear-gradient(to top,#000,transparent 78%);mask-image:linear-gradient(to top,#000,transparent 78%);
- animation:gridmove 16s linear infinite}
+.lx-grid{position:absolute;left:-20%;right:-20%;bottom:-12%;height:75%;background-image:linear-gradient(rgba(0,212,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.07) 1px,transparent 1px);background-size:48px 48px;transform:perspective(440px) rotateX(64deg);transform-origin:center bottom;-webkit-mask-image:linear-gradient(to top,#000,transparent 78%);mask-image:linear-gradient(to top,#000,transparent 78%);animation:gridmove 16s linear infinite}
 @keyframes gridmove{from{background-position:0 0}to{background-position:0 48px}}
-.lx-turb{position:absolute;color:var(--accent)}
-.lx-turb.a{right:-30px;bottom:-20px;width:360px;height:460px;opacity:.10}
-.lx-turb.b{left:-26px;top:24px;width:210px;height:270px;opacity:.06}
-.blades{transform-box:view-box;transform-origin:60px 60px;animation:spin 10s linear infinite}
-.blades.slow{animation-duration:18s}
+.lx-turb{position:absolute;color:var(--accent)} .lx-turb.a{right:-30px;bottom:-20px;width:360px;height:460px;opacity:.10}.lx-turb.b{left:-26px;top:24px;width:210px;height:270px;opacity:.06}
+.blades{transform-box:view-box;transform-origin:60px 60px;animation:spin 10s linear infinite}.blades.slow{animation-duration:18s}
 @keyframes spin{to{transform:rotate(360deg)}}
-.glow1{position:absolute;width:560px;height:560px;left:4%;top:2%;background:radial-gradient(circle,rgba(0,212,255,.15),transparent 70%);filter:blur(26px);animation:float1 12s ease-in-out infinite}
-@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(34px,26px)}}
 .particles span{position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);opacity:0;animation:rise linear infinite}
 @keyframes rise{0%{transform:translateY(0);opacity:0}12%{opacity:.7}100%{transform:translateY(-104vh);opacity:0}}
-
-.login-card{position:relative;z-index:2;width:100%;max-width:560px;border-radius:22px;overflow:hidden;
- background:linear-gradient(180deg,rgba(13,33,55,.80),rgba(9,19,36,.93));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
- border:1px solid rgba(0,212,255,.22);box-shadow:0 32px 90px rgba(0,0,0,.62),0 0 0 1px rgba(255,255,255,.02) inset,0 0 80px rgba(0,212,255,.08);
- animation:cardin .7s cubic-bezier(.2,.8,.2,1) both}
+.login-card{position:relative;z-index:2;width:100%;max-width:560px;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,rgba(13,33,55,.80),rgba(9,19,36,.93));backdrop-filter:blur(16px);border:1px solid rgba(0,212,255,.22);box-shadow:0 32px 90px rgba(0,0,0,.62),0 0 80px rgba(0,212,255,.08);animation:cardin .7s cubic-bezier(.2,.8,.2,1) both}
 @keyframes cardin{from{opacity:0;transform:translateY(22px) scale(.985)}to{opacity:1;transform:none}}
-.login-top{position:relative;padding:34px 34px 24px;text-align:center;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(0,212,255,.06),transparent 55%)}
+.login-top{position:relative;padding:32px 34px 22px;text-align:center;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(0,212,255,.06),transparent 55%)}
 .login-top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:sweep 4.5s ease-in-out infinite}
 @keyframes sweep{0%,100%{opacity:.15}50%{opacity:.75}}
-.logo-badge{position:relative;width:62px;height:62px;border-radius:17px;background:linear-gradient(135deg,#0D2137,#0A1628);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;border:1px solid rgba(0,212,255,.4);box-shadow:0 0 32px rgba(0,212,255,.38),0 0 0 1px rgba(0,212,255,.1) inset}
-.logo-badge svg{width:40px;height:40px;color:var(--accent)}
-.login-top h1{font-family:var(--fhead);font-size:28px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;line-height:1;
- background:linear-gradient(180deg,#ffffff,#9fdcff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.login-top .tag{display:inline-flex;align-items:center;gap:8px;margin-top:11px;font-family:var(--fdata);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
+.logo-badge{position:relative;width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#0D2137,#0A1628);display:inline-flex;align-items:center;justify-content:center;margin-bottom:11px;border:1px solid rgba(0,212,255,.4);box-shadow:0 0 32px rgba(0,212,255,.38)}
+.logo-badge svg{width:38px;height:38px;color:var(--accent)}
+.login-top h1{font-family:var(--fh);font-size:27px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;line-height:1;background:linear-gradient(180deg,#fff,#9fdcff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.login-top .tag{display:inline-flex;align-items:center;gap:8px;margin-top:10px;font-family:var(--fm);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
 .login-top .tag .pd{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green);animation:pulse 2s infinite}
-.login-body{padding:24px 30px 12px}
-.login-body .lead{font-size:12.5px;color:var(--text2);text-align:center;margin-bottom:20px;line-height:1.55}
-.login-body .lead b{color:var(--text)}
-.role-btn{position:relative;width:100%;display:flex;align-items:center;gap:15px;border:1px solid var(--border);border-radius:14px;padding:15px 16px 15px 19px;margin-bottom:12px;cursor:pointer;text-align:left;color:var(--text);overflow:hidden;opacity:0;
- background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.012));
- transition:transform .18s cubic-bezier(.2,.8,.2,1),border-color .18s,box-shadow .18s,background .18s;animation:rolein .5s ease both}
+.login-body{padding:22px 30px 10px}.login-body .lead{font-size:12.5px;color:var(--text2);text-align:center;margin-bottom:18px}.login-body .lead b{color:var(--text)}
+.role-btn{position:relative;width:100%;display:flex;align-items:center;gap:15px;border:1px solid var(--border);border-radius:14px;padding:14px 16px 14px 18px;margin-bottom:11px;text-align:left;color:var(--text);overflow:hidden;opacity:0;background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.012));transition:transform .18s,border-color .18s,box-shadow .18s,background .18s;animation:rolein .5s ease both}
 .role-btn::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--rc,var(--accent));opacity:0;transition:.18s}
-.role-btn:hover{transform:translateY(-2px);border-color:var(--rc,var(--accent));background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02));box-shadow:0 12px 32px rgba(0,0,0,.42),0 0 26px -8px var(--rc,var(--accent))}
-.role-btn:hover::before{opacity:.95}
-.role-btn:hover .role-go{transform:translateX(4px);color:var(--rc,var(--accent))}
-.role-btn:hover .role-ic{box-shadow:0 0 24px -3px var(--rc,var(--accent));transform:scale(1.05)}
+.role-btn:hover{transform:translateY(-2px);border-color:var(--rc,var(--accent));box-shadow:0 12px 30px rgba(0,0,0,.4),0 0 24px -8px var(--rc,var(--accent))}
+.role-btn:hover::before{opacity:.95}.role-btn:hover .role-go{transform:translateX(4px);color:var(--rc)}.role-btn:hover .role-ic{box-shadow:0 0 22px -3px var(--rc);transform:scale(1.05)}
 @keyframes rolein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-.role-ic{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--rc,var(--accent));background:var(--ricb);border:1px solid var(--border);transition:.18s}
-.role-ic svg{width:24px;height:24px}
-.role-meta{flex:1;min-width:0}
-.role-meta .rn{font-family:var(--fdisp);font-weight:700;font-size:15.5px;letter-spacing:-.01em}
-.role-meta .rd{font-size:11px;color:var(--text3);margin-top:2px}
-.role-go{margin-left:auto;color:var(--text3);font-size:21px;transition:.18s;flex-shrink:0;line-height:1}
-.login-foot{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;padding:15px 30px 22px;border-top:1px solid var(--border);margin-top:8px}
-.login-foot .fitem{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text3);letter-spacing:.02em}
-.login-foot .pd{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
-.login-foot .clk{font-family:var(--fdata);color:var(--text2)}
-@media(max-width:540px){.login-top h1{font-size:23px}.role-meta .rd{display:none}}
-
-/* APP SHELL */
-#app{display:none}
-.tb{position:sticky;top:26px;z-index:100;background:var(--card);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;padding:0 20px;gap:16px}
-.tb .logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;font-family:var(--fhead);box-shadow:0 0 14px rgba(0,212,255,.5)}
-.tb .brand{font-family:var(--fhead);font-size:16px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
-.tb .navs{display:flex;gap:6px;margin-left:14px}
-.tb .nav{font-size:12.5px;font-weight:600;color:var(--text3);padding:7px 12px;border-radius:8px;cursor:pointer}
-.tb .nav.on{color:var(--accent);background:var(--bbg)}
-.tb .nav:hover{color:var(--text)}
-.tb .right{margin-left:auto;display:flex;align-items:center;gap:12px}
-.iconbtn{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:6px 11px;cursor:pointer;color:var(--text2);font-size:11px;font-weight:600}
-.iconbtn:hover{color:var(--text);border-color:var(--accent)}
-.live{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--green)}
-.live .pd{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green);animation:pulse 2s infinite}
+.role-ic{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--rc);background:var(--ricb);border:1px solid var(--border);transition:.18s}.role-ic svg{width:23px;height:23px}
+.role-meta{flex:1;min-width:0}.role-meta .rn{font-family:var(--fd);font-weight:700;font-size:15px}.role-meta .rd{font-size:11px;color:var(--text3);margin-top:1px}
+.role-go{margin-left:auto;color:var(--text3);font-size:20px;transition:.18s}
+.login-foot{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;padding:14px 30px 22px;border-top:1px solid var(--border);margin-top:6px}
+.login-foot .fi{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text3)}.login-foot .pd{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}.login-foot .clk{font-family:var(--fm);color:var(--text2)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.who{display:flex;align-items:center;gap:9px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:5px 10px 5px 6px;cursor:pointer}
-.who .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+@media(max-width:540px){.role-meta .rd{display:none}}
+/* ---------- APP SHELL ---------- */
+#app{display:none}
+.shell{display:flex;min-height:calc(100vh - 24px)}
+.side{width:226px;flex-shrink:0;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:24px;height:calc(100vh - 24px)}
+.side-top{padding:16px 16px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px}
+.side-logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#0D2137,#0A1628);border:1px solid rgba(0,212,255,.4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(0,212,255,.3)}.side-logo svg{width:24px;height:24px;color:var(--accent)}
+.side-logo-tx .n{font-family:var(--fh);font-weight:700;font-size:15px;letter-spacing:.06em;line-height:1}.side-logo-tx .s{font-family:var(--fm);font-size:7.5px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase}
+.nav{flex:1;overflow-y:auto;padding:12px 10px}
+.nav-sec{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);padding:12px 10px 6px;font-weight:600}
+.nav-i{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;margin-bottom:2px;transition:.13s;position:relative}
+.nav-i svg{width:18px;height:18px;flex-shrink:0;opacity:.85}
+.nav-i:hover{background:var(--card2);color:var(--text)}
+.nav-i.on{background:var(--bbg);color:var(--accent)}.nav-i.on::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:2px;background:var(--accent)}
+.nav-i .badge{margin-left:auto;font-family:var(--fm);font-size:9px;font-weight:700;background:var(--rbg);color:var(--red);padding:1px 7px;border-radius:10px}
+.side-foot{padding:12px;border-top:1px solid var(--border)}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:58px;flex-shrink:0;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:14px;position:sticky;top:24px;z-index:50}
+.crumb{font-family:var(--fh);font-size:18px;font-weight:700;letter-spacing:.02em}
+.search{margin-left:8px;flex:1;max-width:300px;display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:7px 11px;color:var(--text3);font-size:12px}
+.search input{background:none;border:none;outline:none;color:var(--text);font-size:12px;width:100%;font-family:inherit}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.live{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--green)}.live .pd{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green);animation:pulse 2s infinite}
+.icon-btn{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:7px 11px;color:var(--text2);font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px}.icon-btn:hover{color:var(--text);border-color:var(--accent)}
+.who{display:flex;align-items:center;gap:9px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:5px 11px 5px 6px;cursor:pointer}.who:hover{border-color:var(--accent)}
+.who .av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#04121f;background:linear-gradient(135deg,var(--accent),var(--purple))}
 .who .wn{font-size:12px;font-weight:600;line-height:1.1}.who .wr{font-size:9px;color:var(--text3)}
-.dropdown{position:absolute;right:20px;top:78px;background:var(--card);border:1px solid var(--border);border-radius:12px;width:230px;box-shadow:0 16px 40px rgba(0,0,0,.5);overflow:hidden;display:none;z-index:120}
-.dropdown.show{display:block}
-.dd-h{padding:8px 13px;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
-.dd-opt{padding:10px 13px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--text2);cursor:pointer}
-.dd-opt:hover{background:var(--card2);color:var(--text)}
-.dd-opt.on{color:var(--accent)}
-
-.main{padding:22px 24px;max-width:1340px;margin:0 auto}
-.hero{display:flex;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap;gap:12px}
-.hero h2{font-family:var(--fdisp);font-size:25px;font-weight:800;letter-spacing:-.5px}
-.hero .sub{font-size:12.5px;color:var(--text3);margin-top:3px}
-.hstats{margin-left:auto;display:flex;gap:22px}
-.hstat{text-align:right}.hstat .v{font-family:var(--fdata);font-size:21px;font-weight:700}.hstat .l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
-
+.content{padding:22px 24px 60px;max-width:1500px;width:100%;margin:0 auto}
+/* hero */
+.hero{display:flex;align-items:flex-end;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.hero h2{font-family:var(--fd);font-size:24px;font-weight:800;letter-spacing:-.5px}.hero .sub{font-size:12.5px;color:var(--text3);margin-top:3px}
+.hero-act{margin-left:auto;display:flex;gap:9px}
+.btn{border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:9px;padding:9px 15px;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;gap:7px;transition:.14s}.btn:hover{border-color:var(--accent)}
+.btn.pri{background:linear-gradient(135deg,var(--accent),var(--acc2));color:#04121f;border:none;box-shadow:0 6px 18px rgba(0,212,255,.25)}.btn.pri:hover{filter:brightness(1.08)}
+.btn.gho{background:transparent}.btn.dng{color:var(--red);border-color:rgba(255,107,53,.4)}.btn.dng:hover{background:var(--rbg)}
+.btn svg{width:15px;height:15px}.btn.sm{padding:6px 11px;font-size:11px}
+/* grid + cards */
 .grid{display:grid;gap:16px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:18px}
-.card-t{font-family:var(--fhead);font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.card-t .a{margin-left:auto;font-size:10px;color:var(--accent);font-family:'Inter';font-weight:600;cursor:pointer}
-.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:17px;position:relative;overflow:hidden}
-.kpi .ic{position:absolute;right:13px;top:13px;font-size:17px;opacity:.5}
-.kpi .v{font-family:var(--fdata);font-size:28px;font-weight:700;line-height:1}
-.kpi .l{font-size:11px;color:var(--text3);margin-top:6px}
-.kpi .d{font-size:10px;margin-top:6px;font-weight:600}
-.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:9.5px;font-weight:600;border:1px solid transparent}
-.g{background:var(--gbg);color:var(--green)}.a{background:var(--abg);color:var(--amber)}.r{background:var(--rbg);color:var(--red)}.b{background:var(--bbg);color:var(--accent)}.p{background:var(--pbg);color:var(--purple)}
-.li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border)}.li:first-child{border-top:none}
-.dotc{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.bar{height:7px;border-radius:5px;background:var(--card2);overflow:hidden;flex:1}
-.bar i{display:block;height:100%;border-radius:5px}
-.ssow{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--border)}.ssow:first-child{border-top:none}
-.site-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-
+.card.pad0{padding:0;overflow:hidden}
+.card-h{display:flex;align-items:center;gap:9px;padding:15px 17px;border-bottom:1px solid var(--border)}
+.card-h .t{font-family:var(--fh);font-size:14px;font-weight:700}.card-h .a{margin-left:auto;font-size:11px;color:var(--accent);font-weight:600;cursor:pointer}
+.card-t{font-family:var(--fh);font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}.card-t .a{margin-left:auto;font-size:11px;color:var(--accent);font-weight:600;cursor:pointer;font-family:'Inter'}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;position:relative;overflow:hidden}
+.kpi .ic{position:absolute;right:13px;top:13px;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center}.kpi .ic svg{width:17px;height:17px}
+.kpi .v{font-family:var(--fm);font-size:27px;font-weight:700;line-height:1}.kpi .l{font-size:11px;color:var(--text3);margin-top:6px}.kpi .d{font-size:10px;margin-top:7px;font-weight:600}
+.kpi::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--kc,var(--accent));opacity:.6}
+/* pills / dots */
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.pill .d{width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.g{background:var(--gbg);color:var(--green2)}.pill.a{background:var(--abg);color:var(--amber)}.pill.r{background:var(--rbg);color:var(--red)}.pill.b{background:var(--bbg);color:var(--accent)}.pill.p{background:var(--pbg);color:var(--purple)}.pill.n{background:var(--card3);color:var(--text3)}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;display:inline-block}
+/* table */
+table{width:100%;border-collapse:collapse}
+thead th{font-family:var(--fh);font-size:11px;font-weight:600;color:var(--accent);text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0}
+tbody td{padding:11px 14px;font-size:12.5px;border-bottom:1px solid var(--hair);color:var(--text2)}
+tbody tr{transition:.1s}tbody tr:hover{background:var(--card2)}tbody tr.clk{cursor:pointer}
+td .nm{color:var(--text);font-weight:600}
+.av-sm{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#04121f;flex-shrink:0}
+.bar{height:7px;border-radius:5px;background:var(--bg2);overflow:hidden;min-width:80px}.bar i{display:block;height:100%;border-radius:5px}
+.toolbar{display:flex;align-items:center;gap:9px;padding:12px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.seg{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:3px}
+.seg button{background:none;border:none;color:var(--text3);font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:7px}.seg button.on{background:var(--card3);color:var(--accent)}
+.inp{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:7px 11px;color:var(--text);font-size:12px;outline:none}.inp:focus{border-color:var(--accent)}
 /* map */
-.mapwrap{position:relative;background:radial-gradient(ellipse at 40% 30%,#0A1A2E,#050A12 70%);border:1px solid var(--border);border-radius:14px;overflow:hidden}
-body.alpine .mapwrap{background:radial-gradient(ellipse at 40% 30%,#EEF1FA,#FFF 70%)}
-.gridbg{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.05) 1px,transparent 1px);background-size:32px 32px}
-.mk-label{position:absolute;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:6px 9px;font-size:10px;transform:translateY(-50%)}
-.mk-label .t{font-family:var(--fhead);font-size:11px;font-weight:700}.mk-label .s{font-size:8.5px;color:var(--text3)}
-.cert-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--border)}.cert-row:first-child{border-top:none}
-.lockbtn{background:var(--card2);border:1px solid var(--border);color:var(--text3);border-radius:8px;padding:5px 10px;font-size:10px;cursor:not-allowed}
-.dlbtn{background:var(--bbg);border:1px solid transparent;color:var(--accent);border-radius:8px;padding:5px 10px;font-size:10px;cursor:pointer;font-weight:600}
-.av-sm{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0}
-.view{display:none}.view.on{display:block}
-@media(max-width:760px){.tb .navs{display:none}.hstats{width:100%;justify-content:space-between;gap:8px}.hstat .v{font-size:17px}}
+.mapwrap{position:relative;background:radial-gradient(ellipse at 42% 32%,#0A1A2E,#050A12 72%);border-radius:13px;overflow:hidden;border:1px solid var(--border)}
+body.alpine .mapwrap{background:radial-gradient(ellipse at 42% 32%,#EAF0FA,#fff 72%)}
+.mapgrid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.05) 1px,transparent 1px);background-size:30px 30px}
+.mk-lab{position:absolute;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 8px;font-size:9.5px;transform:translateY(-50%);pointer-events:none;white-space:nowrap}.mk-lab .t{font-family:var(--fh);font-weight:700;font-size:10.5px}.mk-lab .s{color:var(--text3);font-size:8px}
+/* planner */
+.planner{overflow-x:auto}
+.ptable{min-width:760px;border-collapse:separate;border-spacing:0}
+.ptable th{background:var(--bg2);font-family:var(--fh);font-size:11px;color:var(--text2);padding:9px 8px;border-bottom:1px solid var(--border);text-align:center;font-weight:600}
+.ptable th.sitecol{text-align:left;width:150px;position:sticky;left:0;background:var(--bg2);z-index:2}
+.ptable td.sitecol{position:sticky;left:0;background:var(--card);z-index:1;border-right:1px solid var(--border)}
+.pcell{height:62px;border:1px dashed transparent;border-bottom:1px solid var(--hair);border-right:1px solid var(--hair);vertical-align:top;padding:4px;min-width:104px;transition:.12s}
+.pcell.over{background:var(--bbg);border:1px dashed var(--accent)}
+.sitecell{display:flex;align-items:center;gap:8px;padding:8px 10px}.sitecell .si{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center}.sitecell .nm{font-family:var(--fh);font-weight:700;font-size:13px}.sitecell .ty{font-size:8.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.echip{display:flex;align-items:center;gap:6px;background:var(--card3);border:1px solid var(--border);border-radius:8px;padding:4px 7px;margin-bottom:4px;font-size:11px;cursor:grab;position:relative}
+.echip.bad{border-color:var(--red);box-shadow:0 0 0 1px rgba(255,107,53,.3)}
+.echip.clash{border-color:var(--amber)}
+.echip .x{margin-left:auto;color:var(--text3);font-size:13px;cursor:pointer;padding:0 2px}.echip .x:hover{color:var(--red)}
+.echip .fl{font-size:9px}
+.pool{display:flex;flex-wrap:wrap;gap:7px;padding:14px 16px}
+.pool .echip{margin:0;cursor:grab}
+.drawer-back{position:fixed;inset:0;background:rgba(3,8,18,.6);backdrop-filter:blur(3px);z-index:200;opacity:0;transition:.2s;display:flex;justify-content:flex-end}
+.drawer-back.show{opacity:1}
+.drawer{width:480px;max-width:94vw;background:var(--bg);border-left:1px solid var(--border);height:100%;overflow-y:auto;transform:translateX(30px);transition:.22s;box-shadow:-20px 0 60px rgba(0,0,0,.5)}
+.drawer-back.show .drawer{transform:none}
+.drawer-h{display:flex;align-items:center;gap:12px;padding:20px 22px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:2}
+.drawer-h .x{margin-left:auto;background:var(--card2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--text2)}
+.drawer-b{padding:20px 22px}
+.modal-back{position:fixed;inset:0;background:rgba(3,8,18,.66);backdrop-filter:blur(4px);z-index:210;display:flex;align-items:center;justify-content:center;opacity:0;transition:.18s;padding:20px}
+.modal-back.show{opacity:1}
+.modal{width:440px;max-width:96vw;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);transform:scale(.96);transition:.18s;overflow:hidden}
+.modal-back.show .modal{transform:none}
+.modal-h{padding:18px 20px;border-bottom:1px solid var(--border);font-family:var(--fh);font-weight:700;font-size:16px}
+.modal-b{padding:20px}.modal-f{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end}
+.field{margin-bottom:13px}.field label{display:block;font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:600}
+.field .inp,.field select{width:100%}
+.uploadzone{border:1.5px dashed var(--border);border-radius:11px;padding:22px;text-align:center;color:var(--text3);font-size:12px;cursor:pointer;transition:.14s}.uploadzone:hover{border-color:var(--accent);color:var(--text2);background:var(--card2)}
+.uploadzone svg{width:26px;height:26px;margin-bottom:7px;color:var(--accent)}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--hair);font-size:12.5px}.kv .k{color:var(--text3)}.kv .v{color:var(--text);font-weight:600;text-align:right}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid var(--accent);border-radius:11px;padding:12px 18px;font-size:12.5px;font-weight:600;color:var(--text);box-shadow:var(--shadow);z-index:400;opacity:0;transition:.25s;display:flex;align-items:center;gap:9px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.toast svg{width:17px;height:17px;color:var(--green)}
+.empty{text-align:center;padding:46px 20px;color:var(--text3);font-size:13px}.empty svg{width:34px;height:34px;opacity:.5;margin-bottom:10px}
+.statbar{display:flex;gap:18px;flex-wrap:wrap}.statbar .s .v{font-family:var(--fm);font-size:19px;font-weight:700}.statbar .s .l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.dd{position:absolute;background:var(--card);border:1px solid var(--border);border-radius:11px;box-shadow:var(--shadow);overflow:hidden;z-index:120;min-width:210px}
+.dd-h{padding:8px 13px;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
+.dd-o{padding:9px 13px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--text2);cursor:pointer}.dd-o:hover{background:var(--card2);color:var(--text)}.dd-o.on{color:var(--accent)}.dd-o svg{width:16px;height:16px}
+.req{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:6px;background:var(--card3);color:var(--text2);margin:2px 3px 2px 0}.req.ok{color:var(--green2);background:var(--gbg)}.req.miss{color:var(--red);background:var(--rbg)}
+.miniwarn{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--amber);background:var(--abg);padding:7px 11px;border-radius:8px;margin-bottom:8px}
+.miniwarn svg,.pill svg,.req svg{width:14px;height:14px;flex-shrink:0;vertical-align:-2px}
+@media(max-width:900px){.side{width:64px}.side-logo-tx,.nav-sec,.nav-i span,.side-foot{display:none}.nav-i{justify-content:center}.search{display:none}}
 </style></head>
 <body>
-<div class="demo-flag"><span>● Demo environment · simulated data · not real records</span></div>
-<div class="wrap">
-
-<!-- LOGIN -->
-<div id="login">
-  <div class="lx">
-    <div class="glow1"></div>
-    <div class="lx-grid"></div>
-    <svg class="lx-turb a" viewBox="0 0 120 150" fill="none" aria-hidden="true"><line x1="60" y1="60" x2="60" y2="150" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><g class="blades"><g transform="rotate(0 60 60)"><path d="M60 60 L56 10 Q60 2 64 10 Z" fill="currentColor"/></g><g transform="rotate(120 60 60)"><path d="M60 60 L56 10 Q60 2 64 10 Z" fill="currentColor"/></g><g transform="rotate(240 60 60)"><path d="M60 60 L56 10 Q60 2 64 10 Z" fill="currentColor"/></g></g><circle cx="60" cy="60" r="6" fill="currentColor"/></svg>
-    <svg class="lx-turb b" viewBox="0 0 120 150" fill="none" aria-hidden="true"><line x1="60" y1="60" x2="60" y2="150" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><g class="blades slow"><g transform="rotate(0 60 60)"><path d="M60 60 L56 10 Q60 2 64 10 Z" fill="currentColor"/></g><g transform="rotate(120 60 60)"><path d="M60 60 L56 10 Q60 2 64 10 Z" fill="currentColor"/></g><g transform="rotate(240 60 60)"><path d="M60 60 L56 10 Q60 2 64 10 Z" fill="currentColor"/></g></g><circle cx="60" cy="60" r="6" fill="currentColor"/></svg>
-    <div class="particles">
-      <span style="left:12%;animation-duration:9s;animation-delay:0s"></span>
-      <span style="left:23%;animation-duration:12s;animation-delay:2s"></span>
-      <span style="left:38%;animation-duration:10s;animation-delay:4s"></span>
-      <span style="left:50%;animation-duration:14s;animation-delay:1s"></span>
-      <span style="left:62%;animation-duration:11s;animation-delay:5s"></span>
-      <span style="left:71%;animation-duration:9s;animation-delay:3s"></span>
-      <span style="left:84%;animation-duration:13s;animation-delay:6s"></span>
-      <span style="left:92%;animation-duration:10s;animation-delay:2.5s"></span>
-      <span style="left:30%;animation-duration:15s;animation-delay:7s"></span>
-      <span style="left:57%;animation-duration:8s;animation-delay:4.5s"></span>
-    </div>
-  </div>
-
-  <div class="login-card">
-    <div class="login-top">
-      <div class="logo-badge"><svg viewBox="0 0 120 150" fill="none" aria-hidden="true"><line x1="60" y1="60" x2="60" y2="150" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><g class="blades"><g transform="rotate(0 60 60)"><path d="M60 60 L55 8 Q60 0 65 8 Z" fill="currentColor"/></g><g transform="rotate(120 60 60)"><path d="M60 60 L55 8 Q60 0 65 8 Z" fill="currentColor"/></g><g transform="rotate(240 60 60)"><path d="M60 60 L55 8 Q60 0 65 8 Z" fill="currentColor"/></g></g><circle cx="60" cy="60" r="7" fill="currentColor"/></svg></div>
-      <h1>Skyform Wind</h1>
-      <div class="tag"><span class="pd"></span>Operations Portal · Demo</div>
-    </div>
-    <div class="login-body">
-      <div class="lead">Simulated data — nothing real. <b>Pick a role</b> to see exactly what that person can access.</div>
-
-      <button class="role-btn" style="--rc:var(--accent);--ricb:linear-gradient(135deg,rgba(0,212,255,.18),rgba(0,212,255,.05));animation-delay:.05s" onclick="signIn('engineer')">
-        <div class="role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18"/><path d="M5 18a7 7 0 0 1 14 0"/><path d="M12 5v6"/><path d="M9 11V6.5A1.5 1.5 0 0 1 10.5 5h3A1.5 1.5 0 0 1 15 6.5V11"/></svg></div>
-        <div class="role-meta"><div class="rn">Engineer</div><div class="rd">Sees only their own compliance · uploads certs</div></div><div class="role-go">→</div>
-      </button>
-
-      <button class="role-btn" style="--rc:var(--purple);--ricb:linear-gradient(135deg,rgba(167,139,250,.20),rgba(167,139,250,.05));animation-delay:.12s" onclick="signIn('manager')">
-        <div class="role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 16 9 5 9-5"/></svg></div>
-        <div class="role-meta"><div class="rn">Manager / Admin</div><div class="rd">Full fleet visibility · all certs · planning</div></div><div class="role-go">→</div>
-      </button>
-
-      <button class="role-btn" style="--rc:var(--red);--ricb:linear-gradient(135deg,rgba(255,107,53,.20),rgba(255,107,53,.05));animation-delay:.19s" onclick="signIn('director')">
-        <div class="role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg></div>
-        <div class="role-meta"><div class="rn">Director</div><div class="rd">Everything a manager has · plus permanent delete</div></div><div class="role-go">→</div>
-      </button>
-
-      <button class="role-btn" style="--rc:var(--green);--ricb:linear-gradient(135deg,rgba(0,255,136,.18),rgba(0,255,136,.05));animation-delay:.26s" onclick="signIn('dual')">
-        <div class="role-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 3 8l4 4"/><path d="M3 8h13a4 4 0 0 1 4 4"/><path d="m17 20 4-4-4-4"/><path d="M21 16H8a4 4 0 0 1-4-4"/></svg></div>
-        <div class="role-meta"><div class="rn">Dual-role user</div><div class="rd">Manager + their own engineer profile</div></div><div class="role-go">→</div>
-      </button>
-    </div>
-    <div class="login-foot">
-      <span class="fitem"><span class="pd"></span>System live</span>
-      <span class="fitem">·</span>
-      <span class="fitem">No real data used</span>
-      <span class="fitem">·</span>
-      <span class="fitem clk" id="clk">--:--:--</span>
-    </div>
-  </div>
-</div>
-<script>(function(){function t(){var e=document.getElementById('clk');if(e)e.textContent=new Date().toLocaleTimeString('en-GB');}t();setInterval(t,1000);})();</script>
-
-<!-- APP -->
-<div id="app">
-  <div class="tb">
-    <div class="logo">SW</div><div class="brand">Skyform Wind</div>
-    <div class="navs" id="navs"></div>
-    <div class="right">
-      <span class="live"><span class="pd"></span>LIVE</span>
-      <button class="iconbtn" onclick="toggleTheme()" id="themeBtn">◐ Alpine</button>
-      <div class="who" onclick="toggleMenu(event)"><div class="av" id="meAv">--</div><div><div class="wn" id="meName">--</div><div class="wr" id="meRole">--</div></div></div>
-    </div>
-  </div>
-  <div class="dropdown" id="menu"></div>
-  <div class="main">
-    <div class="view" id="v_compliance"></div>
-    <div class="view" id="v_operations"></div>
-    <div class="view" id="v_engineers"></div>
-    <div class="view" id="v_sites"></div>
-  </div>
-</div>
-</div>
-
+<div class="demo-flag"><span>● Demo · simulated data · not real records</span></div>
+<div class="wrap"><div id="login"></div><div id="app"></div></div>
+<div id="overlay"></div><div id="toast" class="toast"></div>
 <script>
 var MAP = {"viewW": 520, "viewH": 640, "paths": ["M273.3,525.0 L271.0,527.3 L263.7,529.6 L260.6,531.9 L255.1,537.2 L254.0,537.7 L245.7,536.4 L239.6,529.5 L235.6,526.7 L234.0,526.4 L232.3,527.3 L228.7,528.1 L225.0,528.0 L226.9,524.8 L229.5,523.0 L223.7,521.8 L222.2,520.8 L220.3,518.6 L215.9,518.2 L213.7,518.8 L210.1,521.7 L204.4,524.9 L197.6,520.5 L196.2,518.6 L196.3,515.0 L195.2,512.1 L193.3,511.1 L195.8,507.3 L198.7,504.8 L205.2,502.3 L215.0,496.4 L220.4,493.9 L225.5,489.5 L227.7,486.9 L229.2,483.2 L230.7,478.8 L232.9,475.2 L230.8,474.3 L229.8,471.6 L230.1,468.8 L231.0,466.4 L230.2,463.3 L228.6,460.1 L228.7,457.6 L229.1,454.9 L225.2,455.0 L221.3,455.9 L217.7,457.8 L214.3,460.3 L211.2,460.8 L211.3,458.7 L212.6,456.2 L216.1,452.6 L219.8,449.5 L221.1,447.2 L222.1,444.6 L224.0,442.4 L228.8,438.4 L238.1,433.9 L239.5,433.6 L243.2,434.1 L246.8,433.4 L249.9,431.8 L253.0,431.4 L260.1,436.2 L258.0,428.9 L261.1,427.1 L265.6,433.7 L267.3,434.4 L270.8,433.4 L269.4,432.3 L267.8,432.3 L265.8,431.3 L264.0,429.2 L261.1,422.4 L261.2,418.5 L263.2,414.3 L265.4,410.5 L263.6,409.7 L262.1,408.3 L261.7,404.5 L262.3,401.1 L266.2,398.1 L267.3,393.6 L267.8,388.7 L267.2,386.4 L263.3,386.7 L261.4,387.7 L259.7,389.1 L258.0,389.1 L253.2,383.6 L250.4,379.4 L245.5,370.6 L244.8,365.4 L248.8,354.0 L254.8,346.8 L262.0,344.3 L260.6,343.8 L249.7,343.7 L246.1,344.6 L242.8,347.5 L240.9,348.4 L238.9,348.8 L237.1,350.2 L235.4,352.3 L233.6,353.6 L229.9,353.3 L228.2,353.7 L226.9,352.5 L225.8,350.6 L224.4,350.0 L222.9,350.6 L219.6,353.3 L216.3,354.8 L212.3,353.2 L207.0,350.1 L206.0,351.2 L204.8,354.1 L204.2,358.6 L200.4,354.7 L197.3,349.4 L196.2,346.2 L196.1,342.5 L197.8,341.0 L199.7,342.4 L202.5,333.6 L208.1,322.2 L210.0,318.9 L211.4,314.5 L211.2,311.6 L209.9,309.2 L204.8,303.8 L204.8,299.3 L205.4,294.3 L206.8,291.3 L207.4,290.7 L214.3,290.8 L211.6,289.2 L206.2,284.7 L206.3,283.0 L207.6,278.8 L207.0,279.3 L205.9,281.2 L203.7,285.9 L202.3,287.0 L198.6,288.1 L197.9,290.4 L197.3,291.0 L195.4,291.3 L194.8,293.5 L194.4,293.6 L193.9,291.3 L193.8,287.4 L194.6,283.9 L196.0,281.1 L201.5,274.8 L198.8,276.7 L192.7,282.5 L189.6,286.4 L188.8,287.7 L188.5,288.8 L188.5,290.0 L189.9,296.8 L189.5,299.9 L184.3,320.6 L183.3,322.6 L182.4,323.7 L181.5,324.0 L178.9,323.6 L177.8,322.0 L177.8,320.3 L178.2,317.6 L180.4,307.8 L181.4,305.1 L182.8,302.6 L185.9,298.2 L185.8,297.9 L183.7,298.7 L182.9,298.5 L182.2,297.6 L182.6,284.4 L184.3,280.1 L184.9,273.8 L186.4,268.4 L188.1,264.5 L189.3,259.5 L191.3,257.3 L191.8,253.8 L194.0,250.1 L195.6,246.3 L194.7,246.7 L184.0,256.7 L181.3,258.5 L177.6,258.1 L174.8,256.9 L172.6,254.5 L171.6,250.0 L168.8,249.9 L166.5,249.1 L166.5,248.5 L169.5,246.0 L174.4,245.1 L178.9,241.1 L174.9,238.4 L175.2,237.6 L178.7,235.3 L183.2,227.6 L184.1,220.5 L182.0,217.2 L181.2,215.0 L176.9,212.6 L176.2,209.5 L176.7,207.7 L178.1,206.0 L180.2,204.7 L183.5,203.5 L180.5,202.1 L179.4,200.5 L178.5,198.2 L178.5,196.9 L180.0,190.9 L180.9,188.4 L182.7,185.3 L190.7,185.5 L191.6,184.1 L192.5,184.0 L196.6,185.3 L196.0,183.9 L189.3,176.5 L188.7,175.1 L190.6,171.1 L190.7,169.3 L190.5,167.4 L191.0,165.9 L193.1,165.2 L199.6,165.3 L201.2,164.6 L200.4,162.7 L198.9,160.1 L198.7,158.0 L199.0,156.1 L199.1,152.3 L199.4,150.6 L200.9,148.1 L202.2,147.4 L203.8,146.9 L207.3,147.8 L208.7,148.8 L210.2,151.2 L211.4,151.0 L215.8,148.4 L217.1,148.0 L218.9,151.0 L226.4,148.6 L236.6,147.5 L242.7,145.9 L249.1,145.4 L255.1,143.6 L261.4,144.4 L261.7,145.4 L261.3,146.9 L259.7,150.9 L260.0,155.3 L259.6,156.7 L258.9,158.3 L256.5,161.4 L250.4,165.8 L239.2,176.0 L232.6,181.1 L231.7,183.5 L231.2,186.9 L235.1,187.6 L236.7,188.7 L235.7,190.4 L229.8,196.4 L228.1,201.8 L232.6,201.6 L236.3,200.6 L243.7,197.2 L250.7,194.7 L254.0,194.6 L260.5,196.6 L262.0,196.6 L264.7,195.7 L267.5,195.6 L286.4,196.2 L291.6,195.0 L295.1,196.4 L298.0,199.9 L300.8,206.3 L300.7,207.4 L299.0,210.3 L295.9,214.0 L293.3,219.1 L292.5,221.8 L292.0,224.8 L291.1,227.6 L285.9,240.6 L280.8,247.8 L278.5,252.9 L275.6,256.9 L272.9,259.5 L270.0,261.2 L261.6,263.0 L259.3,264.3 L256.5,266.6 L253.5,267.7 L257.0,267.6 L260.4,266.3 L266.6,265.8 L273.8,270.2 L273.1,273.7 L270.2,276.5 L263.7,276.9 L257.6,283.1 L254.8,285.0 L251.9,285.9 L248.3,285.6 L241.7,284.0 L238.8,282.3 L241.4,285.1 L244.3,286.6 L261.6,290.0 L262.6,289.7 L268.1,286.0 L275.4,285.9 L289.4,292.7 L293.4,297.9 L299.1,305.2 L302.3,308.1 L304.5,310.8 L305.9,314.7 L308.6,327.6 L311.7,340.3 L315.7,354.0 L317.6,357.8 L320.0,360.5 L332.2,366.6 L334.9,368.6 L339.6,374.6 L344.1,380.8 L348.4,385.7 L353.0,389.6 L350.7,391.6 L349.2,394.8 L350.4,399.2 L352.2,403.3 L355.9,410.0 L359.1,417.2 L357.9,416.1 L356.7,415.5 L355.0,415.7 L353.3,415.3 L350.2,413.1 L347.2,410.3 L341.3,411.4 L338.1,410.9 L335.2,411.0 L340.6,412.6 L346.5,412.7 L359.5,424.9 L363.9,432.1 L366.5,441.6 L364.7,445.9 L362.0,448.7 L359.4,451.8 L357.0,455.4 L364.2,460.7 L365.7,460.5 L367.3,459.8 L368.9,458.0 L371.5,453.6 L372.8,452.1 L377.3,451.5 L381.0,451.9 L384.8,452.8 L388.1,452.5 L394.7,454.4 L398.2,456.1 L406.6,463.7 L408.5,467.8 L409.3,473.2 L409.4,479.1 L408.0,484.5 L406.3,489.5 L405.3,495.8 L404.6,498.1 L403.6,499.9 L399.1,504.9 L396.2,506.9 L394.9,506.0 L393.6,506.1 L393.4,507.3 L394.8,509.9 L394.8,513.0 L392.2,515.2 L389.5,516.2 L385.0,515.0 L378.7,519.3 L383.2,521.4 L384.1,523.8 L383.0,527.8 L380.2,529.7 L377.1,530.5 L373.9,530.7 L371.2,531.7 L368.6,533.6 L371.8,532.6 L374.1,533.5 L375.5,536.9 L376.7,537.9 L383.0,539.3 L386.8,539.3 L394.3,538.5 L397.9,538.5 L399.2,539.1 L399.2,542.0 L398.6,549.0 L397.7,550.4 L387.8,556.3 L385.7,560.4 L385.2,562.9 L379.4,562.4 L376.7,565.1 L372.0,566.8 L368.3,568.7 L364.8,571.0 L361.9,571.7 L349.3,568.9 L341.7,569.2 L331.4,571.6 L328.7,571.2 L324.7,568.9 L320.6,567.3 L315.9,566.6 L311.9,564.5 L314.4,568.6 L308.8,572.6 L306.2,573.4 L303.5,573.2 L298.0,574.3 L293.0,573.8 L293.7,576.6 L295.1,579.1 L294.0,580.1 L292.8,580.4 L283.1,578.5 L281.7,578.9 L280.5,580.6 L277.0,579.7 L273.6,576.8 L270.0,574.8 L266.1,573.9 L263.1,574.2 L250.6,578.8 L248.1,583.4 L246.9,589.9 L245.1,595.7 L242.1,600.1 L238.6,600.7 L235.3,597.6 L229.1,594.2 L226.9,591.9 L226.3,591.8 L225.6,592.6 L223.1,593.6 L220.6,593.7 L216.6,594.6 L209.8,597.4 L207.1,599.2 L201.1,604.4 L199.9,605.8 L197.8,611.1 L194.5,612.0 L191.5,608.6 L188.1,607.5 L184.4,608.6 L182.3,610.4 L181.2,608.9 L181.2,606.0 L183.8,602.5 L190.9,599.8 L197.1,592.9 L200.1,588.6 L201.3,586.3 L202.8,584.7 L204.7,584.2 L205.7,581.5 L214.3,571.0 L215.0,568.6 L215.4,564.2 L216.1,560.1 L223.1,557.4 L226.5,548.6 L227.4,547.9 L237.1,546.3 L244.3,546.4 L251.5,548.2 L255.2,548.3 L258.9,547.7 L261.8,545.4 L266.7,536.8 L269.5,533.1 L272.7,529.7 L275.7,525.8 L280.6,518.6 L277.3,521.1 L273.3,525.0Z", "M226.2,432.8 L227.5,433.8 L230.7,433.7 L229.7,435.9 L226.1,438.4 L223.7,440.9 L220.8,443.0 L219.3,440.6 L217.7,440.7 L215.2,436.1 L214.8,429.3 L218.0,427.5 L222.5,427.6 L226.2,432.8Z", "M323.4,42.4 L322.6,43.0 L319.6,37.5 L321.9,31.2 L324.6,31.4 L325.0,33.0 L324.7,34.6 L323.3,34.7 L323.2,35.2 L323.7,38.1 L323.7,41.5 L323.4,42.4Z", "M315.2,41.1 L315.9,44.9 L317.5,43.9 L319.9,47.6 L321.1,47.6 L323.1,46.2 L322.7,49.6 L320.6,59.0 L320.0,60.7 L319.6,63.5 L319.2,64.1 L318.6,69.9 L317.2,71.8 L316.0,76.4 L315.5,76.9 L313.8,75.1 L315.5,68.1 L316.2,64.1 L315.8,62.0 L314.8,60.1 L312.1,60.0 L309.9,60.9 L309.4,59.8 L309.3,58.2 L308.8,57.7 L305.8,57.8 L305.0,57.4 L304.4,56.0 L304.3,54.9 L307.0,54.1 L309.5,54.4 L313.2,52.2 L310.9,44.8 L307.8,44.2 L307.1,43.4 L307.7,42.2 L309.4,41.5 L312.0,37.8 L313.5,37.2 L315.4,37.3 L315.2,41.1Z", "M258.0,135.7 L256.2,136.5 L254.5,136.4 L251.8,133.3 L250.7,131.0 L250.9,129.5 L252.1,129.0 L254.7,129.7 L256.1,132.3 L256.2,134.0 L256.6,134.7 L258.2,135.4 L258.0,135.7Z", "M261.3,123.0 L260.9,124.3 L263.2,124.3 L266.6,125.4 L268.7,125.6 L270.4,127.0 L269.5,129.6 L268.4,130.4 L267.3,130.5 L263.2,127.9 L257.9,129.0 L256.9,128.6 L256.2,127.9 L255.9,127.0 L255.9,125.1 L255.6,124.6 L253.7,126.3 L252.9,126.1 L252.4,125.3 L252.2,123.6 L252.4,121.0 L253.5,117.5 L255.4,116.8 L258.3,117.2 L261.5,119.2 L262.5,120.4 L262.5,121.4 L261.3,123.0Z", "M271.4,114.4 L268.8,115.8 L267.6,114.7 L267.4,111.2 L264.2,109.7 L262.7,108.7 L261.5,107.0 L261.8,106.4 L263.8,105.7 L267.3,108.9 L268.8,111.5 L271.4,112.3 L271.7,112.7 L271.4,114.4Z", "M198.2,317.3 L194.3,317.4 L192.9,316.9 L191.2,315.6 L189.3,308.1 L190.0,305.5 L190.8,304.2 L191.6,303.2 L193.7,302.8 L195.7,304.2 L196.5,305.5 L198.2,310.6 L198.5,314.9 L198.2,317.3Z", "M177.5,268.7 L165.2,271.8 L160.9,271.5 L160.6,270.0 L161.4,269.0 L164.9,268.1 L166.3,260.8 L161.0,257.5 L160.8,256.5 L161.2,254.9 L161.8,254.2 L165.0,252.5 L166.3,252.2 L167.4,252.4 L169.7,254.3 L172.2,258.4 L175.7,259.1 L178.0,260.8 L177.5,268.7Z", "M166.6,291.2 L167.7,298.2 L168.8,302.5 L168.9,304.0 L167.9,306.0 L162.8,308.8 L161.2,308.8 L161.1,308.1 L162.3,305.3 L161.3,302.2 L161.8,299.8 L161.3,299.3 L160.3,299.7 L156.7,303.5 L155.5,303.9 L155.3,303.1 L156.2,300.0 L156.3,297.8 L156.9,296.5 L157.9,295.3 L159.0,294.4 L160.0,294.3 L161.0,295.2 L164.0,292.6 L166.6,291.2Z", "M171.5,297.5 L170.9,298.1 L169.3,297.9 L168.7,297.0 L168.4,295.7 L168.4,293.2 L169.3,291.5 L173.3,288.8 L171.5,287.9 L171.4,287.2 L172.5,285.0 L176.8,281.5 L177.9,280.9 L179.1,281.0 L176.9,287.1 L171.5,297.5Z", "M164.5,159.1 L160.6,168.6 L159.0,168.8 L157.7,171.2 L153.5,173.8 L157.1,173.9 L158.2,174.7 L158.2,176.6 L157.5,177.7 L152.8,182.0 L149.5,183.7 L146.0,188.2 L144.3,188.3 L142.5,191.2 L141.1,192.4 L140.3,192.4 L139.4,191.8 L137.2,189.0 L141.1,186.2 L141.5,184.6 L144.2,183.0 L144.0,182.5 L139.7,180.2 L138.0,178.7 L138.2,177.9 L140.2,176.1 L139.3,175.9 L138.6,174.9 L137.4,174.6 L137.1,173.7 L136.8,171.4 L137.2,169.0 L138.4,167.9 L138.9,166.8 L139.4,166.4 L141.3,167.0 L143.3,168.9 L145.6,168.2 L148.2,168.6 L148.3,168.1 L146.3,163.4 L146.7,162.5 L147.7,161.4 L153.8,158.1 L161.4,152.4 L163.3,151.6 L163.8,152.3 L164.6,155.2 L164.5,159.1Z", "M166.1,205.7 L166.1,208.1 L165.6,210.9 L166.3,213.9 L166.4,216.1 L167.7,216.8 L168.5,217.8 L174.3,218.9 L179.7,218.5 L180.7,219.4 L180.8,220.8 L180.0,222.4 L176.9,225.2 L173.3,229.7 L172.2,230.7 L171.0,230.7 L170.2,230.3 L169.5,222.2 L165.6,223.3 L162.4,223.1 L160.7,222.2 L159.4,220.3 L157.0,215.4 L149.8,213.4 L147.8,210.8 L147.1,209.1 L147.4,208.2 L148.9,206.2 L150.8,206.9 L151.9,206.5 L152.6,205.6 L152.6,204.9 L151.6,203.1 L151.6,202.6 L158.9,200.4 L159.6,196.9 L161.2,196.7 L163.0,197.8 L165.5,201.4 L166.1,205.7Z", "M133.4,196.1 L136.9,199.1 L134.2,204.2 L129.9,204.2 L123.9,200.5 L123.9,199.7 L124.4,198.6 L125.3,197.7 L126.2,197.5 L127.7,198.1 L129.8,197.1 L131.4,197.5 L133.4,196.1Z", "M132.1,226.9 L130.8,227.2 L129.1,226.9 L128.0,226.0 L127.0,222.7 L126.8,220.7 L127.2,216.9 L127.1,212.5 L130.6,212.3 L131.5,213.0 L132.1,226.3 L132.1,226.9Z", "M163.9,391.2 L161.2,390.8 L159.4,391.8 L158.2,392.7 L157.0,392.5 L153.7,392.9 L150.6,392.8 L150.1,391.4 L150.7,387.1 L150.0,386.0 L147.0,385.4 L145.9,384.4 L144.1,381.4 L143.8,380.0 L143.6,378.1 L141.7,375.7 L139.5,373.9 L138.2,373.8 L135.7,376.7 L133.5,379.6 L134.3,381.1 L135.0,383.0 L133.8,384.4 L130.3,387.5 L129.8,388.8 L128.8,389.4 L127.2,388.5 L123.0,388.7 L121.1,388.2 L118.9,385.9 L113.4,384.3 L112.5,380.6 L111.5,379.9 L105.3,373.5 L104.5,371.4 L105.3,370.1 L107.6,368.2 L115.3,365.0 L116.5,363.7 L116.8,362.6 L114.5,361.3 L112.5,359.8 L111.8,358.9 L111.7,358.1 L112.9,357.0 L115.2,357.0 L117.0,357.4 L118.5,356.5 L121.1,355.5 L122.8,354.3 L124.3,351.2 L125.9,348.4 L126.0,346.9 L127.4,341.5 L128.2,340.2 L133.0,336.7 L134.3,338.6 L136.7,339.1 L138.8,337.3 L141.4,331.8 L143.2,331.5 L145.2,331.9 L149.1,331.2 L156.0,328.6 L159.0,328.6 L163.4,329.9 L166.6,329.9 L169.5,333.9 L171.0,340.1 L174.6,346.3 L179.3,351.6 L179.5,354.9 L177.8,356.7 L174.3,358.8 L174.3,361.2 L176.7,360.0 L178.7,359.5 L183.5,360.0 L185.2,362.4 L186.3,365.9 L186.9,368.8 L186.5,372.0 L185.2,371.0 L183.9,368.2 L182.4,366.9 L180.7,366.2 L181.5,370.1 L181.2,375.3 L182.0,375.8 L184.2,375.9 L182.7,381.2 L179.6,382.7 L176.0,383.2 L175.1,385.1 L174.4,387.5 L172.5,391.2 L170.0,393.2 L166.9,392.8 L163.9,391.2Z", "M322.7,575.7 L320.1,577.5 L319.3,579.7 L318.7,580.6 L317.0,581.2 L315.3,581.2 L308.8,576.8 L307.4,577.0 L308.8,575.0 L312.8,573.3 L315.1,571.2 L320.3,573.3 L322.7,575.7Z"], "markers": [{"name": "Whitelee", "x": 223.9, "y": 304.8, "kind": "onshore"}, {"name": "Clyde", "x": 244.6, "y": 314.6, "kind": "onshore"}, {"name": "Griffin", "x": 235.3, "y": 255.9, "kind": "onshore"}, {"name": "Beatrice", "x": 267.7, "y": 173.4, "kind": "offshore"}, {"name": "Moray East", "x": 264.6, "y": 166.9, "kind": "offshore"}, {"name": "Pen y Cymoedd", "x": 246.1, "y": 520.9, "kind": "onshore"}, {"name": "Hornsea", "x": 410.7, "y": 402.5, "kind": "offshore"}]};
+/* ===================== Skyform Wind — interactive demo workspace ===================== */
+var TODAY = new Date(2026,4,29); // 29 May 2026 (demo "now")
+function D(y,m,d){return new Date(y,m-1,d);}
+function iso(dt){return dt.toISOString().slice(0,10);}
+function fmt(dt){if(!dt)return '—';dt=new Date(dt);return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
+function daysUntil(dt){if(!dt)return null;return Math.round((new Date(dt)-TODAY)/86400000);}
+function esc(s){return (''+s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s,r){return Array.from((r||document).querySelectorAll(s));}
+// seeded RNG for stable generation
+function rng(seed){return function(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;};}
+// biased expiry offset (days): ~10% expired, ~17% expiring soon, rest comfortably valid
+function bexp(r){var v=r();if(v<0.07)return -Math.floor(r()*200)-2;if(v<0.20)return Math.floor(r()*54)+4;return Math.floor(r()*680)+95;}
 
-// ---------- SIMULATED DATA (fictional) ----------
-var FN=["Aiden Ross","Callum Reid","Declan Burns","Euan Shaw","Finlay Hart","Gregor Lyle","Hamish Boyd","Innes Kerr","Lewis Frame","Murray Dunn","Niall Speirs","Owen Tait","Rory Blane","Struan Vale","Tomas Reed","Cameron Wylie"];
-function seed(i){return (Math.sin(i*99.13)*10000)%1}
-var SITES=[
- {n:"Whitelee",k:"onshore",ic:"🏔",rams:"approved",crew:4,comp:100},
- {n:"Clyde",k:"onshore",ic:"🏔",rams:"approved",crew:3,comp:96},
- {n:"Beatrice",k:"offshore",ic:"⚓",rams:"awaiting",crew:6,comp:84},
- {n:"Moray East",k:"offshore",ic:"⚓",rams:"approved",crew:5,comp:91},
- {n:"Griffin",k:"onshore",ic:"🏔",rams:"expired",crew:4,comp:72},
- {n:"Hornsea",k:"offshore",ic:"⚓",rams:"approved",crew:3,comp:88},
- {n:"Pen y Cymoedd",k:"onshore",ic:"🏔",rams:"approved",crew:2,comp:100}
-];
-var ENG=FN.map(function(nm,i){
- var r=Math.abs(seed(i)); var comp=Math.round(70+r*30); // 70-100, avg ~85 -> overall ~80s
- var inits=nm.split(" ").map(function(x){return x[0]}).join("");
- var st=comp>=95?"g":comp>=82?"a":"r";
- return {name:nm,init:inits,comp:comp,st:st,
-   ppe:comp>=90?"valid":(r>0.5?"expiring":"action"),
-   quals:comp>=85?"valid":"expiring",
-   tools:r>0.3?"valid":"due",
-   site:SITES[i%SITES.length].n,
-   role:i<3?"Inspector":"Inspection Engineer"};
-});
-function fleetComp(){var s=0;ENG.forEach(function(e){s+=e.comp});return Math.round(s/ENG.length)}
-var DEMO_USERS={engineer:{name:"Aiden Ross",role:"Inspection Engineer",av:"AR"},
- manager:{name:"Jordan Mills",role:"Operations Manager",av:"JM"},
- director:{name:"Alex Skye",role:"Director",av:"AS"},
- dual:{name:"Sam Doran",role:"Training Manager",av:"SD"}};
+/* ---------- icons ---------- */
+var I={
+ dash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
+ plan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="M7.5 13.5h3M13.5 13.5h3M7.5 17h3"/></svg>',
+ eng:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><circle cx="17.5" cy="9" r="2.4"/><path d="M16 20a4.6 4.6 0 0 1 5.5-4.5"/></svg>',
+ ppe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3Z"/><path d="m9 12 2 2 4-4"/></svg>',
+ train:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 4 3 9l9 5 9-5-9-5Z"/><path d="M7 11.5V16c0 1 2.3 2.4 5 2.4s5-1.4 5-2.4v-4.5"/><path d="M21 9v5"/></svg>',
+ cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4l-6 6 2 2 6-6a4 4 0 0 0 5.4-5.4l-2.3 2.3-2-2 2.3-2.3Z"/></svg>',
+ site:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-5.4-7-11a7 7 0 0 1 14 0c0 5.6-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+ scope:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/><path d="M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"/><path d="m14 11 6.5-6.5a1.8 1.8 0 0 0-2.5-2.5L11.5 8.5 11 11Z"/></svg>',
+ rep:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+ audit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 5h9a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7"/><path d="M4 7V5a2 2 0 0 1 2-2h2"/><path d="M8 11h8M8 15h6"/></svg>',
+ me:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>',
+ up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 16V4m0 0 4 4m-4-4-4 4"/><path d="M5 20h14"/></svg>',
+ chk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>',
+ x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+ wind:'<svg viewBox="0 0 120 150" fill="none"><line x1="60" y1="60" x2="60" y2="150" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><g class="blades"><g transform="rotate(0 60 60)"><path d="M60 60 55 8Q60 0 65 8Z" fill="currentColor"/></g><g transform="rotate(120 60 60)"><path d="M60 60 55 8Q60 0 65 8Z" fill="currentColor"/></g><g transform="rotate(240 60 60)"><path d="M60 60 55 8Q60 0 65 8Z" fill="currentColor"/></g></g><circle cx="60" cy="60" r="7" fill="currentColor"/></svg>',
+ plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>',
+ dl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 4v10m0 0 4-4m-4 4-4-4"/><path d="M5 18h14"/></svg>',
+ lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+ bolt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>',
+ warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17v.5"/></svg>'};
 
-var CURRENT=null, PROFILE=null; // PROFILE for dual: 'admin'|'engineer'
+/* ---------- data ---------- */
+var NAMES=['Aiden Ross','Callum Reid','Declan Burns','Euan Shaw','Finlay Hart','Gregor Lyle','Hamish Boyd','Innes Kerr','Lewis Frame','Murray Dunn','Niall Speirs','Owen Tait','Rory Blane','Struan Vale','Tomas Reed','Cameron Wylie'];
+var SITE_DEF=[['Whitelee','onshore'],['Clyde','onshore'],['Griffin','onshore'],['Beatrice','offshore'],['Moray East','offshore'],['Hornsea','offshore'],['Pen y Cymoedd','onshore']];
+var PPE_TYPES=['Full-body harness','Safety helmet','Shock-absorbing lanyard','Hi-vis coverall','Cut-resistant gloves','Safety boots'];
+var TRAIN_CAT=['GWO Working at Height','GWO First Aid','GWO Manual Handling','GWO Fire Awareness','GWO Sea Survival','Offshore Medical (OGUK)','MEWP (IPAF 3a/3b)','IRATA Level 1','Confined Space Entry','First Aid at Work'];
+var TOOL_TYPES=['Torque wrench','Insulation tester','Multimeter','Anemometer','Laser alignment','Vibration analyser'];
+var SCOPE_DEF=[
+ ['Blade inspection','Beatrice',['GWO Working at Height','GWO Sea Survival','IRATA Level 1']],
+ ['Gearbox borescope','Whitelee',['GWO Working at Height','Confined Space Entry']],
+ ['Bolt torque & tension','Moray East',['GWO Working at Height','GWO Sea Survival','MEWP (IPAF 3a/3b)']],
+ ['HV electrical inspection','Clyde',['GWO Working at Height','First Aid at Work']],
+ ['End-of-warranty survey','Griffin',['GWO Working at Height','MEWP (IPAF 3a/3b)']],
+ ['Foundation & TP inspection','Hornsea',['GWO Working at Height','GWO Sea Survival','Confined Space Entry']]];
 
-// ---------- helpers ----------
-function el(id){return document.getElementById(id)}
-function compColor(st){return st=='g'?'var(--green)':st=='a'?'var(--amber)':'var(--red)'}
-function statusPill(s){var map={valid:['g','Valid'],expiring:['a','Expiring'],action:['r','Action needed'],due:['a','Due soon']};var m=map[s]||['a',s];return '<span class="pill '+m[0]+'">'+m[1]+'</span>'}
+function genData(){
+ var r=rng(20260529);
+ var sites=SITE_DEF.map(function(s,i){return {id:'S'+(i+1),name:s[0],type:s[1],rams: i===2?'expired':(i===3?'awaiting':'approved'),x:MAP.markers[i]?MAP.markers[i].x:260,y:MAP.markers[i]?MAP.markers[i].y:320};});
+ var engineers=NAMES.map(function(nm,i){
+   var role=i<3?'Inspector':(i>=14?'Lead Technician':'Inspection Engineer');
+   return {id:'E'+String(i+1).padStart(2,'0'),name:nm,init:nm.split(' ').map(function(x){return x[0];}).join(''),role:role,base:sites[i%sites.length].name,active:true};});
+ var ppe=[],tid=1;
+ engineers.forEach(function(e,ei){
+   PPE_TYPES.forEach(function(t,ti){
+     var off=bexp(r); var exp=new Date(TODAY); exp.setDate(exp.getDate()+off);
+     var pending = r()<0.06;
+     ppe.push({id:'P'+(tid++),engId:e.id,type:t,issued:iso(new Date(exp.getFullYear()-2,exp.getMonth(),exp.getDate())),expires:iso(exp),
+       certName: r()<0.92?('PPE_'+t.split(' ')[0]+'_'+e.id+'.pdf'):null, verified: !pending && r()<0.85, pending:pending});});});
+ var training=[],trid=1;
+ engineers.forEach(function(e){
+   var n=4+Math.floor(r()*6);
+   var pool=TRAIN_CAT.slice().sort(function(){return r()-0.5;}).slice(0,n);
+   pool.forEach(function(c){
+     var off=bexp(r); var exp=new Date(TODAY); exp.setDate(exp.getDate()+off);
+     var pending=r()<0.05;
+     training.push({id:'T'+(trid++),engId:e.id,cert:c,obtained:iso(new Date(exp.getFullYear()-3,exp.getMonth(),exp.getDate())),expires:iso(exp),
+       certName: r()<0.92?(c.replace(/[^A-Za-z0-9]/g,'_')+'_'+e.id+'.pdf'):null, verified:!pending && r()<0.86, pending:pending, competence:true});});});
+ var calibration=[],cid=1;
+ TOOL_TYPES.forEach(function(t,i){
+   for(var k=0;k<(i<3?3:2);k++){
+     var owner=engineers[Math.floor(r()*engineers.length)];
+     var off=bexp(r); var due=new Date(TODAY); due.setDate(due.getDate()+off);
+     calibration.push({id:'C'+(cid++),tool:t,serial:t.split(' ')[0].toUpperCase().slice(0,3)+'-'+(1000+Math.floor(r()*8999)),engId:owner.id,
+       lastCal:iso(new Date(due.getFullYear()-1,due.getMonth(),due.getDate())),dueCal:iso(due),
+       certName:r()<0.9?('CAL_'+t.split(' ')[0]+'_'+(cid)+'.pdf'):null,verified:r()<0.85,pending:false});}});
+ var scopes=SCOPE_DEF.map(function(s,i){
+   var site=sites.filter(function(x){return x.name===s[1];})[0];
+   var assigned=engineers.slice().sort(function(){return r()-0.5;}).slice(0,2+Math.floor(r()*2)).map(function(e){return e.id;});
+   return {id:'W'+(i+1),name:s[0],siteId:site.id,site:s[1],required:s[2],engIds:assigned,
+     window:'Wk '+(i+1)+'–'+(i+2),status:i===0?'active':(i<3?'planned':'scheduled')};});
+ // planner: 6 weeks
+ var weeks=[]; for(var w=0;w<6;w++){var ws=new Date(TODAY);ws.setDate(ws.getDate()+w*7-(TODAY.getDay()-1)); weeks.push({i:w,label:'Wk '+(w+1),date:iso(ws)});}
+ var assign=[];
+ sites.forEach(function(s,si){ for(var w=0;w<6;w++){ if(r()<0.42){ var e=engineers[Math.floor(r()*engineers.length)]; assign.push({engId:e.id,siteId:s.id,week:w}); } }});
+ return {engineers:engineers,sites:sites,ppe:ppe,training:training,calibration:calibration,scopes:scopes,weeks:weeks,assign:assign,audit:[{ts:Date.now(),who:'System',act:'Demo data initialised'}]};
+}
 
-function signIn(role){CURRENT=role; PROFILE=(role=='dual')?'admin':null; el('login').style.display='none'; el('app').style.display='block'; render()}
-function toggleTheme(){document.body.classList.toggle('alpine'); el('themeBtn').textContent=document.body.classList.contains('alpine')?'◐ Night':'◐ Alpine'}
-function toggleMenu(e){e.stopPropagation();el('menu').classList.toggle('show')}
-document.addEventListener('click',function(){el('menu').classList.remove('show')});
+/* ---------- state ---------- */
+var SKEY='skyform_demo_v2';
+var DB, S={role:null,profile:'admin',tab:'dashboard',theme:'night',sel:null,filter:'all',q:''};
+function load(){try{var raw=localStorage.getItem(SKEY);if(raw){DB=JSON.parse(raw);return;}}catch(e){}DB=genData();save();}
+function save(){try{localStorage.setItem(SKEY,JSON.stringify(DB));}catch(e){}}
+function reset(){DB=genData();save();toast('Demo data reset');render();}
+function audit(act){DB.audit.unshift({ts:Date.now(),who:DEMO[S.role].name,act:act});if(DB.audit.length>200)DB.audit.pop();}
 
-function isAdminView(){ if(CURRENT=='engineer')return false; if(CURRENT=='dual')return PROFILE=='admin'; return true }
+var DEMO={
+ engineer:{name:'Aiden Ross',role:'Inspection Engineer',av:'AR',engId:'E01'},
+ manager:{name:'Jordan Mills',role:'Operations Manager',av:'JM'},
+ director:{name:'Alex Skye',role:'Director',av:'AS'},
+ dual:{name:'Sam Doran',role:'Training Manager',av:'SD',engId:'E02'},
+ hseq:{name:'Robin Vale',role:'HSEQ Manager',av:'RV'}};
+var ROLE_COL={engineer:'var(--accent)',manager:'var(--purple)',director:'var(--red)',dual:'var(--green2)',hseq:'var(--amber)'};
 
+function isEngView(){return S.role==='engineer' || (S.role==='dual' && S.profile==='me');}
+function canManage(){return ['manager','director','dual','hseq'].indexOf(S.role)>=0 && !isEngView();}
+function canDelete(){return S.role==='director';}
+function canSignoff(){return ['hseq','director'].indexOf(S.role)>=0;}
+function myEngId(){return DEMO[S.role].engId;}
+
+/* ---------- domain helpers ---------- */
+function eById(id){return DB.engineers.filter(function(e){return e.id===id;})[0];}
+function statusOf(rec){ if(rec.pending) return 'pending'; if(!rec.certName) return 'action'; var d=daysUntil(rec.expires||rec.dueCal); if(d<0) return 'expired'; if(d<60) return 'expiring'; return 'valid';}
+function STMETA(s){return {valid:['g','Valid'],expiring:['a','Expiring'],expired:['r','Expired'],pending:['b','Pending'],action:['r','Missing']}[s]||['n',s];}
+function recsFor(engId){return {ppe:DB.ppe.filter(function(x){return x.engId===engId;}),train:DB.training.filter(function(x){return x.engId===engId;}),cal:DB.calibration.filter(function(x){return x.engId===engId;})};}
+function compOf(engId){var R=recsFor(engId);var all=R.ppe.concat(R.train,R.cal);if(!all.length)return {pct:100,st:'g'};var sc=0;all.forEach(function(x){var s=statusOf(x);sc+= s==='valid'?1:(s==='expiring'||s==='pending'?0.5:0);});var pct=Math.round(sc/all.length*100);return {pct:pct,st:pct>=88?'g':pct>=72?'a':'r'};}
+function compColor(st){return st==='g'?'var(--green2)':st==='a'?'var(--amber)':'var(--red)';}
+function fleetPct(){var s=0;DB.engineers.forEach(function(e){s+=compOf(e.id).pct;});return Math.round(s/DB.engineers.length);}
+function pendingCount(){return DB.ppe.concat(DB.training,DB.calibration).filter(function(x){return x.pending;}).length;}
+function attentionList(){var out=[];DB.engineers.forEach(function(e){var R=recsFor(e.id);R.ppe.concat(R.train,R.cal).forEach(function(x){var s=statusOf(x);if(s==='expired'||s==='expiring'||s==='action'||s==='pending'){out.push({eng:e,rec:x,s:s,kind:x.type?'PPE':x.cert?'Training':'Calibration',label:x.type||x.cert||x.tool});}});});return out.sort(function(a,b){var o={expired:0,action:1,pending:2,expiring:3};return o[a.s]-o[b.s];});}
+
+/* ===================== RENDER ===================== */
 function render(){
- var u=DEMO_USERS[CURRENT];
- el('meAv').textContent=u.av; el('meName').textContent=u.name;
- el('meRole').textContent=(CURRENT=='dual'? (PROFILE=='admin'?'Admin profile':'Engineer profile') : u.role);
- // nav
- var navs=[]; var admin=isAdminView();
- if(admin){navs=[['operations','Operations'],['sites','Sites'],['engineers','Engineers']]}
- else{navs=[['compliance','My Compliance']]}
- el('navs').innerHTML=navs.map(function(n,i){return '<div class="nav'+(i==0?' on':'')+'" onclick="go(\''+n[0]+'\',this)">'+n[1]+'</div>'}).join('');
- // menu (role switch + dual profile switch)
- var menu='<div class="dd-h">Demo — switch role</div>';
- ['engineer','manager','director','dual'].forEach(function(r){menu+='<div class="dd-opt'+(r==CURRENT?' on':'')+'" onclick="signIn(\''+r+'\')">'+({engineer:'👷 Engineer',manager:'🗂️ Manager',director:'🛡️ Director',dual:'🔀 Dual role'})[r]+(r==CURRENT?' <span style=\"margin-left:auto\">✓</span>':'')+'</div>'});
- if(CURRENT=='dual'){menu+='<div class="dd-h" style="border-top:1px solid var(--border)">Your profile</div>';
-   menu+='<div class="dd-opt'+(PROFILE=='admin'?' on':'')+'" onclick="setProfile(\'admin\')">🗂️ Admin profile'+(PROFILE=='admin'?' <span style=\"margin-left:auto\">✓</span>':'')+'</div>';
-   menu+='<div class="dd-opt'+(PROFILE=='engineer'?' on':'')+'" onclick="setProfile(\'engineer\')">👷 My engineer profile'+(PROFILE=='engineer'?' <span style=\"margin-left:auto\">✓</span>':'')+'</div>';}
- el('menu').innerHTML=menu;
- // default view
- go(admin?'operations':'compliance');
- buildAll();
+ document.body.classList.toggle('alpine',S.theme==='alpine');
+ if(!S.role){renderLogin();$('#login').style.display='block';$('#app').style.display='none';return;}
+ $('#login').style.display='none';$('#app').style.display='block';
+ var u=DEMO[S.role];
+ $('#app').innerHTML='<div class="shell">'+sidebar()+'<div class="main">'+topbar()+'<div class="content" id="content">'+view()+'</div></div></div>';
+ bindDynamic();
 }
-function setProfile(p){PROFILE=p; el('menu').classList.remove('show'); render()}
-function go(v,node){
- ['compliance','operations','engineers','sites'].forEach(function(x){var e=el('v_'+x); if(e)e.classList.remove('on')});
- var t=el('v_'+v); if(t)t.classList.add('on');
- if(node){document.querySelectorAll('.nav').forEach(function(n){n.classList.remove('on')}); node.classList.add('on')}
+function renderLogin(){
+ var turb=function(cls){return '<svg class="lx-turb '+cls+'" viewBox="0 0 120 150" fill="none"><line x1="60" y1="60" x2="60" y2="150" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><g class="blades'+(cls==='b'?' slow':'')+'"><g transform="rotate(0 60 60)"><path d="M60 60 56 10Q60 2 64 10Z" fill="currentColor"/></g><g transform="rotate(120 60 60)"><path d="M60 60 56 10Q60 2 64 10Z" fill="currentColor"/></g><g transform="rotate(240 60 60)"><path d="M60 60 56 10Q60 2 64 10Z" fill="currentColor"/></g></g><circle cx="60" cy="60" r="6" fill="currentColor"/></svg>';};
+ var part='';for(var i=0;i<10;i++){part+='<span style="left:'+(7+i*9)+'%;animation-duration:'+(8+i%6)+'s;animation-delay:'+(i*0.7)+'s"></span>';}
+ var roles=[['engineer','Engineer','Sees only their own compliance · uploads certs','var(--accent)','linear-gradient(135deg,rgba(0,212,255,.18),rgba(0,212,255,.05))',I.me],
+   ['manager','Manager / Admin','Full fleet · planner · all certs · reports','var(--purple)','linear-gradient(135deg,rgba(167,139,250,.20),rgba(167,139,250,.05))',I.dash],
+   ['director','Director','Everything a manager has · plus permanent delete','var(--red)','linear-gradient(135deg,rgba(255,107,53,.20),rgba(255,107,53,.05))',I.ppe],
+   ['hseq','HSEQ Manager','Signs off site SSOW / RAMS','var(--amber)','linear-gradient(135deg,rgba(255,183,3,.20),rgba(255,183,3,.05))',I.site],
+   ['dual','Dual-role user','Manager + their own engineer profile','var(--green2)','linear-gradient(135deg,rgba(31,209,139,.18),rgba(31,209,139,.05))',I.scope]];
+ var rb=roles.map(function(r,i){return '<button class="role-btn" style="--rc:'+r[3]+';--ricb:'+r[4]+';animation-delay:'+(0.05+i*0.07)+'s" data-act="signin" data-role="'+r[0]+'"><div class="role-ic">'+r[5]+'</div><div class="role-meta"><div class="rn">'+r[1]+'</div><div class="rd">'+r[2]+'</div></div><div class="role-go">→</div></button>';}).join('');
+ $('#login').innerHTML='<div class="lx"><div class="lx-grid"></div>'+turb('a')+turb('b')+'<div class="particles">'+part+'</div></div>'+
+  '<div class="login-card"><div class="login-top"><div class="logo-badge">'+I.wind+'</div><h1>Skyform Wind</h1><div class="tag"><span class="pd"></span>Operations Portal · Demo</div></div>'+
+  '<div class="login-body"><div class="lead">Simulated data — nothing real. <b>Pick a role</b> to explore the full workspace and see exactly what each person can access.</div>'+rb+'</div>'+
+  '<div class="login-foot"><span class="fi"><span class="pd"></span>System live</span><span class="fi">·</span><span class="fi">No real data used</span><span class="fi">·</span><span class="fi clk" id="clk">--:--:--</span></div></div>';
+ if(!window._clk){window._clk=setInterval(function(){var e=$('#clk');if(e)e.textContent=new Date().toLocaleTimeString('en-GB');},1000);}
 }
 
-function buildAll(){ buildCompliance(); buildOperations(); buildEngineers(); buildSites() }
-
-// ENGINEER: My Compliance
-function buildCompliance(){
- var me=ENG[0]; // Aiden Ross
- var certs=[
-  ['🦺','PPE — Harness & lanyard','PPE certificate','valid',true],
-  ['🦺','PPE — Helmet','PPE certificate','valid',true],
-  ['🔧','Calibrated tool — Torque wrench','Calibration certificate','due',true],
-  ['🎓','GWO Working at Height','Competence certificate','valid',false],
-  ['🎓','GWO First Aid','Competence certificate','expiring',false],
-  ['⚕️','Offshore Medical','Competence certificate','valid',false]
- ];
- el('v_compliance').innerHTML=
- '<div class="hero"><div><h2>My Compliance</h2><div class="sub">Your live deployment readiness · '+me.name+'</div></div>'+
- '<div class="hstats"><div class="hstat"><div class="v" style="color:'+compColor(me.st)+'">'+me.comp+'%</div><div class="l">Overall</div></div>'+
- '<div class="hstat"><div class="v" style="color:var(--green)">Ready</div><div class="l">Status</div></div></div></div>'+
- '<div class="grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">'+
-   '<div class="kpi"><div class="ic">🦺</div><div class="v" style="color:var(--green)">PPE</div><div class="l">Personal protective equipment</div><div class="d">'+statusPill(me.ppe)+'</div></div>'+
-   '<div class="kpi"><div class="ic">🎓</div><div class="v" style="color:var(--amber)">Quals</div><div class="l">GWO &amp; competence</div><div class="d">'+statusPill(me.quals)+'</div></div>'+
-   '<div class="kpi"><div class="ic">🔧</div><div class="v" style="color:var(--amber)">Tools</div><div class="l">Calibrated equipment</div><div class="d">'+statusPill(me.tools)+'</div></div>'+
- '</div>'+
- '<div class="grid" style="grid-template-columns:1fr"><div class="card"><div class="card-t">My certificates <button class="dlbtn" style="margin-left:auto" onclick="alert(\'Demo: upload flow\')">⬆ Upload new</button></div>'+
-   certs.map(function(c){
-     var canDl=c[4]; var status=statusPill(c[3]);
-     var action=canDl?'<button class="dlbtn" onclick="alert(\'Demo: downloads the PDF\')">⤓ PDF</button>'
-       :'<button class="lockbtn" title="Engineers can see status only">🔒 Status only</button>';
-     return '<div class="cert-row"><span style="font-size:16px">'+c[0]+'</span><div style="flex:1"><div style="font-size:12.5px;font-weight:600">'+c[1]+'</div><div style="font-size:10px;color:var(--text3)">'+c[2]+'</div></div>'+status+action+'</div>';
-   }).join('')+
-   '<div style="font-size:10.5px;color:var(--text3);margin-top:12px">🔒 You can view the <b>status</b> of your qualifications &amp; competence, but the competence certificate PDFs are held by the office — only PPE &amp; calibration certificates are downloadable by you.</div>'+
- '</div></div>';
+function sidebar(){
+ var nav;
+ if(isEngView() && S.role==='engineer'){
+   nav=[['mycompliance','My Compliance',I.me]];
+ } else {
+   nav=[['dashboard','Dashboard',I.dash],['planner','Planner',I.plan],['engineers','Engineers',I.eng],
+        ['ppe','PPE Register',I.ppe],['training','Training',I.train],['calibration','Calibration',I.cal],
+        ['sites','Sites',I.site],['scopes','Work Scopes',I.scope],['reports','Reports',I.rep],['audit','Audit Log',I.audit]];
+   if(S.role==='dual') nav.unshift(['mycompliance','My Compliance',I.me]);
+ }
+ var pend=pendingCount();
+ var items=nav.map(function(n){
+   var badge = (n[0]==='ppe'||n[0]==='training') && canManage() ? '' : '';
+   var b = n[0]==='dashboard' && pend ? '<span class="badge">'+pend+'</span>' : '';
+   return '<div class="nav-i'+(S.tab===n[0]?' on':'')+'" data-act="tab" data-tab="'+n[0]+'">'+n[2]+'<span>'+n[1]+'</span>'+b+'</div>';
+ }).join('');
+ return '<aside class="side"><div class="side-top"><div class="side-logo">'+I.wind+'</div><div class="side-logo-tx"><div class="n">SKYFORM</div><div class="s">Wind Ops</div></div></div>'+
+  '<nav class="nav"><div class="nav-sec">Workspace</div>'+items+'</nav>'+
+  '<div class="side-foot"><button class="icon-btn" style="width:100%;justify-content:center" data-act="reset">↻ Reset demo data</button></div></aside>';
 }
 
-// MANAGER/DIRECTOR/DUAL: Operations
-function buildOperations(){
- var fc=fleetComp(); var expiring=ENG.filter(function(e){return e.st=='a'}).length; var blocked=ENG.filter(function(e){return e.st=='r'}).length;
- var canDelete=(CURRENT=='director');
+function topbar(){
+ var u=DEMO[S.role];var crumbs={dashboard:'Operations Command Centre',planner:'Live Deployment Planner',engineers:'Engineers',ppe:'PPE Register',training:'Training & Competence',calibration:'Calibration Register',sites:'Sites & Sign-off',scopes:'Work Scopes',reports:'Reports',audit:'Audit Log',mycompliance:'My Compliance'};
+ return '<div class="topbar"><div class="crumb">'+(crumbs[S.tab]||'')+'</div>'+
+  '<div class="search">'+ '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>'+'<input id="q" placeholder="Search engineers, certs, sites…" value="'+esc(S.q)+'"></div>'+
+  '<div class="tb-right"><span class="live"><span class="pd"></span>LIVE</span>'+
+  '<button class="icon-btn" data-act="theme">'+(S.theme==='night'?'◐ Alpine':'◑ Night')+'</button>'+
+  '<div style="position:relative"><div class="who" data-act="menu"><div class="av" style="background:linear-gradient(135deg,'+ROLE_COL[S.role]+',var(--accent))">'+u.av+'</div><div><div class="wn">'+u.name+'</div><div class="wr">'+(S.role==='dual'?(S.profile==='me'?'Engineer profile':'Admin profile'):u.role)+'</div></div></div></div>'+
+  '</div></div>';
+}
+
+/* view router */
+function view(){
+ if(isEngView()) return vMyCompliance();
+ switch(S.tab){
+   case 'dashboard':return vDashboard();
+   case 'planner':return vPlanner();
+   case 'engineers':return S.sel?vEngineerProfile(S.sel):vEngineers();
+   case 'ppe':return vRegister('ppe');
+   case 'training':return vRegister('training');
+   case 'calibration':return vRegister('calibration');
+   case 'sites':return vSites();
+   case 'scopes':return vScopes();
+   case 'reports':return vReports();
+   case 'audit':return vAudit();
+   case 'mycompliance':return vMyCompliance();
+ }
+ return '';
+}
+
+/* ---------- Dashboard ---------- */
+function vDashboard(){
+ var fp=fleetPct();var att=attentionList();var exp=att.filter(function(a){return a.s==='expiring';}).length;var over=att.filter(function(a){return a.s==='expired'||a.s==='action';}).length;var pend=pendingCount();
+ var kpis=[['Fleet compliance',fp+'%',compColor(fp>=92?'g':fp>=78?'a':'r'),I.chk,fp>=85?'On target':'Below target',compColor(fp>=92?'g':fp>=78?'a':'r')],
+   ['Engineers',DB.engineers.length,'var(--accent)',I.eng,'Active fleet','var(--text3)'],
+   ['Expiring soon',exp,'var(--amber)',I.warn,'Within 60 days','var(--amber)'],
+   ['Overdue / missing',over,'var(--red)',I.warn,'Needs action','var(--red)'],
+   ['Pending checks',pend,'var(--accent)',I.up,'Awaiting verify','var(--accent)']];
+ var kp=kpis.map(function(k){return '<div class="kpi" style="--kc:'+k[2]+'"><div class="ic" style="background:var(--card3);color:'+k[2]+'">'+k[3]+'</div><div class="v" style="color:'+k[2]+'">'+k[1]+'</div><div class="l">'+k[0]+'</div><div class="d" style="color:'+k[5]+'">'+k[4]+'</div></div>';}).join('');
  // map
  var kc={onshore:'#00D4FF',offshore:'#A78BFA'};
- var paths=MAP.paths.map(function(p){return '<path d="'+p+'" fill="#0E2138" stroke="#1E5A7A" stroke-width="0.8"/>'}).join('');
- var dots=MAP.markers.map(function(mk){var site=SITES.filter(function(s){return s.n==mk.name})[0]||{k:'onshore',comp:90};var c=kc[site.k];
-   return '<circle cx="'+mk.x+'" cy="'+mk.y+'" r="12" fill="'+c+'" opacity="0.16"/><circle cx="'+mk.x+'" cy="'+mk.y+'" r="5" fill="'+c+'"/><circle cx="'+mk.x+'" cy="'+mk.y+'" r="5" fill="none" stroke="#fff" stroke-width="1" opacity="0.7"/>'+(site.rams=='expired'?'<circle cx="'+(mk.x+6)+'" cy="'+(mk.y-6)+'" r="3.5" fill="#FFB703" stroke="#050A12"/>':'');
- }).join('');
+ var paths=MAP.paths.map(function(p){return '<path d="'+p+'" fill="#0E2138" stroke="#1E5A7A" stroke-width="0.7"/>';}).join('');
+ var dots=DB.sites.map(function(s){var c=kc[s.type];var ramsdot=s.rams==='expired'?'<circle cx="'+(s.x+7)+'" cy="'+(s.y-7)+'" r="3.6" fill="#FFB703" stroke="#050A12"/>':(s.rams==='awaiting'?'<circle cx="'+(s.x+7)+'" cy="'+(s.y-7)+'" r="3.6" fill="#3B82F6" stroke="#050A12"/>':'');return '<circle cx="'+s.x+'" cy="'+s.y+'" r="13" fill="'+c+'" opacity="0.15"/><circle cx="'+s.x+'" cy="'+s.y+'" r="5" fill="'+c+'"/><circle cx="'+s.x+'" cy="'+s.y+'" r="5" fill="none" stroke="#fff" stroke-width="1" opacity="0.6"/>'+ramsdot;}).join('');
+ var labs=['Beatrice','Whitelee','Griffin','Hornsea'].map(function(nm){var s=DB.sites.filter(function(x){return x.name===nm;})[0];if(!s)return '';var crew=DB.assign.filter(function(a){return a.siteId===s.id;}).length;return '<div class="mk-lab" style="left:'+(s.x/MAP.viewW*100+3)+'%;top:'+(s.y/MAP.viewH*100)+'%"><div class="t">'+nm+'</div><div class="s">'+(s.rams==='expired'?'RAMS expired ⚠':crew+' deployments')+'</div></div>';}).join('');
  var svg='<svg viewBox="0 0 '+MAP.viewW+' '+MAP.viewH+'" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">'+paths+dots+'</svg>';
- var labels=[['Beatrice','6 crew · 84%'],['Whitelee','4 crew · 100%'],['Griffin','RAMS expired ⚠'],['Hornsea','3 crew · 88%']];
- var labelHtml=MAP.markers.filter(function(m){return labels.some(function(l){return l[0]==m.name})}).map(function(m){
-   var info=labels.filter(function(l){return l[0]==m.name})[0];
-   return '<div class="mk-label" style="left:'+(m.x/MAP.viewW*100+3)+'%;top:'+(m.y/MAP.viewH*100)+'%"><div class="t">'+m.name+'</div><div class="s">'+info[1]+'</div></div>';
+ var attRows=att.slice(0,7).map(function(a){var m=STMETA(a.s);return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--hair)"><span class="dot" style="background:'+(a.s==='expired'||a.s==='action'?'var(--red)':a.s==='pending'?'var(--accent)':'var(--amber)')+'"></span><div style="flex:1;min-width:0"><div style="font-size:12px;color:var(--text);font-weight:600">'+esc(a.eng.name)+'</div><div style="font-size:10.5px;color:var(--text3)">'+a.kind+' · '+esc(a.label)+'</div></div><span class="pill '+m[0]+'">'+m[1]+'</span></div>';}).join('')||'<div class="empty">All clear 🎉</div>';
+ var ramsRows=DB.sites.map(function(s){var p=s.rams==='approved'?['g','Approved']:s.rams==='awaiting'?['b','Awaiting HSEQ']:['r','Expired'];return '<div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--hair)"><span style="font-size:13px">'+(s.type==='offshore'?'⚓':'🏔')+'</span><span style="flex:1;font-size:12px;font-weight:600;color:var(--text)">'+esc(s.name)+'</span><span class="pill '+p[0]+'">'+p[1]+'</span></div>';}).join('');
+ return '<div class="hero"><div><h2>Operations Command Centre</h2><div class="sub">'+DB.engineers.length+' engineers · '+DB.sites.length+' sites · live overview</div></div><div class="hero-act"><button class="btn" data-act="tab" data-tab="reports">'+I.rep+' Reports</button><button class="btn pri" data-act="tab" data-tab="planner">'+I.plan+' Open planner</button></div></div>'+
+  '<div class="grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:16px">'+kp+'</div>'+
+  '<div class="grid" style="grid-template-columns:1.6fr 1fr">'+
+   '<div class="card pad0"><div class="card-h"><span class="t">UK Field Operations</span><span style="margin-left:auto;font-size:10px;color:var(--text3)" class="mono">● onshore ● offshore · auto-refresh 30s</span></div><div class="mapwrap" style="height:412px"><div class="mapgrid"></div>'+svg+labs+'</div></div>'+
+   '<div class="card pad0"><div class="card-h"><span class="t">Needs attention</span><span class="a" data-act="tab" data-tab="ppe">View all</span></div><div style="padding:6px 17px 14px">'+attRows+'</div></div>'+
+  '</div>'+
+  '<div class="grid" style="grid-template-columns:1fr 1.6fr;margin-top:16px">'+
+   '<div class="card pad0"><div class="card-h"><span class="t">SSOW / RAMS by site</span></div><div style="padding:6px 17px 14px">'+ramsRows+'</div></div>'+
+   '<div class="card pad0"><div class="card-h"><span class="t">Compliance by site</span></div><div style="padding:14px 17px">'+siteBars()+'</div></div>'+
+  '</div>';
+}
+function siteBars(){
+ return DB.sites.map(function(s){
+   var engs=DB.engineers.filter(function(e){return e.base===s.name;});
+   var pct=engs.length?Math.round(engs.reduce(function(a,e){return a+compOf(e.id).pct;},0)/engs.length):100;
+   var col=pct>=92?'var(--green2)':pct>=78?'var(--amber)':'var(--red)';
+   return '<div style="display:flex;align-items:center;gap:12px;padding:7px 0"><span style="width:120px;font-size:12px;color:var(--text2)">'+esc(s.name)+'</span><div class="bar" style="flex:1"><i style="width:'+pct+'%;background:'+col+'"></i></div><span class="mono" style="width:42px;text-align:right;font-size:12px;font-weight:700;color:'+col+'">'+pct+'%</span></div>';
  }).join('');
-
- var attention=ENG.filter(function(e){return e.st!='g'}).slice(0,5).map(function(e){
-   return '<div class="li"><span class="dotc" style="background:'+compColor(e.st)+'"></span><div style="flex:1;font-size:11.5px"><b>'+e.name+'</b> — '+(e.st=='r'?'compliance gap, review':'cert expiring')+'</div><span class="mono" style="font-size:10px;color:'+compColor(e.st)+'">'+e.comp+'%</span>'+(canDelete?' <button class="dlbtn" style="color:var(--red);background:var(--rbg)" onclick="alert(\'Demo: only Directors see delete\')">🗑</button>':'')+'</div>';
- }).join('');
-
- var ramsRows=SITES.map(function(s){var p=s.rams=='approved'?['g','✓ HSEQ approved']:s.rams=='awaiting'?['a','⏳ Awaiting HSEQ']:['r','✗ Expired'];
-   return '<div class="ssow"><span style="font-size:13px">'+(s.rams=='approved'?'🟢':s.rams=='awaiting'?'🟡':'🔴')+'</span><span style="flex:1;font-size:12px;font-weight:600">'+s.n+(s.k=='offshore'?' ⚓':'')+'</span><span class="pill '+p[0]+'">'+p[1]+'</span></div>';
- }).join('');
-
- el('v_operations').innerHTML=
- '<div class="hero"><div><h2>Operations Command Centre</h2><div class="sub">'+ENG.length+' engineers · '+SITES.length+' sites · demo data</div></div>'+
- '<div class="hstats">'+
-   '<div class="hstat"><div class="v" style="color:var(--green)">'+fc+'%</div><div class="l">Fleet compliant</div></div>'+
-   '<div class="hstat"><div class="v" style="color:var(--amber)">'+expiring+'</div><div class="l">Expiring</div></div>'+
-   '<div class="hstat"><div class="v" style="color:var(--red)">'+blocked+'</div><div class="l">Attention</div></div>'+
-   (canDelete?'<div class="hstat"><div class="v" style="color:var(--red)">●</div><div class="l">Delete rights</div></div>':'')+
- '</div></div>'+
- '<div class="grid" style="grid-template-columns:1.5fr 1fr">'+
-   '<div class="card" style="padding:14px"><div class="card-t">UK Field Operations <span class="a">Auto-refresh 30s</span></div>'+
-     '<div class="mapwrap" style="height:430px"><div class="gridbg"></div>'+svg+labelHtml+'</div></div>'+
-   '<div class="card"><div class="card-t">SSOW / RAMS by site</div>'+ramsRows+'</div>'+
- '</div>'+
- '<div class="grid" style="grid-template-columns:repeat(4,1fr);margin-top:16px">'+
-   '<div class="kpi"><div class="ic">✅</div><div class="v" style="color:var(--green)">'+fc+'%</div><div class="l">Fleet compliance</div><div class="d" style="color:var(--green)">▲ demo</div></div>'+
-   '<div class="kpi"><div class="ic">⏳</div><div class="v" style="color:var(--amber)">'+expiring+'</div><div class="l">Certs expiring</div></div>'+
-   '<div class="kpi"><div class="ic">🦺</div><div class="v" style="color:var(--accent)">'+(blocked+2)+'</div><div class="l">PPE actions</div></div>'+
-   '<div class="kpi"><div class="ic">🔧</div><div class="v" style="color:var(--red)">1</div><div class="l">Tool overdue</div></div>'+
- '</div>'+
- '<div class="grid" style="grid-template-columns:1fr;margin-top:16px"><div class="card"><div class="card-t">Needs attention'+(canDelete?' <span class="a" style="color:var(--red)">Director: delete enabled</span>':'')+'</div>'+attention+'</div></div>';
 }
 
-// Engineers directory (admin)
-function buildEngineers(){
- var rows=ENG.map(function(e){
-  return '<div class="li"><div class="av-sm">'+e.init+'</div><div style="flex:1"><div style="font-size:12.5px;font-weight:600">'+e.name+'</div><div style="font-size:10px;color:var(--text3)">'+e.role+' · '+e.site+'</div></div>'+
-   '<div class="bar" style="max-width:120px"><i style="width:'+e.comp+'%;background:'+compColor(e.st)+'"></i></div>'+
-   '<span class="mono" style="font-size:13px;font-weight:700;color:'+compColor(e.st)+';width:42px;text-align:right">'+e.comp+'%</span></div>';
+/* ---------- Planner (drag & drop) ---------- */
+function vPlanner(){
+ var head='<th class="sitecol">Site</th>'+DB.weeks.map(function(w){return '<th>'+w.label+'<div style="font-size:8.5px;color:var(--text3);font-weight:400" class="mono">'+w.date.slice(5)+'</div></th>';}).join('');
+ var rows=DB.sites.map(function(s){
+   var cells=DB.weeks.map(function(w){
+     var here=DB.assign.filter(function(a){return a.siteId===s.id&&a.week===w.i;});
+     var chips=here.map(function(a){var e=eById(a.engId);var comp=compOf(e.id);var clash=DB.assign.filter(function(x){return x.engId===a.engId&&x.week===w.i;}).length>1;return '<div class="echip'+(comp.st==='r'?' bad':'')+(clash?' clash':'')+'" draggable="true" data-eng="'+e.id+'" data-week="'+w.i+'" data-site="'+s.id+'"><span class="av-sm" style="width:18px;height:18px;font-size:8px;background:linear-gradient(135deg,'+compColor(comp.st)+',var(--accent))">'+e.init+'</span><span>'+e.name.split(' ')[1]+'</span>'+(comp.st==='r'?'<span class="fl" title="Not compliant">⚠</span>':'')+(clash?'<span class="fl" title="Double-booked" style="color:var(--amber)">⇄</span>':'')+'<span class="x" data-act="unassign" data-eng="'+e.id+'" data-week="'+w.i+'" data-site="'+s.id+'">×</span></div>';}).join('');
+     return '<td class="pcell" data-site="'+s.id+'" data-week="'+w.i+'">'+chips+'</td>';
+   }).join('');
+   var ic=s.type==='offshore'?'var(--pbg)':'var(--bbg)';var icc=s.type==='offshore'?'var(--purple)':'var(--accent)';
+   return '<tr><td class="sitecol"><div class="sitecell"><div class="si" style="background:'+ic+';color:'+icc+'">'+(s.type==='offshore'?'⚓':'🏔')+'</div><div><div class="nm">'+esc(s.name)+'</div><div class="ty">'+s.type+'</div></div></div></td>'+cells+'</tr>';
  }).join('');
- el('v_engineers').innerHTML='<div class="hero"><div><h2>Engineers</h2><div class="sub">Full fleet — '+ENG.length+' engineers</div></div></div>'+
- '<div class="card"><div class="card-t">Compliance by engineer <span class="a">View &amp; download all certs</span></div>'+rows+'</div>';
+ var pool=DB.engineers.map(function(e){var comp=compOf(e.id);return '<div class="echip'+(comp.st==='r'?' bad':'')+'" draggable="true" data-eng="'+e.id+'" data-from="pool"><span class="av-sm" style="width:18px;height:18px;font-size:8px;background:linear-gradient(135deg,'+compColor(comp.st)+',var(--accent))">'+e.init+'</span><span>'+esc(e.name)+'</span><span class="mono" style="font-size:9px;color:'+compColor(comp.st)+'">'+comp.pct+'%</span></div>';}).join('');
+ return '<div class="hero"><div><h2>Live Deployment Planner</h2><div class="sub">Drag an engineer onto a site &amp; week. ⚠ flags a compliance gap; amber edge flags a double-booking.</div></div></div>'+
+  '<div class="card pad0" style="margin-bottom:16px"><div class="card-h"><span class="t">Available engineers</span><span style="margin-left:auto;font-size:10.5px;color:var(--text3)">Drag from here →</span></div><div class="pool">'+pool+'</div></div>'+
+  '<div class="card pad0 planner"><table class="ptable"><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
-// Sites board (admin)
-function buildSites(){
- var cards=SITES.map(function(s){
-  var p=s.rams=='approved'?['g','✓ HSEQ approved']:s.rams=='awaiting'?['a','⏳ Awaiting HSEQ']:['r','✗ Expired'];
-  var cc=s.comp>=95?'var(--green)':s.comp>=82?'var(--amber)':'var(--red)';
-  var crew=[];for(var i=0;i<s.crew;i++){crew.push('<div class="av-sm" style="margin-left:'+(i?-8:0)+'px">'+ENG[(i+SITES.indexOf(s))%ENG.length].init+'</div>')}
-  return '<div class="card" style="padding:0;overflow:hidden">'+
-   '<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">'+
-     '<div class="site-ic" style="background:'+(s.k=='offshore'?'var(--pbg)':'var(--bbg)')+';color:'+(s.k=='offshore'?'var(--purple)':'var(--accent)')+'">'+s.ic+'</div>'+
-     '<div style="flex:1"><div style="font-family:var(--fhead);font-size:15px;font-weight:700">'+s.n+'</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">'+s.k+' · '+s.crew+' crew</div></div>'+
-     '<div style="text-align:right"><div class="mono" style="font-size:19px;font-weight:700;color:'+cc+'">'+s.comp+'%</div><div style="font-size:8px;color:var(--text3)">crew compliant</div></div></div>'+
-   '<div style="padding:13px 16px"><div style="display:flex;margin-bottom:11px">'+crew.join('')+'</div>'+
-     '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:var(--text3);width:46px">SSOW</span><span class="pill '+p[0]+'" style="margin-left:auto">'+p[1]+'</span></div></div></div>';
- }).join('');
- el('v_sites').innerHTML='<div class="hero"><div><h2>Site Operations Board</h2><div class="sub">'+SITES.length+' sites · SSOW status per site</div></div></div>'+
- '<div class="grid" style="grid-template-columns:repeat(3,1fr)">'+cards+'</div>';
+/* ---------- Registers (PPE / Training / Calibration) ---------- */
+function vRegister(kind){
+ var data,cols,titleN;
+ var eng=isEngView()?myEngId():null;
+ if(kind==='ppe'){titleN='PPE Register';data=DB.ppe;cols=['Engineer','PPE item','Issued','Expires','Status','Certificate'];}
+ if(kind==='training'){titleN='Training & Competence';data=DB.training;cols=['Engineer','Qualification','Obtained','Expires','Status','Certificate'];}
+ if(kind==='calibration'){titleN='Calibration Register';data=DB.calibration;cols=['Owner','Tool','Serial','Calibrated','Due','Status','Certificate'];}
+ if(eng) data=data.filter(function(x){return x.engId===eng;});
+ if(S.filter!=='all') data=data.filter(function(x){return statusOf(x)===S.filter;});
+ if(S.q){var q=S.q.toLowerCase();data=data.filter(function(x){var e=eById(x.engId);return ((x.type||x.cert||x.tool||'')+ ' '+(e?e.name:'')).toLowerCase().indexOf(q)>=0;});}
+ var counts={all:0,valid:0,expiring:0,expired:0,pending:0};(eng?(kind==='ppe'?DB.ppe:kind==='training'?DB.training:DB.calibration).filter(function(x){return x.engId===eng;}):(kind==='ppe'?DB.ppe:kind==='training'?DB.training:DB.calibration)).forEach(function(x){counts.all++;var s=statusOf(x);if(counts[s]!==undefined)counts[s]++;});
+ var seg=['all','valid','expiring','expired','pending'].map(function(f){return '<button class="'+(S.filter===f?'on':'')+'" data-act="filter" data-f="'+f+'">'+f.charAt(0).toUpperCase()+f.slice(1)+' ('+(counts[f]||0)+')</button>';}).join('');
+ var head=cols.map(function(c){return '<th>'+c+'</th>';}).join('');
+ var rows=data.map(function(x){
+   var e=eById(x.engId);var s=statusOf(x);var m=STMETA(s);
+   var cert = certCell(x,kind);
+   if(kind==='calibration'){
+     return '<tr class="clk" data-act="open" data-kind="'+kind+'" data-id="'+x.id+'"><td><div style="display:flex;align-items:center;gap:9px"><span class="av-sm" style="background:linear-gradient(135deg,var(--accent),var(--purple))">'+(e?e.init:'?')+'</span><span class="nm">'+(e?esc(e.name):'Pool')+'</span></div></td><td>'+esc(x.tool)+'</td><td class="mono" style="font-size:11px">'+esc(x.serial)+'</td><td>'+fmt(x.lastCal)+'</td><td>'+fmt(x.dueCal)+'</td><td><span class="pill '+m[0]+'"><span class="d"></span>'+m[1]+'</span></td><td>'+cert+'</td></tr>';
+   }
+   return '<tr class="clk" data-act="open" data-kind="'+kind+'" data-id="'+x.id+'"><td><div style="display:flex;align-items:center;gap:9px"><span class="av-sm" style="background:linear-gradient(135deg,var(--accent),var(--purple))">'+(e?e.init:'?')+'</span><span class="nm">'+(e?esc(e.name):'?')+'</span></div></td><td>'+esc(x.type||x.cert)+(x.competence?' <span class="pill n" style="font-size:8.5px;padding:1px 6px">competence</span>':'')+'</td><td>'+fmt(x.issued||x.obtained)+'</td><td>'+fmt(x.expires)+'</td><td><span class="pill '+m[0]+'"><span class="d"></span>'+m[1]+'</span></td><td>'+cert+'</td></tr>';
+ }).join('')||'<tr><td colspan="'+cols.length+'"><div class="empty">'+I.ppe+'<div>No records match this filter.</div></div></td></tr>';
+ var addBtn = canManage()? '<button class="btn pri sm" data-act="newrec" data-kind="'+kind+'">'+I.plus+' Add record</button>':'';
+ return '<div class="hero"><div><h2>'+titleN+'</h2><div class="sub">'+(eng?'Your records':'Fleet-wide')+' · click any row to open, upload or verify</div></div><div class="hero-act">'+addBtn+'</div></div>'+
+  '<div class="card pad0"><div class="toolbar"><div class="seg">'+seg+'</div><div style="margin-left:auto;font-size:11px;color:var(--text3)">'+data.length+' shown</div></div><div style="overflow-x:auto"><table><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table></div></div>';
 }
-</script>
-</body></html>
+function certCell(x,kind){
+ var s=statusOf(x);
+ if(x.pending) return '<span class="pill b"><span class="d"></span>Pending verify</span>';
+ if(!x.certName) return '<span style="color:var(--text3);font-size:11px">— none —</span>';
+ var locked = isEngView() && x.competence; // engineers: competence = status only
+ var verBadge = x.verified?'<span title="Verified" style="color:var(--green2)">✓</span>':'<span title="Unverified" style="color:var(--amber)">•</span>';
+ if(locked) return '<span class="pill n" style="font-size:9.5px">'+I.lock+' Status only</span>';
+ return '<button class="btn sm gho" data-act="dl" data-name="'+esc(x.certName)+'" style="padding:4px 9px;font-size:10.5px">'+I.dl+' PDF</button> '+verBadge;
+}
+
+/* ---------- record drawer ---------- */
+function openRecord(kind,id){
+ var x=(kind==='ppe'?DB.ppe:kind==='training'?DB.training:DB.calibration).filter(function(r){return r.id===id;})[0];
+ if(!x)return; var e=eById(x.engId);var s=statusOf(x);var m=STMETA(s);
+ var label=x.type||x.cert||x.tool; var col=ROLE_COL[S.role];
+ var kvs=[['Engineer',e?e.name:'Pool / shared'],['Item',label],[kind==='calibration'?'Serial':'Type',x.serial||(x.competence?'Competence certificate':'PPE item')]];
+ if(kind==='calibration'){kvs.push(['Last calibrated',fmt(x.lastCal)],['Next due',fmt(x.dueCal)]);}else{kvs.push(['Issued',fmt(x.issued||x.obtained)],['Expires',fmt(x.expires)]);}
+ var d=daysUntil(x.expires||x.dueCal); kvs.push(['Days remaining',(d!==null?(d<0?d+' (overdue)':d):'—')]);
+ kvs.push(['Certificate',x.certName?x.certName:'— none uploaded —'],['Verification',x.pending?'Pending':(x.verified?'Verified ✓':'Unverified')]);
+ var kvHtml=kvs.map(function(k){return '<div class="kv"><span class="k">'+k[0]+'</span><span class="v">'+esc(''+k[1])+'</span></div>';}).join('');
+ var actions='';
+ var canUpload = canManage() || (isEngView() && (kind!=='calibration'));
+ if(canUpload) actions+='<button class="btn pri" data-act="upload" data-kind="'+kind+'" data-id="'+id+'">'+I.up+' Upload certificate</button>';
+ if(canManage() && x.pending) actions+='<button class="btn" data-act="verify" data-kind="'+kind+'" data-id="'+id+'" style="color:var(--green2);border-color:rgba(31,209,139,.4)">'+I.chk+' Verify</button>';
+ if(canManage() && x.pending) actions+='<button class="btn dng" data-act="reject" data-kind="'+kind+'" data-id="'+id+'">Reject</button>';
+ if(x.certName && !(isEngView()&&x.competence)) actions+='<button class="btn gho" data-act="dl" data-name="'+esc(x.certName)+'">'+I.dl+' View PDF</button>';
+ if(canDelete()) actions+='<button class="btn dng" data-act="delrec" data-kind="'+kind+'" data-id="'+id+'">Delete (Director)</button>';
+ var warn = isEngView()&&x.competence?'<div class="miniwarn">'+I.lock+' As an engineer you can see the status of competence certificates, but the PDF is held by the office.</div>':'';
+ var statusBig='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span class="pill '+m[0]+'" style="font-size:12px;padding:5px 12px"><span class="d"></span>'+m[1]+'</span>'+(x.verified?'<span class="pill g" style="font-size:11px"><span class="d"></span>Verified</span>':(x.pending?'<span class="pill b" style="font-size:11px"><span class="d"></span>Awaiting verification</span>':'<span class="pill a" style="font-size:11px"><span class="d"></span>Unverified</span>'))+'</div>';
+ drawer(label,'<div style="font-size:11px;color:var(--text3);margin-top:2px">'+(kind==='ppe'?'PPE':kind==='training'?'Training / competence':'Calibrated equipment')+(e?' · '+esc(e.name):'')+'</div>',
+   statusBig+warn+kvHtml+'<div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:18px">'+actions+'</div>',col);
+}
+
+/* ---------- Engineers ---------- */
+function vEngineers(){
+ var q=S.q.toLowerCase();
+ var list=DB.engineers.filter(function(e){return !q||e.name.toLowerCase().indexOf(q)>=0||e.role.toLowerCase().indexOf(q)>=0;});
+ var rows=list.map(function(e){var c=compOf(e.id);var R=recsFor(e.id);var pend=R.ppe.concat(R.train,R.cal).filter(function(x){return x.pending;}).length;
+   return '<tr class="clk" data-act="profile" data-id="'+e.id+'"><td><div style="display:flex;align-items:center;gap:10px"><span class="av-sm" style="background:linear-gradient(135deg,'+compColor(c.st)+',var(--accent))">'+e.init+'</span><div><div class="nm">'+esc(e.name)+'</div><div style="font-size:10px;color:var(--text3)">'+e.id+'</div></div></div></td><td>'+esc(e.role)+'</td><td>'+esc(e.base)+'</td><td><div style="display:flex;align-items:center;gap:9px"><div class="bar" style="width:90px"><i style="width:'+c.pct+'%;background:'+compColor(c.st)+'"></i></div><span class="mono" style="font-size:12px;font-weight:700;color:'+compColor(c.st)+'">'+c.pct+'%</span></div></td><td>'+(pend?'<span class="pill b">'+pend+' pending</span>':'<span style="color:var(--text3);font-size:11px">—</span>')+'</td></tr>';
+ }).join('');
+ return '<div class="hero"><div><h2>Engineers</h2><div class="sub">'+DB.engineers.length+' in the fleet · click to open a profile</div></div></div>'+
+  '<div class="card pad0"><div style="overflow-x:auto"><table><thead><tr><th>Engineer</th><th>Role</th><th>Base</th><th>Compliance</th><th>Pending</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+function vEngineerProfile(id){
+ var e=eById(id);if(!e)return vEngineers();var c=compOf(id);var R=recsFor(id);
+ function mini(title,arr,kind){var rows=arr.map(function(x){var s=statusOf(x);var m=STMETA(s);return '<tr class="clk" data-act="open" data-kind="'+kind+'" data-id="'+x.id+'"><td>'+esc(x.type||x.cert||x.tool)+'</td><td>'+fmt(x.expires||x.dueCal)+'</td><td><span class="pill '+m[0]+'">'+m[1]+'</span></td></tr>';}).join('')||'<tr><td colspan="3"><div class="empty" style="padding:20px">None</div></td></tr>';
+   return '<div class="card pad0"><div class="card-h"><span class="t">'+title+'</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">'+arr.length+'</span></div><table><tbody>'+rows+'</tbody></table></div>';}
+ var deps=DB.assign.filter(function(a){return a.engId===id;}).map(function(a){var s=DB.sites.filter(function(x){return x.id===a.siteId;})[0];return '<span class="req">'+esc(s.name)+' · '+DB.weeks[a.week].label+'</span>';}).join('')||'<span style="color:var(--text3);font-size:11px">No current deployments</span>';
+ var del=canDelete()?'<button class="btn dng sm" data-act="archeng" data-id="'+id+'">Archive engineer</button>':'';
+ return '<div class="hero"><div><h2 style="display:flex;align-items:center;gap:12px"><span class="av-sm" style="width:40px;height:40px;font-size:15px;background:linear-gradient(135deg,'+compColor(c.st)+',var(--accent))">'+e.init+'</span>'+esc(e.name)+'</h2><div class="sub">'+esc(e.role)+' · '+e.id+' · based at '+esc(e.base)+'</div></div><div class="hero-act"><button class="btn sm" data-act="tab" data-tab="engineers">← All engineers</button>'+del+'</div></div>'+
+  '<div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">'+
+   '<div class="kpi" style="--kc:'+compColor(c.st)+'"><div class="v" style="color:'+compColor(c.st)+'">'+c.pct+'%</div><div class="l">Overall compliance</div></div>'+
+   '<div class="kpi" style="--kc:var(--accent)"><div class="v">'+R.ppe.length+'</div><div class="l">PPE items</div></div>'+
+   '<div class="kpi" style="--kc:var(--purple)"><div class="v">'+R.train.length+'</div><div class="l">Qualifications</div></div>'+
+   '<div class="kpi" style="--kc:var(--amber)"><div class="v">'+R.cal.length+'</div><div class="l">Calibrated tools</div></div>'+
+  '</div>'+
+  '<div class="card" style="margin-bottom:16px"><div class="card-t">Current deployments</div>'+deps+'</div>'+
+  '<div class="grid" style="grid-template-columns:1fr 1fr 1fr">'+mini('PPE',R.ppe,'ppe')+mini('Training',R.train,'training')+mini('Calibration',R.cal,'calibration')+'</div>';
+}
+
+/* ---------- Sites ---------- */
+function vSites(){
+ var cards=DB.sites.map(function(s){
+   var crew=DB.assign.filter(function(a){return a.siteId===s.id;});var engs=DB.engineers.filter(function(e){return e.base===s.name;});
+   var pct=engs.length?Math.round(engs.reduce(function(a,e){return a+compOf(e.id).pct;},0)/engs.length):100;var col=pct>=92?'var(--green2)':pct>=78?'var(--amber)':'var(--red)';
+   var p=s.rams==='approved'?['g','HSEQ approved']:s.rams==='awaiting'?['b','Awaiting HSEQ']:['r','Expired'];
+   var avs=engs.slice(0,5).map(function(e,i){return '<span class="av-sm" style="margin-left:'+(i?-8:0)+'px;border:2px solid var(--card);background:linear-gradient(135deg,var(--accent),var(--purple))">'+e.init+'</span>';}).join('');
+   var signoff=canSignoff()?'<button class="btn sm '+(s.rams==='approved'?'gho':'pri')+'" data-act="rams" data-id="'+s.id+'">'+(s.rams==='approved'?'Revoke RAMS':'Approve RAMS')+'</button>':'';
+   var ic=s.type==='offshore'?'var(--pbg)':'var(--bbg)';var icc=s.type==='offshore'?'var(--purple)':'var(--accent)';
+   return '<div class="card pad0"><div style="padding:15px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px"><div class="si" style="width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;background:'+ic+';color:'+icc+'">'+(s.type==='offshore'?'⚓':'🏔')+'</div><div style="flex:1"><div style="font-family:var(--fh);font-weight:700;font-size:15px">'+esc(s.name)+'</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">'+s.type+' · '+crew.length+' deployments</div></div><div style="text-align:right"><div class="mono" style="font-size:19px;font-weight:700;color:'+col+'">'+pct+'%</div><div style="font-size:8px;color:var(--text3)">crew compliant</div></div></div>'+
+     '<div style="padding:13px 16px"><div style="display:flex;align-items:center;margin-bottom:12px;min-height:28px">'+(avs||'<span style="font-size:11px;color:var(--text3)">No based crew</span>')+'</div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:var(--text3);width:44px">SSOW</span><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span><span style="margin-left:auto">'+signoff+'</span></div></div></div>';
+ }).join('');
+ var note=canSignoff()?'':'<div class="miniwarn">'+I.lock+' Only the HSEQ Manager (or a Director) can approve a site\u2019s SSOW / RAMS. Sign in as HSEQ to try it.</div>';
+ return '<div class="hero"><div><h2>Sites &amp; Sign-off</h2><div class="sub">'+DB.sites.length+' wind farms · SSOW / RAMS status per site</div></div></div>'+note+'<div class="grid" style="grid-template-columns:repeat(3,1fr)">'+cards+'</div>';
+}
+
+/* ---------- Work Scopes ---------- */
+function vScopes(){
+ var cards=DB.scopes.map(function(w){
+   var assigned=w.engIds.map(function(id){return eById(id);});
+   var reqHtml=w.required.map(function(rc){
+     var allHave=assigned.length&&assigned.every(function(e){return DB.training.some(function(t){return t.engId===e.id&&t.cert===rc&&statusOf(t)!=='expired'&&!t.pending;});});
+     return '<span class="req '+(assigned.length?(allHave?'ok':'miss'):'')+'">'+(assigned.length?(allHave?'✓ ':'✗ '):'')+esc(rc)+'</span>';
+   }).join('');
+   var crew=assigned.map(function(e){var c=compOf(e.id);var miss=w.required.some(function(rc){return !DB.training.some(function(t){return t.engId===e.id&&t.cert===rc&&statusOf(t)!=='expired'&&!t.pending;});});return '<span class="echip" style="cursor:default'+(miss?';border-color:var(--red)':'')+'"><span class="av-sm" style="width:18px;height:18px;font-size:8px;background:linear-gradient(135deg,'+compColor(c.st)+',var(--accent))">'+e.init+'</span><span>'+esc(e.name.split(' ')[1])+'</span>'+(miss?'<span class="fl" title="Missing a required cert">⚠</span>':'')+'</span>';}).join('')||'<span style="font-size:11px;color:var(--text3)">No engineers assigned</span>';
+   var st=w.status==='active'?['g','Active']:w.status==='planned'?['b','Planned']:['n','Scheduled'];
+   var assignBtn=canManage()?'<button class="btn sm" data-act="assignscope" data-id="'+w.id+'">'+I.plus+' Assign engineer</button>':'';
+   var gap=assigned.length&&w.required.some(function(rc){return !assigned.every(function(e){return DB.training.some(function(t){return t.engId===e.id&&t.cert===rc&&statusOf(t)!=='expired'&&!t.pending;});});});
+   return '<div class="card pad0"><div class="card-h"><span class="t">'+esc(w.name)+'</span><span class="pill '+st[0]+'" style="margin-left:auto"><span class="d"></span>'+st[1]+'</span></div>'+
+     '<div style="padding:14px 17px">'+
+     '<div style="display:flex;gap:16px;font-size:11px;color:var(--text3);margin-bottom:11px"><span>📍 '+esc(w.site)+'</span><span>🗓 '+esc(w.window)+'</span></div>'+
+     (gap?'<div class="miniwarn">'+I.warn+' An assigned engineer is missing a required qualification for this scope.</div>':'')+
+     '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Required competence</div><div style="margin-bottom:13px">'+reqHtml+'</div>'+
+     '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Assigned crew</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">'+crew+'</div>'+
+     assignBtn+'</div></div>';
+ }).join('');
+ return '<div class="hero"><div><h2>Work Scopes</h2><div class="sub">Scopes auto-check that every assigned engineer holds the required, in-date competence</div></div></div><div class="grid" style="grid-template-columns:repeat(2,1fr)">'+cards+'</div>';
+}
+
+/* ---------- Reports ---------- */
+function vReports(){
+ var fp=fleetPct();
+ var byStatus={valid:0,expiring:0,expired:0,pending:0,action:0};DB.ppe.concat(DB.training,DB.calibration).forEach(function(x){var s=statusOf(x);byStatus[s]=(byStatus[s]||0)+1;});
+ var total=Object.values(byStatus).reduce(function(a,b){return a+b;},0);
+ var donut=(function(){var segs=[['valid','var(--green2)'],['expiring','var(--amber)'],['pending','var(--accent)'],['expired','var(--red)'],['action','var(--red)']];var off=0,r=52,cir=2*Math.PI*r;var parts=segs.map(function(s){var v=byStatus[s[0]]||0;var frac=v/total;var seg='<circle cx="70" cy="70" r="'+r+'" fill="none" stroke="'+s[1]+'" stroke-width="16" stroke-dasharray="'+(frac*cir)+' '+cir+'" stroke-dashoffset="'+(-off*cir)+'" transform="rotate(-90 70 70)"/>';off+=frac;return seg;}).join('');return '<svg width="140" height="140" viewBox="0 0 140 140">'+parts+'<text x="70" y="66" text-anchor="middle" fill="var(--text)" font-family="var(--fm)" font-size="22" font-weight="700">'+fp+'%</text><text x="70" y="84" text-anchor="middle" fill="var(--text3)" font-size="9">compliant</text></svg>';})();
+ var legend=[['Valid','valid','var(--green2)'],['Expiring','expiring','var(--amber)'],['Pending','pending','var(--accent)'],['Expired','expired','var(--red)'],['Missing','action','var(--red)']].map(function(l){return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px"><span class="dot" style="background:'+l[2]+'"></span><span style="flex:1;color:var(--text2)">'+l[0]+'</span><span class="mono" style="font-weight:700">'+(byStatus[l[1]]||0)+'</span></div>';}).join('');
+ // expiry over next 6 months bar chart
+ var months=[];for(var i=0;i<6;i++){var d=new Date(TODAY);d.setMonth(d.getMonth()+i);months.push({k:d.toLocaleString('en-GB',{month:'short'}),n:0});}
+ DB.ppe.concat(DB.training,DB.calibration).forEach(function(x){var d=daysUntil(x.expires||x.dueCal);if(d>=0&&d<183){var mi=Math.floor(d/30.4);if(months[mi])months[mi].n++;}});
+ var maxN=Math.max.apply(null,months.map(function(m){return m.n;}))||1;
+ var bars=months.map(function(m){var h=Math.round(m.n/maxN*120);return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="font-family:var(--fm);font-size:11px;color:var(--amber);font-weight:700">'+m.n+'</div><div style="width:60%;height:'+Math.max(h,3)+'px;background:linear-gradient(180deg,var(--amber),rgba(255,183,3,.3));border-radius:5px 5px 0 0"></div><div style="font-size:10px;color:var(--text3)">'+m.k+'</div></div>';}).join('');
+ var topAtt=attentionList().slice(0,6).map(function(a){var m=STMETA(a.s);return '<tr><td><span class="nm">'+esc(a.eng.name)+'</span></td><td>'+a.kind+'</td><td>'+esc(a.label)+'</td><td><span class="pill '+m[0]+'">'+m[1]+'</span></td></tr>';}).join('');
+ return '<div class="hero"><div><h2>Reports</h2><div class="sub">Fleet compliance analytics · '+total+' tracked records</div></div><div class="hero-act"><button class="btn" data-act="export">'+I.dl+' Export CSV</button></div></div>'+
+  '<div class="grid" style="grid-template-columns:1fr 1.4fr;margin-bottom:16px">'+
+   '<div class="card"><div class="card-t">Compliance breakdown</div><div style="display:flex;align-items:center;gap:18px"><div>'+donut+'</div><div style="flex:1">'+legend+'</div></div></div>'+
+   '<div class="card"><div class="card-t">Certificates expiring — next 6 months</div><div style="display:flex;align-items:flex-end;gap:10px;height:170px;padding-top:10px">'+bars+'</div></div>'+
+  '</div>'+
+  '<div class="grid" style="grid-template-columns:1fr">'+
+   '<div class="card pad0"><div class="card-h"><span class="t">Priority actions</span></div><table><thead><tr><th>Engineer</th><th>Type</th><th>Item</th><th>Status</th></tr></thead><tbody>'+(topAtt||'<tr><td colspan=4><div class="empty">All clear</div></td></tr>')+'</tbody></table></div>'+
+  '</div>';
+}
+
+/* ---------- Audit ---------- */
+function vAudit(){
+ var rows=DB.audit.map(function(a){return '<tr><td class="mono" style="font-size:11px;color:var(--text3)">'+new Date(a.ts).toLocaleString('en-GB')+'</td><td class="nm">'+esc(a.who)+'</td><td>'+esc(a.act)+'</td></tr>';}).join('');
+ return '<div class="hero"><div><h2>Audit Log</h2><div class="sub">Every change is recorded · newest first</div></div></div><div class="card pad0"><table><thead><tr><th>When</th><th>Who</th><th>Action</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+/* ---------- My Compliance (engineer) ---------- */
+function vMyCompliance(){
+ var id=myEngId();var e=eById(id);var c=compOf(id);var R=recsFor(id);
+ function block(title,arr,kind){
+   var rows=arr.map(function(x){var s=statusOf(x);var m=STMETA(s);return '<tr class="clk" data-act="open" data-kind="'+kind+'" data-id="'+x.id+'"><td>'+esc(x.type||x.cert||x.tool)+(x.competence?' <span class="pill n" style="font-size:8px;padding:1px 5px">competence</span>':'')+'</td><td>'+fmt(x.expires||x.dueCal)+'</td><td><span class="pill '+m[0]+'">'+m[1]+'</span></td><td style="text-align:right">'+certCell(x,kind)+'</td></tr>';}).join('')||'<tr><td colspan="4"><div class="empty" style="padding:18px">None</div></td></tr>';
+   return '<div class="card pad0"><div class="card-h"><span class="t">'+title+'</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">'+arr.length+'</span></div><table><tbody>'+rows+'</tbody></table></div>';
+ }
+ var ready=c.st!=='r';
+ return '<div class="hero"><div><h2>My Compliance</h2><div class="sub">'+esc(e.name)+' · your live deployment readiness</div></div><div class="hero-act"><span class="pill '+(ready?'g':'r')+'" style="font-size:12px;padding:6px 13px"><span class="d"></span>'+(ready?'Deployment ready':'Action required')+'</span></div></div>'+
+  '<div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">'+
+   '<div class="kpi" style="--kc:'+compColor(c.st)+'"><div class="v" style="color:'+compColor(c.st)+'">'+c.pct+'%</div><div class="l">Overall</div></div>'+
+   '<div class="kpi" style="--kc:var(--accent)"><div class="v">'+R.ppe.filter(function(x){return statusOf(x)==='valid';}).length+'/'+R.ppe.length+'</div><div class="l">PPE valid</div></div>'+
+   '<div class="kpi" style="--kc:var(--purple)"><div class="v">'+R.train.filter(function(x){return statusOf(x)==='valid';}).length+'/'+R.train.length+'</div><div class="l">Quals valid</div></div>'+
+   '<div class="kpi" style="--kc:var(--amber)"><div class="v">'+R.cal.filter(function(x){return statusOf(x)==='valid';}).length+'/'+R.cal.length+'</div><div class="l">Tools in date</div></div>'+
+  '</div>'+
+  '<div class="grid" style="grid-template-columns:1fr 1fr">'+block('My PPE',R.ppe,'ppe')+block('My Calibration',R.cal,'calibration')+'</div>'+
+  '<div style="height:16px"></div>'+block('My Training & Competence',R.train,'training')+
+  '<div class="miniwarn" style="margin-top:14px">'+I.lock+' You can view the <b>status</b> of your competence certificates, and upload new ones, but the competence PDFs themselves are held by the office (PPE &amp; calibration certs you can download).</div>';
+}
+
+/* ===================== INTERACTIVITY ===================== */
+function bindDynamic(){
+ // search
+ var q=$('#q');if(q){q.oninput=function(){S.q=q.value;var c=$('#content');if(c)c.innerHTML=view();bindDynamic();var qq=$('#q');if(qq){qq.focus();qq.value=S.q;qq.setSelectionRange(S.q.length,S.q.length);}};}
+ // drag & drop (planner)
+ $$('.echip[draggable=true]').forEach(function(ch){
+   ch.addEventListener('dragstart',function(ev){ev.dataTransfer.setData('text/plain',JSON.stringify({eng:ch.dataset.eng,from:ch.dataset.from||'cell',week:ch.dataset.week,site:ch.dataset.site}));setTimeout(function(){ch.style.opacity='.4';},0);});
+   ch.addEventListener('dragend',function(){ch.style.opacity='';});
+ });
+ $$('.pcell').forEach(function(cell){
+   cell.addEventListener('dragover',function(ev){ev.preventDefault();cell.classList.add('over');});
+   cell.addEventListener('dragleave',function(){cell.classList.remove('over');});
+   cell.addEventListener('drop',function(ev){ev.preventDefault();cell.classList.remove('over');var d;try{d=JSON.parse(ev.dataTransfer.getData('text/plain'));}catch(e){return;}assignEng(d.eng,cell.dataset.site,parseInt(cell.dataset.week),d);});
+ });
+}
+
+document.addEventListener('click',function(ev){
+ var t=ev.target.closest('[data-act]');
+ var menu=$('#rolemenu');
+ if(menu && !ev.target.closest('#rolemenu') && !ev.target.closest('[data-act=menu]')){menu.remove();}
+ if(!t)return;
+ var a=t.dataset.act;
+ if(a==='signin'){S.role=t.dataset.role;S.profile=S.role==='dual'?'admin':'admin';S.tab=(S.role==='engineer')?'mycompliance':'dashboard';S.sel=null;render();return;}
+ if(a==='tab'){S.tab=t.dataset.tab;S.sel=null;S.filter='all';render();return;}
+ if(a==='theme'){S.theme=S.theme==='night'?'alpine':'night';render();return;}
+ if(a==='reset'){reset();return;}
+ if(a==='filter'){S.filter=t.dataset.f;var c=$('#content');c.innerHTML=view();bindDynamic();return;}
+ if(a==='open'){openRecord(t.dataset.kind,t.dataset.id);return;}
+ if(a==='profile'){S.sel=t.dataset.id;S.tab='engineers';render();return;}
+ if(a==='dl'){toast('Opening '+(t.dataset.name||'certificate')+' (demo)');return;}
+ if(a==='upload'){uploadModal(t.dataset.kind,t.dataset.id);return;}
+ if(a==='verify'){doVerify(t.dataset.kind,t.dataset.id);return;}
+ if(a==='reject'){doReject(t.dataset.kind,t.dataset.id);return;}
+ if(a==='delrec'){doDelete(t.dataset.kind,t.dataset.id);return;}
+ if(a==='unassign'){unassign(t.dataset.eng,t.dataset.site,parseInt(t.dataset.week));return;}
+ if(a==='rams'){toggleRams(t.dataset.id);return;}
+ if(a==='export'){doExport();return;}
+ if(a==='newrec'){newRecordModal(t.dataset.kind);return;}
+ if(a==='assignscope'){assignScopeModal(t.dataset.id);return;}
+ if(a==='archeng'){archiveEng(t.dataset.id);return;}
+ if(a==='menu'){roleMenu(t);return;}
+ if(a==='setrole'){S.role=t.dataset.role;S.profile='admin';S.tab=S.role==='engineer'?'mycompliance':'dashboard';S.sel=null;$('#rolemenu')&&$('#rolemenu').remove();render();return;}
+ if(a==='setprofile'){S.profile=t.dataset.p;$('#rolemenu')&&$('#rolemenu').remove();S.tab=S.profile==='me'?'mycompliance':'dashboard';render();return;}
+ if(a==='closeov'){closeOverlay();return;}
+},true);
+
+/* actions */
+function assignEng(engId,siteId,week,d){
+ if(d && d.from==='cell' && d.site && d.week!=null){ // move: remove old
+   DB.assign=DB.assign.filter(function(x){return !(x.engId===d.eng&&x.siteId===d.site&&x.week==d.week);});
+ }
+ if(DB.assign.some(function(x){return x.engId===engId&&x.siteId===siteId&&x.week===week;})){var cc=$('#content');cc.innerHTML=view();bindDynamic();return;}
+ DB.assign.push({engId:engId,siteId:siteId,week:week});
+ var e=eById(engId);var s=DB.sites.filter(function(x){return x.id===siteId;})[0];var comp=compOf(engId);
+ audit('Assigned '+e.name+' to '+s.name+' ('+DB.weeks[week].label+')');save();
+ var clash=DB.assign.filter(function(x){return x.engId===engId&&x.week===week;}).length>1;
+ toast((comp.st==='r'?'⚠ '+e.name+' assigned — compliance gap':clash?'⚠ '+e.name+' double-booked '+DB.weeks[week].label:e.name+' → '+s.name));
+ var c=$('#content');c.innerHTML=view();bindDynamic();
+}
+function unassign(engId,siteId,week){DB.assign=DB.assign.filter(function(x){return !(x.engId===engId&&x.siteId===siteId&&x.week===week);});var e=eById(engId);audit('Removed '+e.name+' from deployment');save();var c=$('#content');c.innerHTML=view();bindDynamic();}
+function recArr(kind){return kind==='ppe'?DB.ppe:kind==='training'?DB.training:DB.calibration;}
+function findRec(kind,id){return recArr(kind).filter(function(x){return x.id===id;})[0];}
+function doVerify(kind,id){var x=findRec(kind,id);x.pending=false;x.verified=true;audit('Verified '+(x.type||x.cert||x.tool)+' for '+(eById(x.engId)?eById(x.engId).name:'pool'));save();toast('Certificate verified ✓');closeOverlay();var c=$('#content');c.innerHTML=view();bindDynamic();}
+function doReject(kind,id){var x=findRec(kind,id);x.pending=false;x.verified=false;x.certName=null;audit('Rejected certificate for '+(x.type||x.cert||x.tool));save();toast('Certificate rejected');closeOverlay();var c=$('#content');c.innerHTML=view();bindDynamic();}
+function doDelete(kind,id){var x=findRec(kind,id);var arr=recArr(kind);var i=arr.indexOf(x);arr.splice(i,1);audit('Permanently deleted record '+(x.type||x.cert||x.tool)+' (Director)');save();toast('Record permanently deleted');closeOverlay();var c=$('#content');c.innerHTML=view();bindDynamic();}
+function toggleRams(siteId){var s=DB.sites.filter(function(x){return x.id===siteId;})[0];s.rams=s.rams==='approved'?'awaiting':'approved';audit((s.rams==='approved'?'Approved':'Revoked')+' SSOW/RAMS for '+s.name);save();toast('RAMS '+(s.rams==='approved'?'approved ✓':'revoked')+' — '+s.name);var c=$('#content');c.innerHTML=view();bindDynamic();}
+function archiveEng(id){var e=eById(id);audit('Archived engineer '+e.name+' (Director)');toast(e.name+' archived (demo)');}
+function doExport(){
+ var rows=[['Engineer','Type','Item','Expires','Status','Verified']];
+ DB.ppe.forEach(function(x){var e=eById(x.engId);rows.push([e.name,'PPE',x.type,x.expires,statusOf(x),x.verified]);});
+ DB.training.forEach(function(x){var e=eById(x.engId);rows.push([e.name,'Training',x.cert,x.expires,statusOf(x),x.verified]);});
+ DB.calibration.forEach(function(x){var e=eById(x.engId);rows.push([e?e.name:'Pool','Calibration',x.tool,x.dueCal,statusOf(x),x.verified]);});
+ var csv=rows.map(function(r){return r.map(function(c){return '"'+(''+c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+ var blob=new Blob([csv],{type:'text/csv'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='skyform_compliance_demo.csv';a.click();URL.revokeObjectURL(url);toast('Exported compliance CSV');
+}
+
+/* overlay: drawer + modal */
+function closeOverlay(){var o=$('#overlay');o.innerHTML='';}
+function drawer(title,sub,body,col){
+ var o=$('#overlay');
+ o.innerHTML='<div class="drawer-back" data-act="closeov"><div class="drawer" onclick="event.stopPropagation()"><div class="drawer-h"><div style="width:6px;height:34px;border-radius:3px;background:'+(col||'var(--accent)')+'"></div><div><div style="font-family:var(--fh);font-weight:700;font-size:17px">'+esc(title)+'</div>'+(sub||'')+'</div><button class="x" data-act="closeov">'+I.x+'</button></div><div class="drawer-b">'+body+'</div></div></div>';
+ requestAnimationFrame(function(){$('.drawer-back').classList.add('show');});
+}
+function modal(title,body,footer){
+ var o=$('#overlay');
+ o.innerHTML='<div class="modal-back" data-act="closeov"><div class="modal" onclick="event.stopPropagation()"><div class="modal-h">'+esc(title)+'</div><div class="modal-b">'+body+'</div><div class="modal-f">'+footer+'</div></div></div>';
+ requestAnimationFrame(function(){$('.modal-back').classList.add('show');});
+}
+function uploadModal(kind,id){
+ var x=findRec(kind,id);var label=x.type||x.cert||x.tool;
+ var dexp=x.expires||x.dueCal||iso(new Date(TODAY.getFullYear()+2,TODAY.getMonth(),TODAY.getDate()));
+ modal('Upload certificate',
+  '<div class="field"><label>'+esc(label)+'</label><div class="uploadzone" id="uz">'+I.up+'<div><b id="uzn">Choose a file</b> or drag &amp; drop</div><div style="font-size:10px;margin-top:4px">PDF, JPG or PNG · simulated in demo</div></div></div>'+
+  '<div class="field"><label>'+(kind==='calibration'?'Next calibration due':'Expiry date')+'</label><input class="inp" type="date" id="uexp" value="'+dexp+'"></div>',
+  '<button class="btn gho" data-act="closeov">Cancel</button><button class="btn pri" id="uconfirm">'+I.up+' Upload</button>');
+ var picked={name:null};
+ $('#uz').onclick=function(){var inp=document.createElement('input');inp.type='file';inp.onchange=function(){if(inp.files[0]){picked.name=inp.files[0].name;$('#uzn').textContent=picked.name;}};inp.click();};
+ $('#uconfirm').onclick=function(){
+   var exp=$('#uexp').value;var nm=picked.name||((label.replace(/[^A-Za-z0-9]/g,'_'))+'_'+(x.engId||'tool')+'.pdf');
+   if(kind==='calibration')x.dueCal=exp; else x.expires=exp;
+   x.certName=nm;x.pending=true;x.verified=false;
+   audit((isEngView()?'Engineer uploaded ':'Uploaded ')+label+' certificate'+(x.engId?(' for '+(eById(x.engId)?eById(x.engId).name:'')):''));save();
+   closeOverlay();toast('Certificate uploaded — pending verification');
+   var c=$('#content');c.innerHTML=view();bindDynamic();
+ };
+}
+function newRecordModal(kind){
+ var opts,engOpts=DB.engineers.map(function(e){return '<option value="'+e.id+'">'+esc(e.name)+'</option>';}).join('');
+ if(kind==='ppe')opts=PPE_TYPES; else if(kind==='training')opts=TRAIN_CAT; else opts=TOOL_TYPES;
+ var typeOpts=opts.map(function(o){return '<option>'+esc(o)+'</option>';}).join('');
+ modal('Add '+(kind==='ppe'?'PPE':kind==='training'?'training':'calibration')+' record',
+  (kind!=='calibration'?'<div class="field"><label>Engineer</label><select class="inp" id="neng">'+engOpts+'</select></div>':'<div class="field"><label>Owner</label><select class="inp" id="neng">'+engOpts+'</select></div>')+
+  '<div class="field"><label>'+(kind==='calibration'?'Tool':kind==='training'?'Qualification':'PPE item')+'</label><select class="inp" id="ntype">'+typeOpts+'</select></div>'+
+  '<div class="field"><label>'+(kind==='calibration'?'Next due':'Expiry date')+'</label><input class="inp" type="date" id="nexp" value="'+iso(new Date(TODAY.getFullYear()+2,TODAY.getMonth(),TODAY.getDate()))+'"></div>',
+  '<button class="btn gho" data-act="closeov">Cancel</button><button class="btn pri" id="nconfirm">'+I.plus+' Add</button>');
+ $('#nconfirm').onclick=function(){
+   var eng=$('#neng').value,type=$('#ntype').value,exp=$('#nexp').value;
+   var idn=(kind[0].toUpperCase())+(Date.now()%100000);
+   if(kind==='ppe')DB.ppe.push({id:'P'+idn,engId:eng,type:type,issued:iso(TODAY),expires:exp,certName:null,verified:false,pending:false});
+   if(kind==='training')DB.training.push({id:'T'+idn,engId:eng,cert:type,obtained:iso(TODAY),expires:exp,certName:null,verified:false,pending:false,competence:true});
+   if(kind==='calibration')DB.calibration.push({id:'C'+idn,tool:type,serial:type.split(' ')[0].toUpperCase().slice(0,3)+'-NEW',engId:eng,lastCal:iso(TODAY),dueCal:exp,certName:null,verified:false,pending:false});
+   audit('Added '+type+' record');save();closeOverlay();toast('Record added — upload a certificate next');var c=$('#content');c.innerHTML=view();bindDynamic();
+ };
+}
+function assignScopeModal(id){
+ var w=DB.scopes.filter(function(x){return x.id===id;})[0];
+ var opts=DB.engineers.filter(function(e){return w.engIds.indexOf(e.id)<0;}).map(function(e){
+   var has=w.required.every(function(rc){return DB.training.some(function(t){return t.engId===e.id&&t.cert===rc&&statusOf(t)!=='expired'&&!t.pending;});});
+   return '<option value="'+e.id+'">'+esc(e.name)+(has?' ✓ qualified':' ⚠ missing cert')+'</option>';}).join('');
+ modal('Assign engineer to “'+esc(w.name)+'”',
+  '<div class="field"><label>Engineer</label><select class="inp" id="seng">'+opts+'</select></div><div style="font-size:11px;color:var(--text3)">The scope requires: '+w.required.map(esc).join(', ')+'</div>',
+  '<button class="btn gho" data-act="closeov">Cancel</button><button class="btn pri" id="sconfirm">Assign</button>');
+ $('#sconfirm').onclick=function(){var eng=$('#seng').value;if(eng){w.engIds.push(eng);audit('Assigned '+eById(eng).name+' to scope '+w.name);save();}closeOverlay();toast('Engineer assigned to scope');var c=$('#content');c.innerHTML=view();bindDynamic();};
+}
+function roleMenu(anchor){
+ var ex=$('#rolemenu');if(ex){ex.remove();return;}
+ var roles=[['engineer','Engineer'],['manager','Manager'],['director','Director'],['hseq','HSEQ Manager'],['dual','Dual role']];
+ var items=roles.map(function(r){return '<div class="dd-o'+(r[0]===S.role?' on':'')+'" data-act="setrole" data-role="'+r[0]+'">'+r[1]+(r[0]===S.role?' <span style="margin-left:auto">✓</span>':'')+'</div>';}).join('');
+ var prof='';
+ if(S.role==='dual'){prof='<div class="dd-h" style="border-top:1px solid var(--border)">Your profile</div>'+
+   '<div class="dd-o'+(S.profile==='admin'?' on':'')+'" data-act="setprofile" data-p="admin">Admin profile</div>'+
+   '<div class="dd-o'+(S.profile==='me'?' on':'')+'" data-act="setprofile" data-p="me">My engineer profile</div>';}
+ var dd=document.createElement('div');dd.className='dd';dd.id='rolemenu';dd.style.top='52px';dd.style.right='22px';
+ dd.innerHTML='<div class="dd-h">Demo — switch role</div>'+items+prof;
+ $('.topbar').appendChild(dd);
+}
+function toast(msg){var t=$('#toast');t.innerHTML=I.chk+'<span>'+esc(msg)+'</span>';t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove('show');},2600);}
+
+/* ---------- boot ---------- */
+load();render();
+
+</script></body></html>

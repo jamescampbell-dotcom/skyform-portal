@@ -75,6 +75,8 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px;}
 .cond-btn.cg{border-color:var(--green);background:var(--gbg);color:var(--green);}
 .cond-btn.ca{border-color:var(--amber);background:var(--abg);color:var(--amber);}
 .cond-btn.cr{border-color:var(--red);background:var(--rbg);color:var(--red);}
+/* Papertrail claim button */
+#pt-cert-btn:hover{border-color:var(--accent)!important;color:var(--text)!important;}
 /* image upload */
 .img-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:14px;text-align:center;cursor:pointer;transition:all .15s;position:relative;}
 .img-zone:hover{border-color:var(--accent);background:rgba(31,111,235,.04);}
@@ -379,11 +381,29 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px;}
             <label>Certificate <span id="cert-req-badge" style="display:none;color:var(--amber);font-weight:700;font-size:10px">&#9888; Required</span><span id="cert-opt-note" style="color:var(--text3);font-weight:400;font-size:10px"> (optional)</span></label>
             <div class="img-zone" id="cert-zone" style="border-color:var(--border2)"><span class="iz-icon">&#128196;</span><div class="iz-text">Upload certificate or test report</div><div class="iz-sub">JPG, PNG or PDF - max 5MB</div></div>
             <input type="hidden" id="cert-photo-data">
-            <!-- Papertrail reference (Phase 2) -->
-            <div style="margin-top:6px;display:flex;align-items:center;gap:6px;">
-              <span style="font-size:10px;color:var(--text3);flex-shrink:0">or Papertrail ref:</span>
-              <input type="text" id="cert-papertrail-ref" placeholder="e.g. PT-12345" style="flex:1;font-size:11px;padding:4px 7px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:inherit;" title="Phase 2: enter the Papertrail asset/record ID to link directly">
+            <!-- Papertrail certification claim -->
+            <div style="margin-top:7px;">
+              <button type="button" id="pt-cert-btn" onclick="togglePapertrailClaim()"
+                style="width:100%;padding:7px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text3);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;">
+                <span style="font-size:14px">📋</span> Certification on Papertrail
+              </button>
+              <div id="pt-claim-area" style="display:none;margin-top:6px;padding:10px;background:var(--bbg,rgba(31,111,235,.08));border:1px solid rgba(88,166,255,.25);border-radius:6px;">
+                <div style="font-size:11px;font-weight:700;color:var(--blue,#58a6ff);margin-bottom:6px;">📋 This certification is on Papertrail</div>
+                <label style="display:flex;align-items:flex-start;gap:7px;cursor:pointer;font-size:11px;color:var(--text2);text-transform:none;letter-spacing:0;font-weight:400;">
+                  <input type="checkbox" id="pt-cert-chk" style="margin-top:1px;flex-shrink:0;" onchange="onPapertrailChkChange()">
+                  <span>I confirm this certificate exists on Papertrail. Please check against Papertrail records and verify on my behalf.</span>
+                </label>
+                <div style="margin-top:7px;">
+                  <label style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);">Papertrail Reference <span style="font-weight:400">(optional)</span></label>
+                  <input type="text" id="cert-papertrail-ref" placeholder="e.g. PT-12345 or asset name"
+                    style="margin-top:3px;width:100%;font-size:11px;padding:5px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:inherit;">
+                </div>
+                <div style="margin-top:6px;font-size:10px;color:var(--text3);font-style:italic;">
+                  ⏳ This item will be submitted as pending — admin will verify against Papertrail data during Phase 1 manual check, or automatically in Phase 2.
+                </div>
+              </div>
             </div>
+            <input type="hidden" id="pt-cert-claimed-flag" value="">
             <div id="no-cert-wrap" style="display:none;margin-top:6px;">
               <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3);cursor:pointer;text-transform:none;letter-spacing:0">
                 <input type="checkbox" id="no-cert-chk"> I don't currently have the certificate
@@ -858,7 +878,8 @@ function doSubmit(){
     submitted_by:sub,
     cert_image_data:document.getElementById("cert-photo-data").value?"[cert attached]":"",
     papertrail_ref:(document.getElementById("cert-papertrail-ref")?document.getElementById("cert-papertrail-ref").value.trim():""),
-    cert_outstanding:document.getElementById("cert-missing-flag")?document.getElementById("cert-missing-flag").value:"",
+    papertrail_cert_claimed:!!(document.getElementById("pt-cert-chk")&&document.getElementById("pt-cert-chk").checked),
+    cert_outstanding:document.getElementById("pt-cert-claimed-flag")?document.getElementById("pt-cert-claimed-flag").value:(document.getElementById("cert-missing-flag")?document.getElementById("cert-missing-flag").value:""),
     other_description:document.getElementById("ppe-other-desc")?document.getElementById("ppe-other-desc").value.trim():"",
     verification_status:"pending"
   };
@@ -905,6 +926,39 @@ function resetForm(){
   document.querySelectorAll(".cond-btn").forEach(function(b,i){b.className="cond-btn"+(i===0?" cg":"");});
   document.getElementById("ppe-condition").value="Good"; selectedCondition="Good";
   updateRetirement();
+}
+
+function togglePapertrailClaim(){
+  var area=document.getElementById('pt-claim-area');
+  var btn=document.getElementById('pt-cert-btn');
+  var chk=document.getElementById('pt-cert-chk');
+  var isOpen=area.style.display!=='none';
+  if(isOpen){
+    area.style.display='none';
+    if(chk) chk.checked=false;
+    document.getElementById('pt-cert-claimed-flag').value='';
+    btn.style.cssText='width:100%;padding:7px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text3);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;';
+    btn.innerHTML='<span style="font-size:14px">📋</span> Certification on Papertrail';
+  } else {
+    area.style.display='block';
+    btn.style.cssText='width:100%;padding:7px 10px;background:rgba(88,166,255,.12);border:1px solid rgba(88,166,255,.4);border-radius:6px;color:var(--blue,#58a6ff);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;';
+    btn.innerHTML='<span style="font-size:14px">📋</span> ✓ Claimed on Papertrail (tap to remove)';
+  }
+}
+
+function onPapertrailChkChange(){
+  var chk=document.getElementById('pt-cert-chk');
+  var flag=document.getElementById('pt-cert-claimed-flag');
+  if(flag) flag.value=chk&&chk.checked?'on_papertrail':'';
+  // Disable the direct upload zone when Papertrail is claimed
+  var zone=document.getElementById('cert-zone');
+  var certData=document.getElementById('cert-photo-data');
+  if(chk&&chk.checked){
+    if(zone){zone.style.opacity='0.4';zone.style.pointerEvents='none';}
+    if(certData) certData.value='';
+  } else {
+    if(zone){zone.style.opacity='';zone.style.pointerEvents='';}
+  }
 }
 
 function showToast(msg,type){

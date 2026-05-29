@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Skyform Wind — Operations Portal (DEMO)</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#070C16;--card:#0A1628;--card2:#0D2137;--border:#1E3A5A;--text:#E2E8F0;--text2:#94A3B8;--text3:#536179;
+--accent:#00D4FF;--accent2:#0080FF;--green:#00FF88;--amber:#FFB703;--red:#FF6B35;--purple:#A78BFA;
+--gbg:rgba(0,255,136,.13);--abg:rgba(255,183,3,.13);--rbg:rgba(255,107,53,.13);--bbg:rgba(0,212,255,.12);--pbg:rgba(167,139,250,.14);
+--fhead:'Rajdhani';--fdisp:'Plus Jakarta Sans';--fdata:'JetBrains Mono'}
+body.alpine{--bg:#EEF0F5;--card:#FFFFFF;--card2:#F7F8FC;--border:#E2E5EE;--text:#15192E;--text2:#3F4760;--text3:#8A91A6;
+--accent:#4F46E5;--accent2:#7C3AED;--green:#059669;--amber:#D97706;--red:#DC2626;--purple:#7C3AED;
+--gbg:#D1FAE5;--abg:#FEF3C7;--rbg:#FEE2E2;--bbg:#EEF2FF;--pbg:#F3E8FF}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.mono{font-family:var(--fdata),monospace}
+.demo-flag{position:fixed;top:0;left:0;right:0;height:26px;background:repeating-linear-gradient(45deg,#FFB703,#FFB703 14px,#0A1628 14px,#0A1628 28px);z-index:200;display:flex;align-items:center;justify-content:center}
+.demo-flag span{background:#0A1628;color:#FFB703;font-family:var(--fhead);font-weight:700;font-size:11px;letter-spacing:.25em;padding:2px 16px;border-radius:0 0 8px 8px;text-transform:uppercase}
+.wrap{padding-top:26px}
+
+/* LOGIN / ROLE PICKER */
+#login{min-height:calc(100vh - 26px);display:flex;align-items:center;justify-content:center;padding:24px;
+background:radial-gradient(ellipse at 30% 20%,rgba(0,212,255,.08),transparent 60%),var(--bg)}
+.login-card{width:100%;max-width:540px;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.5)}
+.login-top{background:linear-gradient(135deg,var(--card2),var(--card));padding:30px 32px;border-bottom:1px solid var(--border);text-align:center}
+.logo-badge{width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:inline-flex;align-items:center;justify-content:center;font-family:var(--fhead);font-weight:700;font-size:20px;color:#fff;box-shadow:0 0 26px rgba(0,212,255,.5);margin-bottom:12px}
+.login-top h1{font-family:var(--fhead);font-size:24px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.login-top p{color:var(--text3);font-size:12px;margin-top:4px}
+.login-body{padding:24px 32px 30px}
+.login-body .lead{font-size:12.5px;color:var(--text2);text-align:center;margin-bottom:18px}
+.role-btn{width:100%;display:flex;align-items:center;gap:14px;background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:14px 16px;margin-bottom:11px;cursor:pointer;transition:.15s;text-align:left;color:var(--text)}
+.role-btn:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,212,255,.12)}
+.role-ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.role-meta .rn{font-family:var(--fdisp);font-weight:700;font-size:15px}
+.role-meta .rd{font-size:11px;color:var(--text3);margin-top:1px}
+.role-go{margin-left:auto;color:var(--text3);font-size:18px}
+.login-foot{text-align:center;font-size:10px;color:var(--text3);margin-top:8px;line-height:1.6}
+
+/* APP SHELL */
+#app{display:none}
+.tb{position:sticky;top:26px;z-index:100;background:var(--card);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;padding:0 20px;gap:16px}
+.tb .logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;font-family:var(--fhead);box-shadow:0 0 14px rgba(0,212,255,.5)}
+.tb .brand{font-family:var(--fhead);font-size:16px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+.tb .navs{display:flex;gap:6px;margin-left:14px}
+.tb .nav{font-size:12.5px;font-weight:600;color:var(--text3);padding:7px 12px;border-radius:8px;cursor:pointer}
+.tb .nav.on{color:var(--accent);background:var(--bbg)}
+.tb .nav:hover{color:var(--text)}
+.tb .right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.iconbtn{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:6px 11px;cursor:pointer;color:var(--text2);font-size:11px;font-weight:600}
+.iconbtn:hover{color:var(--text);border-color:var(--accent)}
+.live{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--green)}
+.live .pd{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.who{display:flex;align-items:center;gap:9px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:5px 10px 5px 6px;cursor:pointer}
+.who .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.who .wn{font-size:12px;font-weight:600;line-height:1.1}.who .wr{font-size:9px;color:var(--text3)}
+.dropdown{position:absolute;right:20px;top:78px;background:var(--card);border:1px solid var(--border);border-radius:12px;width:230px;box-shadow:0 16px 40px rgba(0,0,0,.5);overflow:hidden;display:none;z-index:120}
+.dropdown.show{display:block}
+.dd-h{padding:8px 13px;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
+.dd-opt{padding:10px 13px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--text2);cursor:pointer}
+.dd-opt:hover{background:var(--card2);color:var(--text)}
+.dd-opt.on{color:var(--accent)}
+
+.main{padding:22px 24px;max-width:1340px;margin:0 auto}
+.hero{display:flex;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.hero h2{font-family:var(--fdisp);font-size:25px;font-weight:800;letter-spacing:-.5px}
+.hero .sub{font-size:12.5px;color:var(--text3);margin-top:3px}
+.hstats{margin-left:auto;display:flex;gap:22px}
+.hstat{text-align:right}.hstat .v{font-family:var(--fdata);font-size:21px;font-weight:700}.hstat .l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+
+.grid{display:grid;gap:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:18px}
+.card-t{font-family:var(--fhead);font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-t .a{margin-left:auto;font-size:10px;color:var(--accent);font-family:'Inter';font-weight:600;cursor:pointer}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:17px;position:relative;overflow:hidden}
+.kpi .ic{position:absolute;right:13px;top:13px;font-size:17px;opacity:.5}
+.kpi .v{font-family:var(--fdata);font-size:28px;font-weight:700;line-height:1}
+.kpi .l{font-size:11px;color:var(--text3);margin-top:6px}
+.kpi .d{font-size:10px;margin-top:6px;font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:9.5px;font-weight:600;border:1px solid transparent}
+.g{background:var(--gbg);color:var(--green)}.a{background:var(--abg);color:var(--amber)}.r{background:var(--rbg);color:var(--red)}.b{background:var(--bbg);color:var(--accent)}.p{background:var(--pbg);color:var(--purple)}
+.li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border)}.li:first-child{border-top:none}
+.dotc{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.bar{height:7px;border-radius:5px;background:var(--card2);overflow:hidden;flex:1}
+.bar i{display:block;height:100%;border-radius:5px}
+.ssow{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--border)}.ssow:first-child{border-top:none}
+.site-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+
+/* map */
+.mapwrap{position:relative;background:radial-gradient(ellipse at 40% 30%,#0A1A2E,#050A12 70%);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+body.alpine .mapwrap{background:radial-gradient(ellipse at 40% 30%,#EEF1FA,#FFF 70%)}
+.gridbg{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.05) 1px,transparent 1px);background-size:32px 32px}
+.mk-label{position:absolute;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:6px 9px;font-size:10px;transform:translateY(-50%)}
+.mk-label .t{font-family:var(--fhead);font-size:11px;font-weight:700}.mk-label .s{font-size:8.5px;color:var(--text3)}
+.cert-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--border)}.cert-row:first-child{border-top:none}
+.lockbtn{background:var(--card2);border:1px solid var(--border);color:var(--text3);border-radius:8px;padding:5px 10px;font-size:10px;cursor:not-allowed}
+.dlbtn{background:var(--bbg);border:1px solid transparent;color:var(--accent);border-radius:8px;padding:5px 10px;font-size:10px;cursor:pointer;font-weight:600}
+.av-sm{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0}
+.view{display:none}.view.on{display:block}
+@media(max-width:760px){.tb .navs{display:none}.hstats{width:100%;justify-content:space-between;gap:8px}.hstat .v{font-size:17px}}
+</style></head>
+<body>
+<div class="demo-flag"><span>● Demo environment · simulated data · not real records</span></div>
+<div class="wrap">
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-card">
+    <div class="login-top">
+      <div class="logo-badge">SW</div>
+      <h1>Skyform Wind Portal</h1>
+      <p>Operations Management System · Demo</p>
+    </div>
+    <div class="login-body">
+      <div class="lead">This is a demo with made-up data. Pick a role to see exactly what that person can access:</div>
+      <button class="role-btn" onclick="signIn('engineer')">
+        <div class="role-ic" style="background:var(--bbg);color:var(--accent)">👷</div>
+        <div class="role-meta"><div class="rn">Sign in as an Engineer</div><div class="rd">Sees only their own compliance · uploads certs</div></div><div class="role-go">→</div>
+      </button>
+      <button class="role-btn" onclick="signIn('manager')">
+        <div class="role-ic" style="background:var(--pbg);color:var(--purple)">🗂️</div>
+        <div class="role-meta"><div class="rn">Sign in as a Manager / Admin</div><div class="rd">Full fleet visibility · all certs · planning</div></div><div class="role-go">→</div>
+      </button>
+      <button class="role-btn" onclick="signIn('director')">
+        <div class="role-ic" style="background:var(--rbg);color:var(--red)">🛡️</div>
+        <div class="role-meta"><div class="rn">Sign in as a Director</div><div class="rd">Everything a manager has · plus permanent delete</div></div><div class="role-go">→</div>
+      </button>
+      <button class="role-btn" onclick="signIn('dual')">
+        <div class="role-ic" style="background:var(--gbg);color:var(--green)">🔀</div>
+        <div class="role-meta"><div class="rn">Sign in as a Dual-role user</div><div class="rd">Manager + their own engineer profile</div></div><div class="role-go">→</div>
+      </button>
+      <div class="login-foot">No real data is used anywhere in this demo.<br>Built to the Skyform Night Ops design scheme.</div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="tb">
+    <div class="logo">SW</div><div class="brand">Skyform Wind</div>
+    <div class="navs" id="navs"></div>
+    <div class="right">
+      <span class="live"><span class="pd"></span>LIVE</span>
+      <button class="iconbtn" onclick="toggleTheme()" id="themeBtn">◐ Alpine</button>
+      <div class="who" onclick="toggleMenu(event)"><div class="av" id="meAv">--</div><div><div class="wn" id="meName">--</div><div class="wr" id="meRole">--</div></div></div>
+    </div>
+  </div>
+  <div class="dropdown" id="menu"></div>
+  <div class="main">
+    <div class="view" id="v_compliance"></div>
+    <div class="view" id="v_operations"></div>
+    <div class="view" id="v_engineers"></div>
+    <div class="view" id="v_sites"></div>
+  </div>
+</div>
+</div>
+
+<script>
+var MAP = {"viewW": 520, "viewH": 640, "paths": ["M273.3,525.0 L271.0,527.3 L263.7,529.6 L260.6,531.9 L255.1,537.2 L254.0,537.7 L245.7,536.4 L239.6,529.5 L235.6,526.7 L234.0,526.4 L232.3,527.3 L228.7,528.1 L225.0,528.0 L226.9,524.8 L229.5,523.0 L223.7,521.8 L222.2,520.8 L220.3,518.6 L215.9,518.2 L213.7,518.8 L210.1,521.7 L204.4,524.9 L197.6,520.5 L196.2,518.6 L196.3,515.0 L195.2,512.1 L193.3,511.1 L195.8,507.3 L198.7,504.8 L205.2,502.3 L215.0,496.4 L220.4,493.9 L225.5,489.5 L227.7,486.9 L229.2,483.2 L230.7,478.8 L232.9,475.2 L230.8,474.3 L229.8,471.6 L230.1,468.8 L231.0,466.4 L230.2,463.3 L228.6,460.1 L228.7,457.6 L229.1,454.9 L225.2,455.0 L221.3,455.9 L217.7,457.8 L214.3,460.3 L211.2,460.8 L211.3,458.7 L212.6,456.2 L216.1,452.6 L219.8,449.5 L221.1,447.2 L222.1,444.6 L224.0,442.4 L228.8,438.4 L238.1,433.9 L239.5,433.6 L243.2,434.1 L246.8,433.4 L249.9,431.8 L253.0,431.4 L260.1,436.2 L258.0,428.9 L261.1,427.1 L265.6,433.7 L267.3,434.4 L270.8,433.4 L269.4,432.3 L267.8,432.3 L265.8,431.3 L264.0,429.2 L261.1,422.4 L261.2,418.5 L263.2,414.3 L265.4,410.5 L263.6,409.7 L262.1,408.3 L261.7,404.5 L262.3,401.1 L266.2,398.1 L267.3,393.6 L267.8,388.7 L267.2,386.4 L263.3,386.7 L261.4,387.7 L259.7,389.1 L258.0,389.1 L253.2,383.6 L250.4,379.4 L245.5,370.6 L244.8,365.4 L248.8,354.0 L254.8,346.8 L262.0,344.3 L260.6,343.8 L249.7,343.7 L246.1,344.6 L242.8,347.5 L240.9,348.4 L238.9,348.8 L237.1,350.2 L235.4,352.3 L233.6,353.6 L229.9,353.3 L228.2,353.7 L226.9,352.5 L225.8,350.6 L224.4,350.0 L222.9,350.6 L219.6,353.3 L216.3,354.8 L212.3,353.2 L207.0,350.1 L206.0,351.2 L204.8,354.1 L204.2,358.6 L200.4,354.7 L197.3,349.4 L196.2,346.2 L196.1,342.5 L197.8,341.0 L199.7,342.4 L202.5,333.6 L208.1,322.2 L210.0,318.9 L211.4,314.5 L211.2,311.6 L209.9,309.2 L204.8,303.8 L204.8,299.3 L205.4,294.3 L206.8,291.3 L207.4,290.7 L214.3,290.8 L211.6,289.2 L206.2,284.7 L206.3,283.0 L207.6,278.8 L207.0,279.3 L205.9,281.2 L203.7,285.9 L202.3,287.0 L198.6,288.1 L197.9,290.4 L197.3,291.0 L195.4,291.3 L194.8,293.5 L194.4,293.6 L193.9,291.3 L193.8,287.4 L194.6,283.9 L196.0,281.1 L201.5,274.8 L198.8,276.7 L192.7,282.5 L189.6,286.4 L188.8,287.7 L188.5,288.8 L188.5,290.0 L189.9,296.8 L189.5,299.9 L184.3,320.6 L183.3,322.6 L182.4,323.7 L181.5,324.0 L178.9,323.6 L177.8,322.0 L177.8,320.3 L178.2,317.6 L180.4,307.8 L181.4,305.1 L182.8,302.6 L185.9,298.2 L185.8,297.9 L183.7,298.7 L182.9,298.5 L182.2,297.6 L182.6,284.4 L184.3,280.1 L184.9,273.8 L186.4,268.4 L188.1,264.5 L189.3,259.5 L191.3,257.3 L191.8,253.8 L194.0,250.1 L195.6,246.3 L194.7,246.7 L184.0,256.7 L181.3,258.5 L177.6,258.1 L174.8,256.9 L172.6,254.5 L171.6,250.0 L168.8,249.9 L166.5,249.1 L166.5,248.5 L169.5,246.0 L174.4,245.1 L178.9,241.1 L174.9,238.4 L175.2,237.6 L178.7,235.3 L183.2,227.6 L184.1,220.5 L182.0,217.2 L181.2,215.0 L176.9,212.6 L176.2,209.5 L176.7,207.7 L178.1,206.0 L180.2,204.7 L183.5,203.5 L180.5,202.1 L179.4,200.5 L178.5,198.2 L178.5,196.9 L180.0,190.9 L180.9,188.4 L182.7,185.3 L190.7,185.5 L191.6,184.1 L192.5,184.0 L196.6,185.3 L196.0,183.9 L189.3,176.5 L188.7,175.1 L190.6,171.1 L190.7,169.3 L190.5,167.4 L191.0,165.9 L193.1,165.2 L199.6,165.3 L201.2,164.6 L200.4,162.7 L198.9,160.1 L198.7,158.0 L199.0,156.1 L199.1,152.3 L199.4,150.6 L200.9,148.1 L202.2,147.4 L203.8,146.9 L207.3,147.8 L208.7,148.8 L210.2,151.2 L211.4,151.0 L215.8,148.4 L217.1,148.0 L218.9,151.0 L226.4,148.6 L236.6,147.5 L242.7,145.9 L249.1,145.4 L255.1,143.6 L261.4,144.4 L261.7,145.4 L261.3,146.9 L259.7,150.9 L260.0,155.3 L259.6,156.7 L258.9,158.3 L256.5,161.4 L250.4,165.8 L239.2,176.0 L232.6,181.1 L231.7,183.5 L231.2,186.9 L235.1,187.6 L236.7,188.7 L235.7,190.4 L229.8,196.4 L228.1,201.8 L232.6,201.6 L236.3,200.6 L243.7,197.2 L250.7,194.7 L254.0,194.6 L260.5,196.6 L262.0,196.6 L264.7,195.7 L267.5,195.6 L286.4,196.2 L291.6,195.0 L295.1,196.4 L298.0,199.9 L300.8,206.3 L300.7,207.4 L299.0,210.3 L295.9,214.0 L293.3,219.1 L292.5,221.8 L292.0,224.8 L291.1,227.6 L285.9,240.6 L280.8,247.8 L278.5,252.9 L275.6,256.9 L272.9,259.5 L270.0,261.2 L261.6,263.0 L259.3,264.3 L256.5,266.6 L253.5,267.7 L257.0,267.6 L260.4,266.3 L266.6,265.8 L273.8,270.2 L273.1,273.7 L270.2,276.5 L263.7,276.9 L257.6,283.1 L254.8,285.0 L251.9,285.9 L248.3,285.6 L241.7,284.0 L238.8,282.3 L241.4,285.1 L244.3,286.6 L261.6,290.0 L262.6,289.7 L268.1,286.0 L275.4,285.9 L289.4,292.7 L293.4,297.9 L299.1,305.2 L302.3,308.1 L304.5,310.8 L305.9,314.7 L308.6,327.6 L311.7,340.3 L315.7,354.0 L317.6,357.8 L320.0,360.5 L332.2,366.6 L334.9,368.6 L339.6,374.6 L344.1,380.8 L348.4,385.7 L353.0,389.6 L350.7,391.6 L349.2,394.8 L350.4,399.2 L352.2,403.3 L355.9,410.0 L359.1,417.2 L357.9,416.1 L356.7,415.5 L355.0,415.7 L353.3,415.3 L350.2,413.1 L347.2,410.3 L341.3,411.4 L338.1,410.9 L335.2,411.0 L340.6,412.6 L346.5,412.7 L359.5,424.9 L363.9,432.1 L366.5,441.6 L364.7,445.9 L362.0,448.7 L359.4,451.8 L357.0,455.4 L364.2,460.7 L365.7,460.5 L367.3,459.8 L368.9,458.0 L371.5,453.6 L372.8,452.1 L377.3,451.5 L381.0,451.9 L384.8,452.8 L388.1,452.5 L394.7,454.4 L398.2,456.1 L406.6,463.7 L408.5,467.8 L409.3,473.2 L409.4,479.1 L408.0,484.5 L406.3,489.5 L405.3,495.8 L404.6,498.1 L403.6,499.9 L399.1,504.9 L396.2,506.9 L394.9,506.0 L393.6,506.1 L393.4,507.3 L394.8,509.9 L394.8,513.0 L392.2,515.2 L389.5,516.2 L385.0,515.0 L378.7,519.3 L383.2,521.4 L384.1,523.8 L383.0,527.8 L380.2,529.7 L377.1,530.5 L373.9,530.7 L371.2,531.7 L368.6,533.6 L371.8,532.6 L374.1,533.5 L375.5,536.9 L376.7,537.9 L383.0,539.3 L386.8,539.3 L394.3,538.5 L397.9,538.5 L399.2,539.1 L399.2,542.0 L398.6,549.0 L397.7,550.4 L387.8,556.3 L385.7,560.4 L385.2,562.9 L379.4,562.4 L376.7,565.1 L372.0,566.8 L368.3,568.7 L364.8,571.0 L361.9,571.7 L349.3,568.9 L341.7,569.2 L331.4,571.6 L328.7,571.2 L324.7,568.9 L320.6,567.3 L315.9,566.6 L311.9,564.5 L314.4,568.6 L308.8,572.6 L306.2,573.4 L303.5,573.2 L298.0,574.3 L293.0,573.8 L293.7,576.6 L295.1,579.1 L294.0,580.1 L292.8,580.4 L283.1,578.5 L281.7,578.9 L280.5,580.6 L277.0,579.7 L273.6,576.8 L270.0,574.8 L266.1,573.9 L263.1,574.2 L250.6,578.8 L248.1,583.4 L246.9,589.9 L245.1,595.7 L242.1,600.1 L238.6,600.7 L235.3,597.6 L229.1,594.2 L226.9,591.9 L226.3,591.8 L225.6,592.6 L223.1,593.6 L220.6,593.7 L216.6,594.6 L209.8,597.4 L207.1,599.2 L201.1,604.4 L199.9,605.8 L197.8,611.1 L194.5,612.0 L191.5,608.6 L188.1,607.5 L184.4,608.6 L182.3,610.4 L181.2,608.9 L181.2,606.0 L183.8,602.5 L190.9,599.8 L197.1,592.9 L200.1,588.6 L201.3,586.3 L202.8,584.7 L204.7,584.2 L205.7,581.5 L214.3,571.0 L215.0,568.6 L215.4,564.2 L216.1,560.1 L223.1,557.4 L226.5,548.6 L227.4,547.9 L237.1,546.3 L244.3,546.4 L251.5,548.2 L255.2,548.3 L258.9,547.7 L261.8,545.4 L266.7,536.8 L269.5,533.1 L272.7,529.7 L275.7,525.8 L280.6,518.6 L277.3,521.1 L273.3,525.0Z", "M226.2,432.8 L227.5,433.8 L230.7,433.7 L229.7,435.9 L226.1,438.4 L223.7,440.9 L220.8,443.0 L219.3,440.6 L217.7,440.7 L215.2,436.1 L214.8,429.3 L218.0,427.5 L222.5,427.6 L226.2,432.8Z", "M323.4,42.4 L322.6,43.0 L319.6,37.5 L321.9,31.2 L324.6,31.4 L325.0,33.0 L324.7,34.6 L323.3,34.7 L323.2,35.2 L323.7,38.1 L323.7,41.5 L323.4,42.4Z", "M315.2,41.1 L315.9,44.9 L317.5,43.9 L319.9,47.6 L321.1,47.6 L323.1,46.2 L322.7,49.6 L320.6,59.0 L320.0,60.7 L319.6,63.5 L319.2,64.1 L318.6,69.9 L317.2,71.8 L316.0,76.4 L315.5,76.9 L313.8,75.1 L315.5,68.1 L316.2,64.1 L315.8,62.0 L314.8,60.1 L312.1,60.0 L309.9,60.9 L309.4,59.8 L309.3,58.2 L308.8,57.7 L305.8,57.8 L305.0,57.4 L304.4,56.0 L304.3,54.9 L307.0,54.1 L309.5,54.4 L313.2,52.2 L310.9,44.8 L307.8,44.2 L307.1,43.4 L307.7,42.2 L309.4,41.5 L312.0,37.8 L313.5,37.2 L315.4,37.3 L315.2,41.1Z", "M258.0,135.7 L256.2,136.5 L254.5,136.4 L251.8,133.3 L250.7,131.0 L250.9,129.5 L252.1,129.0 L254.7,129.7 L256.1,132.3 L256.2,134.0 L256.6,134.7 L258.2,135.4 L258.0,135.7Z", "M261.3,123.0 L260.9,124.3 L263.2,124.3 L266.6,125.4 L268.7,125.6 L270.4,127.0 L269.5,129.6 L268.4,130.4 L267.3,130.5 L263.2,127.9 L257.9,129.0 L256.9,128.6 L256.2,127.9 L255.9,127.0 L255.9,125.1 L255.6,124.6 L253.7,126.3 L252.9,126.1 L252.4,125.3 L252.2,123.6 L252.4,121.0 L253.5,117.5 L255.4,116.8 L258.3,117.2 L261.5,119.2 L262.5,120.4 L262.5,121.4 L261.3,123.0Z", "M271.4,114.4 L268.8,115.8 L267.6,114.7 L267.4,111.2 L264.2,109.7 L262.7,108.7 L261.5,107.0 L261.8,106.4 L263.8,105.7 L267.3,108.9 L268.8,111.5 L271.4,112.3 L271.7,112.7 L271.4,114.4Z", "M198.2,317.3 L194.3,317.4 L192.9,316.9 L191.2,315.6 L189.3,308.1 L190.0,305.5 L190.8,304.2 L191.6,303.2 L193.7,302.8 L195.7,304.2 L196.5,305.5 L198.2,310.6 L198.5,314.9 L198.2,317.3Z", "M177.5,268.7 L165.2,271.8 L160.9,271.5 L160.6,270.0 L161.4,269.0 L164.9,268.1 L166.3,260.8 L161.0,257.5 L160.8,256.5 L161.2,254.9 L161.8,254.2 L165.0,252.5 L166.3,252.2 L167.4,252.4 L169.7,254.3 L172.2,258.4 L175.7,259.1 L178.0,260.8 L177.5,268.7Z", "M166.6,291.2 L167.7,298.2 L168.8,302.5 L168.9,304.0 L167.9,306.0 L162.8,308.8 L161.2,308.8 L161.1,308.1 L162.3,305.3 L161.3,302.2 L161.8,299.8 L161.3,299.3 L160.3,299.7 L156.7,303.5 L155.5,303.9 L155.3,303.1 L156.2,300.0 L156.3,297.8 L156.9,296.5 L157.9,295.3 L159.0,294.4 L160.0,294.3 L161.0,295.2 L164.0,292.6 L166.6,291.2Z", "M171.5,297.5 L170.9,298.1 L169.3,297.9 L168.7,297.0 L168.4,295.7 L168.4,293.2 L169.3,291.5 L173.3,288.8 L171.5,287.9 L171.4,287.2 L172.5,285.0 L176.8,281.5 L177.9,280.9 L179.1,281.0 L176.9,287.1 L171.5,297.5Z", "M164.5,159.1 L160.6,168.6 L159.0,168.8 L157.7,171.2 L153.5,173.8 L157.1,173.9 L158.2,174.7 L158.2,176.6 L157.5,177.7 L152.8,182.0 L149.5,183.7 L146.0,188.2 L144.3,188.3 L142.5,191.2 L141.1,192.4 L140.3,192.4 L139.4,191.8 L137.2,189.0 L141.1,186.2 L141.5,184.6 L144.2,183.0 L144.0,182.5 L139.7,180.2 L138.0,178.7 L138.2,177.9 L140.2,176.1 L139.3,175.9 L138.6,174.9 L137.4,174.6 L137.1,173.7 L136.8,171.4 L137.2,169.0 L138.4,167.9 L138.9,166.8 L139.4,166.4 L141.3,167.0 L143.3,168.9 L145.6,168.2 L148.2,168.6 L148.3,168.1 L146.3,163.4 L146.7,162.5 L147.7,161.4 L153.8,158.1 L161.4,152.4 L163.3,151.6 L163.8,152.3 L164.6,155.2 L164.5,159.1Z", "M166.1,205.7 L166.1,208.1 L165.6,210.9 L166.3,213.9 L166.4,216.1 L167.7,216.8 L168.5,217.8 L174.3,218.9 L179.7,218.5 L180.7,219.4 L180.8,220.8 L180.0,222.4 L176.9,225.2 L173.3,229.7 L172.2,230.7 L171.0,230.7 L170.2,230.3 L169.5,222.2 L165.6,223.3 L162.4,223.1 L160.7,222.2 L159.4,220.3 L157.0,215.4 L149.8,213.4 L147.8,210.8 L147.1,209.1 L147.4,208.2 L148.9,206.2 L150.8,206.9 L151.9,206.5 L152.6,205.6 L152.6,204.9 L151.6,203.1 L151.6,202.6 L158.9,200.4 L159.6,196.9 L161.2,196.7 L163.0,197.8 L165.5,201.4 L166.1,205.7Z", "M133.4,196.1 L136.9,199.1 L134.2,204.2 L129.9,204.2 L123.9,200.5 L123.9,199.7 L124.4,198.6 L125.3,197.7 L126.2,197.5 L127.7,198.1 L129.8,197.1 L131.4,197.5 L133.4,196.1Z", "M132.1,226.9 L130.8,227.2 L129.1,226.9 L128.0,226.0 L127.0,222.7 L126.8,220.7 L127.2,216.9 L127.1,212.5 L130.6,212.3 L131.5,213.0 L132.1,226.3 L132.1,226.9Z", "M163.9,391.2 L161.2,390.8 L159.4,391.8 L158.2,392.7 L157.0,392.5 L153.7,392.9 L150.6,392.8 L150.1,391.4 L150.7,387.1 L150.0,386.0 L147.0,385.4 L145.9,384.4 L144.1,381.4 L143.8,380.0 L143.6,378.1 L141.7,375.7 L139.5,373.9 L138.2,373.8 L135.7,376.7 L133.5,379.6 L134.3,381.1 L135.0,383.0 L133.8,384.4 L130.3,387.5 L129.8,388.8 L128.8,389.4 L127.2,388.5 L123.0,388.7 L121.1,388.2 L118.9,385.9 L113.4,384.3 L112.5,380.6 L111.5,379.9 L105.3,373.5 L104.5,371.4 L105.3,370.1 L107.6,368.2 L115.3,365.0 L116.5,363.7 L116.8,362.6 L114.5,361.3 L112.5,359.8 L111.8,358.9 L111.7,358.1 L112.9,357.0 L115.2,357.0 L117.0,357.4 L118.5,356.5 L121.1,355.5 L122.8,354.3 L124.3,351.2 L125.9,348.4 L126.0,346.9 L127.4,341.5 L128.2,340.2 L133.0,336.7 L134.3,338.6 L136.7,339.1 L138.8,337.3 L141.4,331.8 L143.2,331.5 L145.2,331.9 L149.1,331.2 L156.0,328.6 L159.0,328.6 L163.4,329.9 L166.6,329.9 L169.5,333.9 L171.0,340.1 L174.6,346.3 L179.3,351.6 L179.5,354.9 L177.8,356.7 L174.3,358.8 L174.3,361.2 L176.7,360.0 L178.7,359.5 L183.5,360.0 L185.2,362.4 L186.3,365.9 L186.9,368.8 L186.5,372.0 L185.2,371.0 L183.9,368.2 L182.4,366.9 L180.7,366.2 L181.5,370.1 L181.2,375.3 L182.0,375.8 L184.2,375.9 L182.7,381.2 L179.6,382.7 L176.0,383.2 L175.1,385.1 L174.4,387.5 L172.5,391.2 L170.0,393.2 L166.9,392.8 L163.9,391.2Z", "M322.7,575.7 L320.1,577.5 L319.3,579.7 L318.7,580.6 L317.0,581.2 L315.3,581.2 L308.8,576.8 L307.4,577.0 L308.8,575.0 L312.8,573.3 L315.1,571.2 L320.3,573.3 L322.7,575.7Z"], "markers": [{"name": "Whitelee", "x": 223.9, "y": 304.8, "kind": "onshore"}, {"name": "Clyde", "x": 244.6, "y": 314.6, "kind": "onshore"}, {"name": "Griffin", "x": 235.3, "y": 255.9, "kind": "onshore"}, {"name": "Beatrice", "x": 267.7, "y": 173.4, "kind": "offshore"}, {"name": "Moray East", "x": 264.6, "y": 166.9, "kind": "offshore"}, {"name": "Pen y Cymoedd", "x": 246.1, "y": 520.9, "kind": "onshore"}, {"name": "Hornsea", "x": 410.7, "y": 402.5, "kind": "offshore"}]};
+
+// ---------- SIMULATED DATA (fictional) ----------
+var FN=["Aiden Ross","Callum Reid","Declan Burns","Euan Shaw","Finlay Hart","Gregor Lyle","Hamish Boyd","Innes Kerr","Lewis Frame","Murray Dunn","Niall Speirs","Owen Tait","Rory Blane","Struan Vale","Tomas Reed","Cameron Wylie"];
+function seed(i){return (Math.sin(i*99.13)*10000)%1}
+var SITES=[
+ {n:"Whitelee",k:"onshore",ic:"🏔",rams:"approved",crew:4,comp:100},
+ {n:"Clyde",k:"onshore",ic:"🏔",rams:"approved",crew:3,comp:96},
+ {n:"Beatrice",k:"offshore",ic:"⚓",rams:"awaiting",crew:6,comp:84},
+ {n:"Moray East",k:"offshore",ic:"⚓",rams:"approved",crew:5,comp:91},
+ {n:"Griffin",k:"onshore",ic:"🏔",rams:"expired",crew:4,comp:72},
+ {n:"Hornsea",k:"offshore",ic:"⚓",rams:"approved",crew:3,comp:88},
+ {n:"Pen y Cymoedd",k:"onshore",ic:"🏔",rams:"approved",crew:2,comp:100}
+];
+var ENG=FN.map(function(nm,i){
+ var r=Math.abs(seed(i)); var comp=Math.round(70+r*30); // 70-100, avg ~85 -> overall ~80s
+ var inits=nm.split(" ").map(function(x){return x[0]}).join("");
+ var st=comp>=95?"g":comp>=82?"a":"r";
+ return {name:nm,init:inits,comp:comp,st:st,
+   ppe:comp>=90?"valid":(r>0.5?"expiring":"action"),
+   quals:comp>=85?"valid":"expiring",
+   tools:r>0.3?"valid":"due",
+   site:SITES[i%SITES.length].n,
+   role:i<3?"Inspector":"Inspection Engineer"};
+});
+function fleetComp(){var s=0;ENG.forEach(function(e){s+=e.comp});return Math.round(s/ENG.length)}
+var DEMO_USERS={engineer:{name:"Aiden Ross",role:"Inspection Engineer",av:"AR"},
+ manager:{name:"Jordan Mills",role:"Operations Manager",av:"JM"},
+ director:{name:"Alex Skye",role:"Director",av:"AS"},
+ dual:{name:"Sam Doran",role:"Training Manager",av:"SD"}};
+
+var CURRENT=null, PROFILE=null; // PROFILE for dual: 'admin'|'engineer'
+
+// ---------- helpers ----------
+function el(id){return document.getElementById(id)}
+function compColor(st){return st=='g'?'var(--green)':st=='a'?'var(--amber)':'var(--red)'}
+function statusPill(s){var map={valid:['g','Valid'],expiring:['a','Expiring'],action:['r','Action needed'],due:['a','Due soon']};var m=map[s]||['a',s];return '<span class="pill '+m[0]+'">'+m[1]+'</span>'}
+
+function signIn(role){CURRENT=role; PROFILE=(role=='dual')?'admin':null; el('login').style.display='none'; el('app').style.display='block'; render()}
+function toggleTheme(){document.body.classList.toggle('alpine'); el('themeBtn').textContent=document.body.classList.contains('alpine')?'◐ Night':'◐ Alpine'}
+function toggleMenu(e){e.stopPropagation();el('menu').classList.toggle('show')}
+document.addEventListener('click',function(){el('menu').classList.remove('show')});
+
+function isAdminView(){ if(CURRENT=='engineer')return false; if(CURRENT=='dual')return PROFILE=='admin'; return true }
+
+function render(){
+ var u=DEMO_USERS[CURRENT];
+ el('meAv').textContent=u.av; el('meName').textContent=u.name;
+ el('meRole').textContent=(CURRENT=='dual'? (PROFILE=='admin'?'Admin profile':'Engineer profile') : u.role);
+ // nav
+ var navs=[]; var admin=isAdminView();
+ if(admin){navs=[['operations','Operations'],['sites','Sites'],['engineers','Engineers']]}
+ else{navs=[['compliance','My Compliance']]}
+ el('navs').innerHTML=navs.map(function(n,i){return '<div class="nav'+(i==0?' on':'')+'" onclick="go(\''+n[0]+'\',this)">'+n[1]+'</div>'}).join('');
+ // menu (role switch + dual profile switch)
+ var menu='<div class="dd-h">Demo — switch role</div>';
+ ['engineer','manager','director','dual'].forEach(function(r){menu+='<div class="dd-opt'+(r==CURRENT?' on':'')+'" onclick="signIn(\''+r+'\')">'+({engineer:'👷 Engineer',manager:'🗂️ Manager',director:'🛡️ Director',dual:'🔀 Dual role'})[r]+(r==CURRENT?' <span style=\"margin-left:auto\">✓</span>':'')+'</div>'});
+ if(CURRENT=='dual'){menu+='<div class="dd-h" style="border-top:1px solid var(--border)">Your profile</div>';
+   menu+='<div class="dd-opt'+(PROFILE=='admin'?' on':'')+'" onclick="setProfile(\'admin\')">🗂️ Admin profile'+(PROFILE=='admin'?' <span style=\"margin-left:auto\">✓</span>':'')+'</div>';
+   menu+='<div class="dd-opt'+(PROFILE=='engineer'?' on':'')+'" onclick="setProfile(\'engineer\')">👷 My engineer profile'+(PROFILE=='engineer'?' <span style=\"margin-left:auto\">✓</span>':'')+'</div>';}
+ el('menu').innerHTML=menu;
+ // default view
+ go(admin?'operations':'compliance');
+ buildAll();
+}
+function setProfile(p){PROFILE=p; el('menu').classList.remove('show'); render()}
+function go(v,node){
+ ['compliance','operations','engineers','sites'].forEach(function(x){var e=el('v_'+x); if(e)e.classList.remove('on')});
+ var t=el('v_'+v); if(t)t.classList.add('on');
+ if(node){document.querySelectorAll('.nav').forEach(function(n){n.classList.remove('on')}); node.classList.add('on')}
+}
+
+function buildAll(){ buildCompliance(); buildOperations(); buildEngineers(); buildSites() }
+
+// ENGINEER: My Compliance
+function buildCompliance(){
+ var me=ENG[0]; // Aiden Ross
+ var certs=[
+  ['🦺','PPE — Harness & lanyard','PPE certificate','valid',true],
+  ['🦺','PPE — Helmet','PPE certificate','valid',true],
+  ['🔧','Calibrated tool — Torque wrench','Calibration certificate','due',true],
+  ['🎓','GWO Working at Height','Competence certificate','valid',false],
+  ['🎓','GWO First Aid','Competence certificate','expiring',false],
+  ['⚕️','Offshore Medical','Competence certificate','valid',false]
+ ];
+ el('v_compliance').innerHTML=
+ '<div class="hero"><div><h2>My Compliance</h2><div class="sub">Your live deployment readiness · '+me.name+'</div></div>'+
+ '<div class="hstats"><div class="hstat"><div class="v" style="color:'+compColor(me.st)+'">'+me.comp+'%</div><div class="l">Overall</div></div>'+
+ '<div class="hstat"><div class="v" style="color:var(--green)">Ready</div><div class="l">Status</div></div></div></div>'+
+ '<div class="grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">'+
+   '<div class="kpi"><div class="ic">🦺</div><div class="v" style="color:var(--green)">PPE</div><div class="l">Personal protective equipment</div><div class="d">'+statusPill(me.ppe)+'</div></div>'+
+   '<div class="kpi"><div class="ic">🎓</div><div class="v" style="color:var(--amber)">Quals</div><div class="l">GWO &amp; competence</div><div class="d">'+statusPill(me.quals)+'</div></div>'+
+   '<div class="kpi"><div class="ic">🔧</div><div class="v" style="color:var(--amber)">Tools</div><div class="l">Calibrated equipment</div><div class="d">'+statusPill(me.tools)+'</div></div>'+
+ '</div>'+
+ '<div class="grid" style="grid-template-columns:1fr"><div class="card"><div class="card-t">My certificates <button class="dlbtn" style="margin-left:auto" onclick="alert(\'Demo: upload flow\')">⬆ Upload new</button></div>'+
+   certs.map(function(c){
+     var canDl=c[4]; var status=statusPill(c[3]);
+     var action=canDl?'<button class="dlbtn" onclick="alert(\'Demo: downloads the PDF\')">⤓ PDF</button>'
+       :'<button class="lockbtn" title="Engineers can see status only">🔒 Status only</button>';
+     return '<div class="cert-row"><span style="font-size:16px">'+c[0]+'</span><div style="flex:1"><div style="font-size:12.5px;font-weight:600">'+c[1]+'</div><div style="font-size:10px;color:var(--text3)">'+c[2]+'</div></div>'+status+action+'</div>';
+   }).join('')+
+   '<div style="font-size:10.5px;color:var(--text3);margin-top:12px">🔒 You can view the <b>status</b> of your qualifications &amp; competence, but the competence certificate PDFs are held by the office — only PPE &amp; calibration certificates are downloadable by you.</div>'+
+ '</div></div>';
+}
+
+// MANAGER/DIRECTOR/DUAL: Operations
+function buildOperations(){
+ var fc=fleetComp(); var expiring=ENG.filter(function(e){return e.st=='a'}).length; var blocked=ENG.filter(function(e){return e.st=='r'}).length;
+ var canDelete=(CURRENT=='director');
+ // map
+ var kc={onshore:'#00D4FF',offshore:'#A78BFA'};
+ var paths=MAP.paths.map(function(p){return '<path d="'+p+'" fill="#0E2138" stroke="#1E5A7A" stroke-width="0.8"/>'}).join('');
+ var dots=MAP.markers.map(function(mk){var site=SITES.filter(function(s){return s.n==mk.name})[0]||{k:'onshore',comp:90};var c=kc[site.k];
+   return '<circle cx="'+mk.x+'" cy="'+mk.y+'" r="12" fill="'+c+'" opacity="0.16"/><circle cx="'+mk.x+'" cy="'+mk.y+'" r="5" fill="'+c+'"/><circle cx="'+mk.x+'" cy="'+mk.y+'" r="5" fill="none" stroke="#fff" stroke-width="1" opacity="0.7"/>'+(site.rams=='expired'?'<circle cx="'+(mk.x+6)+'" cy="'+(mk.y-6)+'" r="3.5" fill="#FFB703" stroke="#050A12"/>':'');
+ }).join('');
+ var svg='<svg viewBox="0 0 '+MAP.viewW+' '+MAP.viewH+'" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">'+paths+dots+'</svg>';
+ var labels=[['Beatrice','6 crew · 84%'],['Whitelee','4 crew · 100%'],['Griffin','RAMS expired ⚠'],['Hornsea','3 crew · 88%']];
+ var labelHtml=MAP.markers.filter(function(m){return labels.some(function(l){return l[0]==m.name})}).map(function(m){
+   var info=labels.filter(function(l){return l[0]==m.name})[0];
+   return '<div class="mk-label" style="left:'+(m.x/MAP.viewW*100+3)+'%;top:'+(m.y/MAP.viewH*100)+'%"><div class="t">'+m.name+'</div><div class="s">'+info[1]+'</div></div>';
+ }).join('');
+
+ var attention=ENG.filter(function(e){return e.st!='g'}).slice(0,5).map(function(e){
+   return '<div class="li"><span class="dotc" style="background:'+compColor(e.st)+'"></span><div style="flex:1;font-size:11.5px"><b>'+e.name+'</b> — '+(e.st=='r'?'compliance gap, review':'cert expiring')+'</div><span class="mono" style="font-size:10px;color:'+compColor(e.st)+'">'+e.comp+'%</span>'+(canDelete?' <button class="dlbtn" style="color:var(--red);background:var(--rbg)" onclick="alert(\'Demo: only Directors see delete\')">🗑</button>':'')+'</div>';
+ }).join('');
+
+ var ramsRows=SITES.map(function(s){var p=s.rams=='approved'?['g','✓ HSEQ approved']:s.rams=='awaiting'?['a','⏳ Awaiting HSEQ']:['r','✗ Expired'];
+   return '<div class="ssow"><span style="font-size:13px">'+(s.rams=='approved'?'🟢':s.rams=='awaiting'?'🟡':'🔴')+'</span><span style="flex:1;font-size:12px;font-weight:600">'+s.n+(s.k=='offshore'?' ⚓':'')+'</span><span class="pill '+p[0]+'">'+p[1]+'</span></div>';
+ }).join('');
+
+ el('v_operations').innerHTML=
+ '<div class="hero"><div><h2>Operations Command Centre</h2><div class="sub">'+ENG.length+' engineers · '+SITES.length+' sites · demo data</div></div>'+
+ '<div class="hstats">'+
+   '<div class="hstat"><div class="v" style="color:var(--green)">'+fc+'%</div><div class="l">Fleet compliant</div></div>'+
+   '<div class="hstat"><div class="v" style="color:var(--amber)">'+expiring+'</div><div class="l">Expiring</div></div>'+
+   '<div class="hstat"><div class="v" style="color:var(--red)">'+blocked+'</div><div class="l">Attention</div></div>'+
+   (canDelete?'<div class="hstat"><div class="v" style="color:var(--red)">●</div><div class="l">Delete rights</div></div>':'')+
+ '</div></div>'+
+ '<div class="grid" style="grid-template-columns:1.5fr 1fr">'+
+   '<div class="card" style="padding:14px"><div class="card-t">UK Field Operations <span class="a">Auto-refresh 30s</span></div>'+
+     '<div class="mapwrap" style="height:430px"><div class="gridbg"></div>'+svg+labelHtml+'</div></div>'+
+   '<div class="card"><div class="card-t">SSOW / RAMS by site</div>'+ramsRows+'</div>'+
+ '</div>'+
+ '<div class="grid" style="grid-template-columns:repeat(4,1fr);margin-top:16px">'+
+   '<div class="kpi"><div class="ic">✅</div><div class="v" style="color:var(--green)">'+fc+'%</div><div class="l">Fleet compliance</div><div class="d" style="color:var(--green)">▲ demo</div></div>'+
+   '<div class="kpi"><div class="ic">⏳</div><div class="v" style="color:var(--amber)">'+expiring+'</div><div class="l">Certs expiring</div></div>'+
+   '<div class="kpi"><div class="ic">🦺</div><div class="v" style="color:var(--accent)">'+(blocked+2)+'</div><div class="l">PPE actions</div></div>'+
+   '<div class="kpi"><div class="ic">🔧</div><div class="v" style="color:var(--red)">1</div><div class="l">Tool overdue</div></div>'+
+ '</div>'+
+ '<div class="grid" style="grid-template-columns:1fr;margin-top:16px"><div class="card"><div class="card-t">Needs attention'+(canDelete?' <span class="a" style="color:var(--red)">Director: delete enabled</span>':'')+'</div>'+attention+'</div></div>';
+}
+
+// Engineers directory (admin)
+function buildEngineers(){
+ var rows=ENG.map(function(e){
+  return '<div class="li"><div class="av-sm">'+e.init+'</div><div style="flex:1"><div style="font-size:12.5px;font-weight:600">'+e.name+'</div><div style="font-size:10px;color:var(--text3)">'+e.role+' · '+e.site+'</div></div>'+
+   '<div class="bar" style="max-width:120px"><i style="width:'+e.comp+'%;background:'+compColor(e.st)+'"></i></div>'+
+   '<span class="mono" style="font-size:13px;font-weight:700;color:'+compColor(e.st)+';width:42px;text-align:right">'+e.comp+'%</span></div>';
+ }).join('');
+ el('v_engineers').innerHTML='<div class="hero"><div><h2>Engineers</h2><div class="sub">Full fleet — '+ENG.length+' engineers</div></div></div>'+
+ '<div class="card"><div class="card-t">Compliance by engineer <span class="a">View &amp; download all certs</span></div>'+rows+'</div>';
+}
+
+// Sites board (admin)
+function buildSites(){
+ var cards=SITES.map(function(s){
+  var p=s.rams=='approved'?['g','✓ HSEQ approved']:s.rams=='awaiting'?['a','⏳ Awaiting HSEQ']:['r','✗ Expired'];
+  var cc=s.comp>=95?'var(--green)':s.comp>=82?'var(--amber)':'var(--red)';
+  var crew=[];for(var i=0;i<s.crew;i++){crew.push('<div class="av-sm" style="margin-left:'+(i?-8:0)+'px">'+ENG[(i+SITES.indexOf(s))%ENG.length].init+'</div>')}
+  return '<div class="card" style="padding:0;overflow:hidden">'+
+   '<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">'+
+     '<div class="site-ic" style="background:'+(s.k=='offshore'?'var(--pbg)':'var(--bbg)')+';color:'+(s.k=='offshore'?'var(--purple)':'var(--accent)')+'">'+s.ic+'</div>'+
+     '<div style="flex:1"><div style="font-family:var(--fhead);font-size:15px;font-weight:700">'+s.n+'</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">'+s.k+' · '+s.crew+' crew</div></div>'+
+     '<div style="text-align:right"><div class="mono" style="font-size:19px;font-weight:700;color:'+cc+'">'+s.comp+'%</div><div style="font-size:8px;color:var(--text3)">crew compliant</div></div></div>'+
+   '<div style="padding:13px 16px"><div style="display:flex;margin-bottom:11px">'+crew.join('')+'</div>'+
+     '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:var(--text3);width:46px">SSOW</span><span class="pill '+p[0]+'" style="margin-left:auto">'+p[1]+'</span></div></div></div>';
+ }).join('');
+ el('v_sites').innerHTML='<div class="hero"><div><h2>Site Operations Board</h2><div class="sub">'+SITES.length+' sites · SSOW status per site</div></div></div>'+
+ '<div class="grid" style="grid-template-columns:repeat(3,1fr)">'+cards+'</div>';
+}
+</script>
+</body></html>

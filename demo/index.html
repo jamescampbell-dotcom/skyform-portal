@@ -605,7 +605,8 @@ function vMyCompliance(){
    return '<div class="card pad0"><div class="card-h"><span class="t">'+title+'</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">'+arr.length+'</span></div><table><tbody>'+rows+'</tbody></table></div>';
  }
  var ready=c.st!=='r';
- return '<div class="hero"><div><h2>My Compliance</h2><div class="sub">'+esc(e.name)+' · your live deployment readiness</div></div><div class="hero-act"><span class="pill '+(ready?'g':'r')+'" style="font-size:12px;padding:6px 13px"><span class="d"></span>'+(ready?'Deployment ready':'Action required')+'</span></div></div>'+
+ var who=DEMO[S.role].name;
+ return '<div class="hero"><div><h2>My Compliance</h2><div class="sub">'+esc(who)+' · your live deployment readiness</div></div><div class="hero-act"><span class="pill '+(ready?'g':'r')+'" style="font-size:12px;padding:6px 13px"><span class="d"></span>'+(ready?'Deployment ready':'Action required')+'</span></div></div>'+
   '<div class="grid g4" style="margin-bottom:16px">'+
    '<div class="kpi" style="--kc:'+compColor(c.st)+'"><div class="v" style="color:'+compColor(c.st)+'">'+c.pct+'%</div><div class="l">Overall</div></div>'+
    '<div class="kpi" style="--kc:var(--accent)"><div class="v">'+R.ppe.filter(function(x){return statusOf(x)==='valid';}).length+'/'+R.ppe.length+'</div><div class="l">PPE valid</div></div>'+

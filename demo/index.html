@@ -303,7 +303,7 @@ function attentionList(){var out=[];DB.engineers.forEach(function(e){var R=recsF
 /* ===================== RENDER ===================== */
 function render(){
  document.body.classList.toggle('alpine',S.theme==='alpine');
- if(!S.role){renderLogin();$('#login').style.display='block';$('#app').style.display='none';return;}
+ if(!S.role){renderLogin();$('#login').style.display='flex';$('#app').style.display='none';return;}
  $('#login').style.display='none';$('#app').style.display='block';
  var u=DEMO[S.role];
  $('#app').innerHTML='<div class="shell">'+sidebar()+'<div class="main">'+topbar()+'<div class="content" id="content">'+view()+'</div></div></div>';

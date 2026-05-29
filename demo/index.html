@@ -639,7 +639,7 @@ document.addEventListener('click',function(ev){
  if(menu && !ev.target.closest('#rolemenu') && !ev.target.closest('[data-act=menu]')){menu.remove();}
  if(!t)return;
  var a=t.dataset.act;
- if(a==='signin'){S.role=t.dataset.role;S.profile=S.role==='dual'?'admin':'admin';S.tab=(S.role==='engineer')?'mycompliance':'dashboard';S.sel=null;render();return;}
+ if(a==='signin'){S.role=t.dataset.role;S.profile=S.role==='dual'?'admin':'admin';S.tab=(S.role==='engineer')?'mycompliance':'dashboard';S.sel=null;render();var nm=DEMO[S.role].name;setTimeout(function(){toast('Signed in as '+nm+' · '+(S.role==='dual'?'Dual role':DEMO[S.role].role));},150);return;}
  if(a==='tab'){S.tab=t.dataset.tab;S.sel=null;S.filter='all';render();return;}
  if(a==='theme'){S.theme=S.theme==='night'?'alpine':'night';render();return;}
  if(a==='reset'){reset();return;}
@@ -660,6 +660,7 @@ document.addEventListener('click',function(ev){
  if(a==='menu'){roleMenu(t);return;}
  if(a==='setrole'){S.role=t.dataset.role;S.profile='admin';S.tab=S.role==='engineer'?'mycompliance':'dashboard';S.sel=null;$('#rolemenu')&&$('#rolemenu').remove();render();return;}
  if(a==='setprofile'){S.profile=t.dataset.p;$('#rolemenu')&&$('#rolemenu').remove();S.tab=S.profile==='me'?'mycompliance':'dashboard';render();return;}
+ if(a==='signout'){$('#rolemenu')&&$('#rolemenu').remove();S.role=null;S.sel=null;S.tab='dashboard';closeOverlay();render();return;}
  if(a==='closeov'){closeOverlay();return;}
 },true);
 
@@ -760,10 +761,14 @@ function roleMenu(anchor){
    '<div class="dd-o'+(S.profile==='admin'?' on':'')+'" data-act="setprofile" data-p="admin">Admin profile</div>'+
    '<div class="dd-o'+(S.profile==='me'?' on':'')+'" data-act="setprofile" data-p="me">My engineer profile</div>';}
  var dd=document.createElement('div');dd.className='dd';dd.id='rolemenu';dd.style.top='52px';dd.style.right='22px';
- dd.innerHTML='<div class="dd-h">Demo — switch role</div>'+items+prof;
+ dd.innerHTML='<div class="dd-h">Demo — switch role</div>'+items+prof+'<div class="dd-o" style="border-top:1px solid var(--border);color:var(--text3)" data-act="signout">↩ Back to sign-in</div>';
  $('.topbar').appendChild(dd);
 }
 function toast(msg){var t=$('#toast');t.innerHTML=I.chk+'<span>'+esc(msg)+'</span>';t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove('show');},2600);}
+
+document.addEventListener('keydown',function(ev){
+ if(ev.key==='Escape'){var o=$('#overlay');if(o&&o.innerHTML){closeOverlay();return;}var rm=$('#rolemenu');if(rm){rm.remove();}}
+});
 
 /* ---------- boot ---------- */
 load();render();

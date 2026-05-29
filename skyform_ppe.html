@@ -226,10 +226,15 @@ h1{font-size:20px;font-weight:600;margin-bottom:4px;}
 <body>
 <header class="hdr">
   <img src="logo.png" alt="Skyform" style="height:28px;object-fit:contain;">
-  <span class="hdr-title">Skyform Wind Portal</span>
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" style="margin-left:auto;">&#9728;</button>
+  <span class="hdr-title">Skyform Wind Portal</span>  <nav style="display:flex;gap:3px;margin-left:12px;">
+    <a href="skyform_ppe.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;" id="nav-ppe">PPE</a>
+    <a href="skyform_training.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;" id="nav-training">Training</a>
+    <a href="skyform_calibration.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;" id="nav-cal">Calibration</a>
+  </nav>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" style="margin-left:auto;">&#9728;</button>
   <span class="hdr-pill">&#128737; PPE Tracking</span>
 </header>
+<script>document.getElementById('nav-ppe').style.cssText='padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;background:var(--accent,#1f6feb);color:#fff';</script>
 <div class="wrap">
   <h1>PPE Register</h1>
   <p class="intro">Register each PPE item below. Retirement dates are calculated automatically and HSEQ is alerted to any items requiring attention.</p>

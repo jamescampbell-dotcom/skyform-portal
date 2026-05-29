@@ -120,8 +120,14 @@ h1{font-size:22px;font-weight:600;margin-bottom:6px;}
 <header class="hdr">
   <img src="logo.png" alt="Skyform">
   <span class="hdr-title">Equipment Calibration Register</span>
+  <nav style="display:flex;gap:3px;margin-left:12px;">
+    <a href="skyform_ppe.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;" id="nav-ppe">PPE</a>
+    <a href="skyform_training.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;" id="nav-training">Training</a>
+    <a href="skyform_calibration.html" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;" id="nav-cal" class="active">Calibration</a>
+  </nav>
   <span class="hdr-pill">&#9679; Live Sync</span>
 </header>
+<script>var nc=document.getElementById('nav-cal');if(nc){nc.style.background='var(--accent,#1f6feb)';nc.style.color='#fff';}</script>
 <div class="wrap">
   <h1>Calibration Equipment Catalogue</h1>
   <p class="intro">Register your calibrated tools and equipment. Data saves to the Skyform database immediately and is visible to Ops and HSEQ in real time.</p>

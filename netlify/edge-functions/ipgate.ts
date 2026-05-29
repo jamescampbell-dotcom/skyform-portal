@@ -1,9 +1,9 @@
 // IP Allowlist Gate — staging environment only
 
 const ALLOWED_IPS: string[] = [
-  "90.219.148.78",                          // James Campbell — IPv4
-  "2a00:23ee:1728:3112:48:b90d:ae98:6b2b",  // James Campbell — IPv6 (original)
-  "2a06:5902:4822:7100:c0fe:8007:8f4f:8e38", // James Campbell — IPv6 (updated 29 May 2026)
+  "90.219.148.78",                          // Administrator — IPv4
+  "2a00:23ee:1728:3112:48:b90d:ae98:6b2b",  // Administrator — IPv6 (original)
+  "2a06:5902:4822:7100:c0fe:8007:8f4f:8e38", // Administrator — IPv6 (updated 29 May 2026)
 ]
 
 export default async function gate(request: Request) {
@@ -22,7 +22,7 @@ export default async function gate(request: Request) {
        .note{background:#1f2d1f;border:1px solid rgba(63,185,80,.3);border-radius:8px;padding:12px;margin-top:16px;font-size:12px;color:#3fb950;}</style></head>
        <body><h1>Skyform Wind — Staging Portal</h1><p>Your current IP address is:</p>
        <div class="ip">${ip}</div>
-       <p>Send this number to your portal administrator (James Campbell) to be added to the access list.</p>
+       <p>Send this number to your portal administrator to be added to the access list.</p>
        <div class="note">✓ This page is always accessible regardless of your IP address.</div>
        </body></html>`,
       { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
@@ -46,7 +46,7 @@ export default async function gate(request: Request) {
        <p>This staging environment is restricted to authorised IP addresses only.</p>
        <p>Your current IP address is not on the access list:</p>
        <div class="ip-box"><div class="ip-val">${visitorIp || 'Unknown'}</div></div>
-       <p>To request access, send the IP address shown above to <strong>James Campbell</strong>.</p>
+       <p>To request access, send the IP address shown above to <strong>Administrator</strong>.</p>
        <div class="note">If your IP has recently changed, visit <a href="/my-ip">/my-ip</a> to confirm your current address and send it to your administrator.</div>
        </body></html>`,
       { status: 403, headers: { 'Content-Type': 'text/html; charset=utf-8' } }

@@ -390,8 +390,7 @@ var _lastAct=Date.now();
 ['click','keydown','touchstart'].forEach(e=>document.addEventListener(e,()=>{_lastAct=Date.now();},{passive:true}));
 setInterval(()=>{if(Date.now()-_lastAct>45*60*1000){alert('Session expired.');sessionStorage.clear();location.replace('/');}},60000);
 
-document.getElementById('lb-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-document.getElementById('signout-btn').addEventListener('click',()=>{sessionStorage.clear();location.replace('/');});
+// Event listeners registered safely in window.load handler below
 
 async function doLogin(){
   var u=(document.getElementById('lb-user').value||'').trim();
@@ -950,7 +949,15 @@ function viewCertImg(id){
 }
 
 // ── BOOT ──────────────────────────────────────────────────────
-window.addEventListener('load', checkSession);
+window.addEventListener('load', function() {
+  // Safe null-checked event registrations
+  var lbPass = document.getElementById('lb-pass');
+  var signoutBtn = document.getElementById('signout-btn');
+  if(lbPass) lbPass.addEventListener('keydown', function(e){if(e.key==='Enter')doLogin();});
+  if(signoutBtn) signoutBtn.addEventListener('click', function(){sessionStorage.clear();location.replace('/');});
+  // Start session check
+  checkSession();
+});
 </script>
 </body>
 </html>

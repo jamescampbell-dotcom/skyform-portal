@@ -178,6 +178,35 @@ body.alpine .mapwrap{background:radial-gradient(ellipse at 42% 32%,#EAF0FA,#fff 
 .req{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:6px;background:var(--card3);color:var(--text2);margin:2px 3px 2px 0}.req.ok{color:var(--green2);background:var(--gbg)}.req.miss{color:var(--red);background:var(--rbg)}
 .miniwarn{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--amber);background:var(--abg);padding:7px 11px;border-radius:8px;margin-bottom:8px}
 .miniwarn svg,.pill svg,.req svg{width:14px;height:14px;flex-shrink:0;vertical-align:-2px}
+/* ---- My Compliance · Option 1 (rail + banner) ---- */
+.accred-banner{position:relative;display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,212,255,.02));border:1px solid rgba(0,212,255,.45);border-radius:13px;padding:14px 18px 14px 20px;margin-bottom:14px;overflow:hidden}
+.accred-banner .ab-edge{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.accred-banner .ab-main{flex:1;min-width:0}
+.accred-banner .ab-k{font-family:var(--fm);font-size:9px;letter-spacing:.18em;color:var(--accent);font-weight:700}
+.accred-banner .ab-title{font-family:var(--fh);font-weight:700;font-size:17px;color:var(--text);margin-top:2px}
+.accred-banner .ab-ppe{font-family:var(--fm);font-size:10px;color:var(--green2);margin-top:3px;font-weight:600}
+.accred-banner .ab-ppe.off{color:var(--text3)}
+.accred-banner .ab-caps{display:flex;gap:8px;flex-shrink:0}
+.acap{display:inline-flex;align-items:center;gap:6px;font-family:var(--fh);font-weight:600;font-size:12px;color:var(--text3);background:rgba(124,140,166,.10);border:1px solid var(--border);border-radius:9px;padding:7px 13px}
+.acap.on{color:var(--text);background:var(--gbg);border-color:var(--green2)}
+.acap .m{font-family:var(--fm);font-weight:700;color:var(--green2)}
+.acap:not(.on) .m{color:var(--text3)}
+.mc-layout{display:grid;grid-template-columns:230px 1fr;gap:16px;align-items:start}
+.mc-rail{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:8px}
+.mc-rail-sec{font-family:var(--fm);font-size:9px;letter-spacing:.14em;color:var(--text3);font-weight:700;padding:12px 11px 6px}
+.mc-rail-i{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:9px;cursor:pointer;font-size:12.5px;color:var(--text2);margin-bottom:1px;transition:.12s}
+.mc-rail-i:hover{background:var(--card2);color:var(--text)}
+.mc-rail-i.on{background:var(--bbg);color:var(--accent)}
+.mc-rail-i .rl{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.mc-rail-i .rc{font-family:var(--fm);font-size:10px;color:var(--text3);font-weight:700}
+.mc-rail-i.on .rc{color:var(--accent)}
+.mc-panel-wrap{min-width:0}
+.mc-panel-h{display:flex;align-items:flex-start;gap:12px;padding:16px 18px 6px}
+.mc-kick{font-family:var(--fm);font-size:9px;letter-spacing:.14em;color:var(--accent);font-weight:700;text-transform:uppercase}
+.mc-title{font-family:var(--fh);font-weight:700;font-size:17px;color:var(--text);margin-top:2px}
+.mc-badge{margin-left:auto;flex-shrink:0}
+.mc-desc{padding:0 18px 12px;font-size:12px;color:var(--text3)}
+@media(max-width:820px){.mc-layout{grid-template-columns:1fr}.mc-rail{display:flex;flex-wrap:wrap;gap:4px}.mc-rail-sec{width:100%;padding:6px 8px 2px}.mc-rail-i{flex:0 0 auto}.mc-rail-i .rc{margin-left:4px}}
 @media(max-width:900px){.side{width:64px}.side-logo-tx,.nav-sec,.nav-i span,.side-foot{display:none}.nav-i{justify-content:center}.search{display:none}}
 @media(max-width:760px){.card.pad0>div[style*=overflow]{overflow-x:auto}.card.pad0 table{min-width:560px}.crumb{font-size:14px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.topbar{padding:0 13px;gap:9px}.tb-right{gap:7px}.who .wn,.who .wr{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hero-act{width:100%;margin-left:0}.hero{gap:10px}.g3{grid-template-columns:1fr}}
 @media(max-width:520px){.live span:not(.pd){display:none}.icon-btn{padding:7px 9px}.toolbar .seg{flex-wrap:wrap}}
@@ -230,6 +259,39 @@ var NAMES=['Aiden Ross','Callum Reid','Declan Burns','Euan Shaw','Finlay Hart','
 var SITE_DEF=[['Whitelee','onshore'],['Clyde','onshore'],['Griffin','onshore'],['Beatrice','offshore'],['Moray East','offshore'],['Hornsea','offshore'],['Pen y Cymoedd','onshore']];
 var PPE_TYPES=['Full-body harness','Safety helmet','Shock-absorbing lanyard','Hi-vis coverall','Cut-resistant gloves','Safety boots'];
 var TRAIN_CAT=['GWO Working at Height','GWO First Aid','GWO Manual Handling','GWO Fire Awareness','GWO Sea Survival','Offshore Medical (OGUK)','MEWP (IPAF 3a/3b)','IRATA Level 1','Confined Space Entry','First Aid at Work'];
+
+// ----- Option 1: categorised qualifications + scope-specific training -----
+// Each qualification belongs to one or more groups. "min-offshore" is the baseline to mobilise offshore.
+var QUAL_GROUPS=[
+ {key:'min-offshore', label:'Minimum Offshore', desc:'GWO Basic Safety Training + offshore medical — the baseline to mobilise offshore.',
+   certs:['GWO Working at Height','GWO Sea Survival','GWO First Aid','GWO Manual Handling','GWO Fire Awareness','Offshore Medical (OGUK)']},
+ {key:'offshore', label:'Offshore', desc:'Offshore-specific competence on top of the baseline.',
+   certs:['GWO Sea Survival','Offshore Medical (OGUK)','GWO Working at Height']},
+ {key:'onshore', label:'Onshore', desc:'Onshore wind deployment competence.',
+   certs:['GWO Working at Height','GWO Manual Handling','First Aid at Work','GWO Fire Awareness']},
+ {key:'height', label:'Working at Height', desc:'GWO BST height modules + rescue.',
+   certs:['GWO Working at Height','GWO Manual Handling']},
+ {key:'firstaid', label:'Enhanced First Aid', desc:'Higher-level medical / first-aid competence.',
+   certs:['GWO First Aid','First Aid at Work']},
+ {key:'rescue', label:'Advanced Rescue', desc:'Advanced rescue & confined-space competence.',
+   certs:['IRATA Level 1','Confined Space Entry']}
+];
+// scope-specific training courses (separate grouping in the rail)
+var SCOPE_TRAIN=['Tower Hoists','Cranes & Lifting (LOLER)','TMSE','PSSR (Pressure Systems)','HV Authorised Person','Bolt-tensioning'];
+
+// PPE categories. "minimum" always shown; others expand via the rail.
+var PPE_GROUPS=[
+ {key:'minimum', label:'Minimum PPE', desc:'Required for every deployment.',
+   items:['Full-body harness','Safety helmet','Shock-absorbing lanyard','Hi-vis coverall','Cut-resistant gloves','Safety boots']},
+ {key:'offshore', label:'Offshore', desc:'Additional PPE for offshore work.',
+   items:['Lifejacket (auto-inflate)','Immersion / survival suit','Personal locator beacon (PLB)']},
+ {key:'hotworks', label:'Hot Works', desc:'PPE for hot-works / welding.',
+   items:['Flame-retardant coverall','Welding visor','Heat-resistant gloves']},
+ {key:'hv', label:'HV', desc:'High-voltage electrical PPE.',
+   items:['Arc-flash kit','Insulating gloves (Class 0)','HV face shield']},
+ {key:'rope', label:'Rope Access / Height', desc:'Rope-access & advanced height PPE.',
+   items:['IRATA harness','Cows-tail lanyards','Descender / back-up device']}
+];
 var TOOL_TYPES=['Torque wrench','Insulation tester','Multimeter','Anemometer','Laser alignment','Vibration analyser'];
 var SCOPE_DEF=[
  ['Blade inspection','Beatrice',['GWO Working at Height','GWO Sea Survival','IRATA Level 1']],
@@ -246,21 +308,34 @@ function genData(){
    var role=i<3?'Inspector':(i>=14?'Lead Technician':'Inspection Engineer');
    return {id:'E'+String(i+1).padStart(2,'0'),name:nm,init:nm.split(' ').map(function(x){return x[0];}).join(''),role:role,base:sites[i%sites.length].name,active:true};});
  var ppe=[],tid=1;
+ // full set of PPE across all categories per engineer
+ var ALL_PPE=[]; PPE_GROUPS.forEach(function(g){g.items.forEach(function(it){if(ALL_PPE.indexOf(it)<0)ALL_PPE.push(it);});});
  engineers.forEach(function(e,ei){
-   PPE_TYPES.forEach(function(t,ti){
+   ALL_PPE.forEach(function(t,ti){
+     // minimum PPE: everyone has it; category PPE: ~65% hold it
+     var isMin = PPE_GROUPS[0].items.indexOf(t)>=0;
+     if(!isMin && r()>0.62) return;
      var off=bexp(r); var exp=new Date(TODAY); exp.setDate(exp.getDate()+off);
      var pending = r()<0.06;
      ppe.push({id:'P'+(tid++),engId:e.id,type:t,issued:iso(new Date(exp.getFullYear()-2,exp.getMonth(),exp.getDate())),expires:iso(exp),
        certName: r()<0.92?('PPE_'+t.split(' ')[0]+'_'+e.id+'.pdf'):null, verified: !pending && r()<0.85, pending:pending});});});
  var training=[],trid=1;
+ // qualification certs — union of all group certs; each engineer holds most
+ var ALL_QUAL=[]; QUAL_GROUPS.forEach(function(g){g.certs.forEach(function(ct){if(ALL_QUAL.indexOf(ct)<0)ALL_QUAL.push(ct);});});
  engineers.forEach(function(e){
-   var n=4+Math.floor(r()*6);
-   var pool=TRAIN_CAT.slice().sort(function(){return r()-0.5;}).slice(0,n);
-   pool.forEach(function(c){
+   ALL_QUAL.forEach(function(ct){
+     if(r()>0.86) return; // ~14% gap so groups show some misses
      var off=bexp(r); var exp=new Date(TODAY); exp.setDate(exp.getDate()+off);
      var pending=r()<0.05;
-     training.push({id:'T'+(trid++),engId:e.id,cert:c,obtained:iso(new Date(exp.getFullYear()-3,exp.getMonth(),exp.getDate())),expires:iso(exp),
-       certName: r()<0.92?(c.replace(/[^A-Za-z0-9]/g,'_')+'_'+e.id+'.pdf'):null, verified:!pending && r()<0.86, pending:pending, competence:true});});});
+     training.push({id:'T'+(trid++),engId:e.id,cert:ct,kind:'qual',obtained:iso(new Date(exp.getFullYear()-3,exp.getMonth(),exp.getDate())),expires:iso(exp),
+       certName: r()<0.92?(ct.replace(/[^A-Za-z0-9]/g,'_')+'_'+e.id+'.pdf'):null, verified:!pending && r()<0.86, pending:pending, competence:true});});
+   // scope-specific training
+   SCOPE_TRAIN.forEach(function(ct){
+     if(r()>0.55) return;
+     var off=bexp(r); var exp=new Date(TODAY); exp.setDate(exp.getDate()+off);
+     var pending=r()<0.05;
+     training.push({id:'T'+(trid++),engId:e.id,cert:ct,kind:'scope',obtained:iso(new Date(exp.getFullYear()-2,exp.getMonth(),exp.getDate())),expires:iso(exp),
+       certName: r()<0.9?(ct.replace(/[^A-Za-z0-9]/g,'_')+'_'+e.id+'.pdf'):null, verified:!pending && r()<0.86, pending:pending, competence:true});});});
  var calibration=[],cid=1;
  TOOL_TYPES.forEach(function(t,i){
    for(var k=0;k<(i<3?3:2);k++){
@@ -278,12 +353,20 @@ function genData(){
  var weeks=[]; for(var w=0;w<6;w++){var ws=new Date(TODAY);ws.setDate(ws.getDate()+w*7-(TODAY.getDay()-1)); weeks.push({i:w,label:'Wk '+(w+1),date:iso(ws)});}
  var assign=[];
  sites.forEach(function(s,si){ for(var w=0;w<6;w++){ if(r()<0.42){ var e=engineers[Math.floor(r()*engineers.length)]; assign.push({engId:e.id,siteId:s.id,week:w}); } }});
- return {engineers:engineers,sites:sites,ppe:ppe,training:training,calibration:calibration,scopes:scopes,weeks:weeks,assign:assign,audit:[{ts:Date.now(),who:'System',act:'Demo data initialised'}]};
+ // UKAS 17020 Type C accreditation per engineer (Inspection / Maintenance / Repairs + PPE inspection)
+ var accred={};
+ engineers.forEach(function(e,i){
+   // most are Inspection+Maintenance; some add Repairs; a couple inspection-only
+   var insp=true; var maint=r()<0.82; var rep=r()<0.45; var ppeInsp=r()<0.7;
+   if(!maint&&!rep){maint=true;} // ensure at least one capability beyond inspection sometimes
+   accred[e.id]={inspection:insp,maintenance:maint,repairs:rep,ppeInspection:ppeInsp};
+ });
+ return {engineers:engineers,sites:sites,ppe:ppe,training:training,calibration:calibration,scopes:scopes,weeks:weeks,assign:assign,accred:accred,audit:[{ts:Date.now(),who:'System',act:'Demo data initialised'}]};
 }
 
 /* ---------- state ---------- */
 var SKEY='skyform_demo_v2';
-var DB, S={role:null,profile:'admin',tab:'dashboard',theme:'night',sel:null,filter:'all',q:''};
+var DB, S={role:null,profile:'admin',tab:'dashboard',theme:'night',sel:null,filter:'all',q:'',mcGroup:'min-offshore',mcScope:null,mcMode:'qual',ppeGroup:'minimum'};
 function load(){try{var raw=localStorage.getItem(SKEY);if(raw){DB=JSON.parse(raw);return;}}catch(e){}DB=genData();save();}
 function save(){try{localStorage.setItem(SKEY,JSON.stringify(DB));}catch(e){}}
 function reset(){DB=genData();save();toast('Demo data reset');render();}
@@ -308,6 +391,22 @@ function eById(id){return DB.engineers.filter(function(e){return e.id===id;})[0]
 function statusOf(rec){ if(rec.pending) return 'pending'; if(!rec.certName) return 'action'; var d=daysUntil(rec.expires||rec.dueCal); if(d<0) return 'expired'; if(d<60) return 'expiring'; return 'valid';}
 function STMETA(s){return {valid:['g','Valid'],expiring:['a','Expiring'],expired:['r','Expired'],pending:['b','Pending'],action:['r','Missing']}[s]||['n',s];}
 function recsFor(engId){return {ppe:DB.ppe.filter(function(x){return x.engId===engId;}),train:DB.training.filter(function(x){return x.engId===engId;}),cal:DB.calibration.filter(function(x){return x.engId===engId;})};}
+// --- Option 1 helpers ---
+function accredOf(engId){return (DB.accred&&DB.accred[engId])||{inspection:true,maintenance:false,repairs:false,ppeInspection:false};}
+function qualRec(engId,certName){ // best matching training record for a cert name
+  var recs=DB.training.filter(function(x){return x.engId===engId&&x.cert===certName;});
+  if(!recs.length)return null;
+  // prefer non-expired/non-pending
+  recs.sort(function(a,b){return (new Date(b.expires))-(new Date(a.expires));});
+  return recs[0];
+}
+function groupReadiness(engId,certs){ // {have,total,worst} for a list of required certs
+  var total=certs.length,have=0,worst='valid';
+  var order={valid:0,expiring:1,pending:2,expired:3,action:4};
+  certs.forEach(function(ct){var rec=qualRec(engId,ct);var s=rec?statusOf(rec):'action';if(s==='valid'||s==='expiring')have++;if(order[s]>order[worst])worst=s;});
+  return {have:have,total:total,worst:worst};
+}
+function scopeRecs(engId){return DB.training.filter(function(x){return x.engId===engId&&x.kind==='scope';});}
 function compOf(engId){var R=recsFor(engId);var all=R.ppe.concat(R.train,R.cal);if(!all.length)return {pct:100,st:'g'};var sc=0;all.forEach(function(x){var s=statusOf(x);sc+= s==='valid'?1:(s==='expiring'||s==='pending'?0.5:0);});var pct=Math.round(sc/all.length*100);return {pct:pct,st:pct>=88?'g':pct>=72?'a':'r'};}
 function compColor(st){return st==='g'?'var(--green2)':st==='a'?'var(--amber)':'var(--red)';}
 function fleetPct(){var s=0;DB.engineers.forEach(function(e){s+=compOf(e.id).pct;});return Math.round(s/DB.engineers.length);}
@@ -598,24 +697,105 @@ function vAudit(){
 }
 
 /* ---------- My Compliance (engineer) ---------- */
+function accredBanner(engId){
+ var a=accredOf(engId);
+ function chip(lab,ok){var col=ok?'var(--green2)':'var(--text3)';return '<span class="acap'+(ok?' on':'')+'"><span class="m">'+(ok?'✓':'–')+'</span>'+lab+'</span>';}
+ return '<div class="accred-banner">'+
+   '<div class="ab-edge"></div>'+
+   '<div class="ab-main"><div class="ab-k">ACCREDITED INSPECTION BODY</div>'+
+     '<div class="ab-title">UKAS 17020 · Type C Inspection Body</div>'+
+     (a.ppeInspection?'<div class="ab-ppe">● PPE Inspection approved</div>':'<div class="ab-ppe off">○ PPE Inspection not approved</div>')+
+   '</div>'+
+   '<div class="ab-caps">'+chip('Inspection',a.inspection)+chip('Maintenance',a.maintenance)+chip('Repairs',a.repairs)+'</div>'+
+ '</div>';
+}
+
 function vMyCompliance(){
  var id=myEngId();var e=eById(id);var c=compOf(id);var R=recsFor(id);
- function block(title,arr,kind){
-   var rows=arr.map(function(x){var s=statusOf(x);var m=STMETA(s);return '<tr class="clk" data-act="open" data-kind="'+kind+'" data-id="'+x.id+'"><td>'+esc(x.type||x.cert||x.tool)+(x.competence?' <span class="pill n" style="font-size:8px;padding:1px 5px">competence</span>':'')+'</td><td>'+fmt(x.expires||x.dueCal)+'</td><td><span class="pill '+m[0]+'">'+m[1]+'</span></td><td style="text-align:right">'+certCell(x,kind)+'</td></tr>';}).join('')||'<tr><td colspan="4"><div class="empty" style="padding:18px">None</div></td></tr>';
-   return '<div class="card pad0"><div class="card-h"><span class="t">'+title+'</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">'+arr.length+'</span></div><table><tbody>'+rows+'</tbody></table></div>';
- }
  var ready=c.st!=='r';
  var who=DEMO[S.role].name;
- return '<div class="hero"><div><h2>My Compliance</h2><div class="sub">'+esc(who)+' · your live deployment readiness</div></div><div class="hero-act"><span class="pill '+(ready?'g':'r')+'" style="font-size:12px;padding:6px 13px"><span class="d"></span>'+(ready?'Deployment ready':'Action required')+'</span></div></div>'+
-  '<div class="grid g4" style="margin-bottom:16px">'+
-   '<div class="kpi" style="--kc:'+compColor(c.st)+'"><div class="v" style="color:'+compColor(c.st)+'">'+c.pct+'%</div><div class="l">Overall</div></div>'+
+ // ---- left rail ----
+ var railHtml='<div class="mc-rail">';
+ railHtml+='<div class="mc-rail-sec">QUALIFICATIONS</div>';
+ QUAL_GROUPS.forEach(function(g){
+   var rd=groupReadiness(id,g.certs);var st=STMETA(rd.worst);
+   var on = S.mcMode==='qual' && S.mcGroup===g.key;
+   railHtml+='<div class="mc-rail-i'+(on?' on':'')+'" data-act="mcgroup" data-g="'+g.key+'"><span class="dot" style="background:'+statusColForState(rd.worst)+'"></span><span class="rl">'+g.label+'</span><span class="rc">'+rd.have+'/'+rd.total+'</span></div>';
+ });
+ railHtml+='<div class="mc-rail-sec">SCOPE TRAINING</div>';
+ SCOPE_TRAIN.forEach(function(sc){
+   var rec=qualRec(id,sc);var s=rec?statusOf(rec):'action';
+   var on = S.mcMode==='scope' && S.mcScope===sc;
+   railHtml+='<div class="mc-rail-i'+(on?' on':'')+'" data-act="mcscope" data-s="'+esc(sc)+'"><span class="dot" style="background:'+statusColForState(s)+'"></span><span class="rl">'+esc(sc)+'</span></div>';
+ });
+ railHtml+='<div class="mc-rail-sec">PPE</div>';
+ PPE_GROUPS.forEach(function(g){
+   var on = S.mcMode==='ppe' && S.ppeGroup===g.key;
+   railHtml+='<div class="mc-rail-i'+(on?' on':'')+'" data-act="mcppe" data-g="'+g.key+'"><span class="dot" style="background:var(--accent)"></span><span class="rl">'+g.label+'</span></div>';
+ });
+ railHtml+='</div>';
+ // ---- main panel ----
+ var panel=mcPanel(id);
+ // ---- KPI strip (compact, above the rail+panel) ----
+ var kpis='<div class="grid g4" style="margin-bottom:14px">'+
+   '<div class="kpi" style="--kc:'+compColor(c.st)+'"><div class="v" style="color:'+compColor(c.st)+'">'+c.pct+'%</div><div class="l">Overall readiness</div></div>'+
    '<div class="kpi" style="--kc:var(--accent)"><div class="v">'+R.ppe.filter(function(x){return statusOf(x)==='valid';}).length+'/'+R.ppe.length+'</div><div class="l">PPE valid</div></div>'+
    '<div class="kpi" style="--kc:var(--purple)"><div class="v">'+R.train.filter(function(x){return statusOf(x)==='valid';}).length+'/'+R.train.length+'</div><div class="l">Quals valid</div></div>'+
-   '<div class="kpi" style="--kc:var(--amber)"><div class="v">'+R.cal.filter(function(x){return statusOf(x)==='valid';}).length+'/'+R.cal.length+'</div><div class="l">Tools in date</div></div>'+
-  '</div>'+
-  '<div class="grid g2">'+block('My PPE',R.ppe,'ppe')+block('My Calibration',R.cal,'calibration')+'</div>'+
-  '<div style="height:16px"></div>'+block('My Training & Competence',R.train,'training')+
+   '<div class="kpi" style="--kc:var(--amber)"><div class="v">'+scopeRecs(id).length+'</div><div class="l">Scope courses</div></div>'+
+ '</div>';
+ return '<div class="hero"><div><h2>My Compliance</h2><div class="sub">'+esc(who)+' · your live deployment readiness</div></div><div class="hero-act"><span class="pill '+(ready?'g':'r')+'" style="font-size:12px;padding:6px 13px"><span class="d"></span>'+(ready?'Deployment ready':'Action required')+'</span></div></div>'+
+  accredBanner(id)+
+  kpis+
+  '<div class="mc-layout">'+railHtml+'<div class="mc-panel-wrap">'+panel+'</div></div>'+
   '<div class="miniwarn" style="margin-top:14px">'+I.lock+' You can view the <b>status</b> of your competence certificates, and upload new ones, but the competence PDFs themselves are held by the office (PPE &amp; calibration certs you can download).</div>';
+}
+
+function statusColForState(s){return {valid:'var(--green2)',expiring:'var(--amber)',expired:'var(--red)',pending:'var(--accent)',action:'var(--red)'}[s]||'var(--text3)';}
+
+function mcPanel(id){
+ if(S.mcMode==='ppe'){
+   var g=PPE_GROUPS.filter(function(x){return x.key===S.ppeGroup;})[0]||PPE_GROUPS[0];
+   var recs=DB.ppe.filter(function(x){return x.engId===id&&g.items.indexOf(x.type)>=0;});
+   var valid=recs.filter(function(x){return statusOf(x)==='valid';}).length;
+   var badge=g.key==='minimum'?'<span class="pill '+(valid===recs.length?'g':'a')+'">'+valid+' of '+recs.length+' valid</span>':'<span class="pill b">'+recs.length+' issued</span>';
+   var rows=g.items.map(function(it){
+     var x=recs.filter(function(r){return r.type===it;})[0];
+     if(!x) return '<tr><td>'+esc(it)+'</td><td>—</td><td><span class="pill n">Not held</span></td><td style="text-align:right"><span style="color:var(--text3);font-size:11px">—</span></td></tr>';
+     var s=statusOf(x);var m=STMETA(s);
+     return '<tr class="clk" data-act="open" data-kind="ppe" data-id="'+x.id+'"><td>'+esc(it)+'</td><td>'+fmt(x.expires)+'</td><td><span class="pill '+m[0]+'">'+m[1]+'</span></td><td style="text-align:right">'+certCell(x,'ppe')+'</td></tr>';
+   }).join('');
+   return mcPanelShell(g.label, g.desc, badge, rows, g.key==='minimum'?'Minimum PPE — required for every deployment':'PPE category');
+ }
+ if(S.mcMode==='scope'){
+   var sc=S.mcScope;var x=qualRec(id,sc);
+   var rows;
+   if(x){var s=statusOf(x);var m=STMETA(s);
+     rows='<tr class="clk" data-act="open" data-kind="training" data-id="'+x.id+'"><td>'+esc(sc)+' <span class="pill n" style="font-size:8.5px;padding:1px 6px">scope</span></td><td>'+fmt(x.expires)+'</td><td><span class="pill '+m[0]+'">'+m[1]+'</span></td><td style="text-align:right">'+certCell(x,'training')+'</td></tr>';
+   } else {
+     rows='<tr><td>'+esc(sc)+'</td><td>—</td><td><span class="pill r">Not held</span></td><td style="text-align:right"><button class="btn sm pri" data-act="reqscope" data-s="'+esc(sc)+'" style="padding:4px 9px;font-size:10.5px">'+I.up+' Request</button></td></tr>';
+   }
+   var badge=x?'<span class="pill '+STMETA(statusOf(x))[0]+'">'+STMETA(statusOf(x))[1]+'</span>':'<span class="pill r">Not held</span>';
+   return mcPanelShell(sc, 'Scope-specific training course.', badge, rows, 'Scope-specific training');
+ }
+ // qualifications group
+ var g=QUAL_GROUPS.filter(function(x){return x.key===S.mcGroup;})[0]||QUAL_GROUPS[0];
+ var rd=groupReadiness(id,g.certs);
+ var badge='<span class="pill '+(rd.have===rd.total?'g':(rd.have>=rd.total-1?'a':'r'))+'">'+rd.have+' of '+rd.total+' valid</span>';
+ var rows=g.certs.map(function(ct){
+   var x=qualRec(id,ct);
+   if(!x) return '<tr><td>'+esc(ct)+'</td><td>—</td><td><span class="pill r">Missing</span></td><td style="text-align:right"><button class="btn sm pri" data-act="requal" data-c="'+esc(ct)+'" style="padding:4px 9px;font-size:10.5px">'+I.up+' Upload</button></td></tr>';
+   var s=statusOf(x);var m=STMETA(s);
+   return '<tr class="clk" data-act="open" data-kind="training" data-id="'+x.id+'"><td>'+esc(ct)+' <span class="pill n" style="font-size:8.5px;padding:1px 6px">competence</span></td><td>'+fmt(x.expires)+'</td><td><span class="pill '+m[0]+'">'+m[1]+'</span></td><td style="text-align:right">'+certCell(x,'training')+'</td></tr>';
+ }).join('');
+ return mcPanelShell(g.label+' Requirements', g.desc, badge, rows, 'Qualifications');
+}
+
+function mcPanelShell(title, desc, badge, rows, kicker){
+ return '<div class="card pad0 mc-panel">'+
+   '<div class="mc-panel-h"><div><div class="mc-kick">'+esc(kicker)+'</div><div class="mc-title">'+esc(title)+'</div></div><div class="mc-badge">'+badge+'</div></div>'+
+   '<div class="mc-desc">'+esc(desc)+'</div>'+
+   '<table><thead><tr><th>Item</th><th>Expires</th><th>Status</th><th style="text-align:right">Certificate</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+ '</div>';
 }
 
 /* ===================== INTERACTIVITY ===================== */
@@ -645,6 +825,10 @@ document.addEventListener('click',function(ev){
  if(a==='theme'){S.theme=S.theme==='night'?'alpine':'night';render();return;}
  if(a==='reset'){reset();return;}
  if(a==='filter'){S.filter=t.dataset.f;var c=$('#content');c.innerHTML=view();bindDynamic();return;}
+ if(a==='mcgroup'){S.mcMode='qual';S.mcGroup=t.dataset.g;var c=$('#content');c.innerHTML=view();bindDynamic();return;}
+ if(a==='mcscope'){S.mcMode='scope';S.mcScope=t.dataset.s;var c=$('#content');c.innerHTML=view();bindDynamic();return;}
+ if(a==='mcppe'){S.mcMode='ppe';S.ppeGroup=t.dataset.g;var c=$('#content');c.innerHTML=view();bindDynamic();return;}
+ if(a==='requal'||a==='reqscope'){toast('Request sent to office — '+(t.dataset.c||t.dataset.s));audit('Requested '+(t.dataset.c||t.dataset.s));return;}
  if(a==='open'){openRecord(t.dataset.kind,t.dataset.id);return;}
  if(a==='profile'){S.sel=t.dataset.id;S.tab='engineers';render();return;}
  if(a==='dl'){toast('Opening '+(t.dataset.name||'certificate')+' (demo)');return;}

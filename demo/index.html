@@ -207,6 +207,11 @@ body.alpine .mapwrap{background:radial-gradient(ellipse at 42% 32%,#EAF0FA,#fff 
 .mc-badge{margin-left:auto;flex-shrink:0}
 .mc-desc{padding:0 18px 12px;font-size:12px;color:var(--text3)}
 @media(max-width:820px){.mc-layout{grid-template-columns:1fr}.mc-rail{display:flex;flex-wrap:wrap;gap:4px}.mc-rail-sec{width:100%;padding:6px 8px 2px}.mc-rail-i{flex:0 0 auto}.mc-rail-i .rc{margin-left:4px}}
+.asset-sec{font-family:var(--fm);font-size:9px;letter-spacing:.12em;color:var(--text3);font-weight:700;text-transform:uppercase;padding:14px 0 7px}
+.asset-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:6px}
+.asset-row .an{font-family:var(--fh);font-weight:600;font-size:13px;color:var(--text)}
+.asset-row .am{font-size:11px;color:var(--text3);margin-top:1px}
+textarea.inp{width:100%;resize:vertical;font-family:inherit;min-height:46px}
 @media(max-width:900px){.side{width:64px}.side-logo-tx,.nav-sec,.nav-i span,.side-foot{display:none}.nav-i{justify-content:center}.search{display:none}}
 @media(max-width:760px){.card.pad0>div[style*=overflow]{overflow-x:auto}.card.pad0 table{min-width:560px}.crumb{font-size:14px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.topbar{padding:0 13px;gap:9px}.tb-right{gap:7px}.who .wn,.who .wr{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hero-act{width:100%;margin-left:0}.hero{gap:10px}.g3{grid-template-columns:1fr}}
 @media(max-width:520px){.live span:not(.pd){display:none}.icon-btn{padding:7px 9px}.toolbar .seg{flex-wrap:wrap}}
@@ -278,6 +283,15 @@ var QUAL_GROUPS=[
 ];
 // scope-specific training courses (separate grouping in the rail)
 var SCOPE_TRAIN=['Tower Hoists','Cranes & Lifting (LOLER)','TMSE','PSSR (Pressure Systems)','HV Authorised Person','Bolt-tensioning'];
+// manufacturer / type options per scope course (from the training matrix)
+var SCOPE_MFR={
+ 'Tower Hoists':['Skyman','Avanti','Power Climber','Alimak'],
+ 'Cranes & Lifting (LOLER)':['HMF','Demag','Liebherr','PALFINGER'],
+ 'TMSE':['Vestas','Siemens Gamesa','GE','Nordex'],
+ 'PSSR (Pressure Systems)':['Hydratight','Enerpac'],
+ 'HV Authorised Person':['11kV','33kV','66kV'],
+ 'Bolt-tensioning':['Hydratight','Enerpac','ITH']
+};
 
 // PPE categories. "minimum" always shown; others expand via the rail.
 var PPE_GROUPS=[
@@ -334,7 +348,8 @@ function genData(){
      if(r()>0.55) return;
      var off=bexp(r); var exp=new Date(TODAY); exp.setDate(exp.getDate()+off);
      var pending=r()<0.05;
-     training.push({id:'T'+(trid++),engId:e.id,cert:ct,kind:'scope',obtained:iso(new Date(exp.getFullYear()-2,exp.getMonth(),exp.getDate())),expires:iso(exp),
+     var mfrs=SCOPE_MFR[ct]||[]; var mfr=mfrs.length?mfrs[Math.floor(r()*mfrs.length)]:'';
+     training.push({id:'T'+(trid++),engId:e.id,cert:ct,kind:'scope',mfr:mfr,obtained:iso(new Date(exp.getFullYear()-2,exp.getMonth(),exp.getDate())),expires:iso(exp),
        certName: r()<0.9?(ct.replace(/[^A-Za-z0-9]/g,'_')+'_'+e.id+'.pdf'):null, verified:!pending && r()<0.86, pending:pending, competence:true});});});
  var calibration=[],cid=1;
  TOOL_TYPES.forEach(function(t,i){
@@ -361,7 +376,28 @@ function genData(){
    if(!maint&&!rep){maint=true;} // ensure at least one capability beyond inspection sometimes
    accred[e.id]={inspection:insp,maintenance:maint,repairs:rep,ppeInspection:ppeInsp};
  });
- return {engineers:engineers,sites:sites,ppe:ppe,training:training,calibration:calibration,scopes:scopes,weeks:weeks,assign:assign,accred:accred,audit:[{ts:Date.now(),who:'System',act:'Demo data initialised'}]};
+ // assets allocated per engineer: vehicle, tooling, calibrated equipment
+ var VANS=['Ford Transit','VW Crafter','Mercedes Sprinter','Renault Master'];
+ var TOOLS=['Torque wrench set','Cordless impact gun','Insulation tester','Anemometer','Laser alignment kit','Borescope camera'];
+ var assets={};
+ engineers.forEach(function(e,i){
+   var list=[];
+   // vehicle (most have one)
+   if(r()<0.85){var reg='S'+String.fromCharCode(70+Math.floor(r()*6))+(60+Math.floor(r()*12))+' '+String.fromCharCode(65+Math.floor(r()*26))+String.fromCharCode(65+Math.floor(r()*26))+String.fromCharCode(65+Math.floor(r()*26));
+     var mot=new Date(TODAY);mot.setMonth(mot.getMonth()+Math.floor(r()*14)+2);
+     list.push({kind:'vehicle',name:VANS[i%VANS.length]+' · SK-VAN-'+String(i+1).padStart(2,'0'),meta:'Reg '+reg+' · MOT '+iso(mot).slice(0,7),flag:'tracked'});}
+   // tooling (1-2)
+   var nt=1+Math.floor(r()*2);
+   TOOLS.slice(0,6).sort(function(){return r()-0.5;}).slice(0,nt).forEach(function(t,k){
+     list.push({kind:'tool',name:t,meta:'Asset SK-T-'+(100+Math.floor(r()*899)),flag:''});});
+   // calibrated equipment — link to this engineer's calibration records
+   var cals=calibration.filter(function(x){return x.engId===e.id;});
+   cals.slice(0,2).forEach(function(cal){
+     var s=statusOf(cal);
+     list.push({kind:'cal',name:cal.tool,meta:'CAL '+(s==='expired'?'overdue':s==='expiring'?'due':'valid')+' '+fmt(cal.dueCal),flag:s==='valid'?'ok':(s==='expiring'?'due':'overdue'),calId:cal.id});});
+   assets[e.id]=list;
+ });
+ return {engineers:engineers,sites:sites,ppe:ppe,training:training,calibration:calibration,scopes:scopes,weeks:weeks,assign:assign,accred:accred,assets:assets,audit:[{ts:Date.now(),who:'System',act:'Demo data initialised'}]};
 }
 
 /* ---------- state ---------- */
@@ -733,6 +769,9 @@ function vMyCompliance(){
    var on = S.mcMode==='ppe' && S.ppeGroup===g.key;
    railHtml+='<div class="mc-rail-i'+(on?' on':'')+'" data-act="mcppe" data-g="'+g.key+'"><span class="dot" style="background:var(--accent)"></span><span class="rl">'+g.label+'</span></div>';
  });
+ railHtml+='<div class="mc-rail-sec">RESOURCES</div>';
+ railHtml+='<div class="mc-rail-i'+(S.mcMode==='assets'?' on':'')+'" data-act="mcassets"><span class="dot" style="background:var(--purple)"></span><span class="rl">My Assets</span><span class="rc">'+((DB.assets&&DB.assets[id]||[]).length)+'</span></div>';
+ railHtml+='<div class="mc-rail-i'+(S.mcMode==='request'?' on':'')+'" data-act="mcrequest"><span class="dot" style="background:var(--green2)"></span><span class="rl">Request training</span></div>';
  railHtml+='</div>';
  // ---- main panel ----
  var panel=mcPanel(id);
@@ -753,6 +792,36 @@ function vMyCompliance(){
 function statusColForState(s){return {valid:'var(--green2)',expiring:'var(--amber)',expired:'var(--red)',pending:'var(--accent)',action:'var(--red)'}[s]||'var(--text3)';}
 
 function mcPanel(id){
+ if(S.mcMode==='assets'){
+   var list=(DB.assets&&DB.assets[id])||[];
+   var groups=[['vehicle','🚐 Allocated vehicle','var(--accent)'],['tool','🔧 Tooling','var(--purple)'],['cal','📏 Calibrated equipment','var(--amber)']];
+   var body='';
+   groups.forEach(function(g){
+     var items=list.filter(function(a){return a.kind===g[0];});
+     body+='<div class="asset-sec">'+g[1]+'</div>';
+     if(!items.length){body+='<div class="asset-row" style="color:var(--text3)">None allocated</div>';return;}
+     items.forEach(function(a){
+       var flag = a.flag==='tracked'?'<span class="pill g">⟟ tracked</span>':a.flag==='due'?'<span class="pill a">CAL due</span>':a.flag==='overdue'?'<span class="pill r">CAL overdue</span>':a.flag==='ok'?'<span class="pill g">in date</span>':'';
+       body+='<div class="asset-row" style="border-left:3px solid '+g[2]+'"><div><div class="an">'+esc(a.name)+'</div><div class="am">'+esc(a.meta)+'</div></div><div style="margin-left:auto">'+flag+'</div></div>';
+     });
+   });
+   return '<div class="card pad0 mc-panel"><div class="mc-panel-h"><div><div class="mc-kick">Resources</div><div class="mc-title">My Assets</div></div><div class="mc-badge"><span class="pill p">'+list.length+' allocated</span></div></div>'+
+     '<div class="mc-desc">Equipment, tooling and the vehicle allocated to you. Calibrated equipment shows live status from the calibration register; the office allocates and returns assets.</div>'+
+     '<div style="padding:4px 16px 16px">'+body+'</div></div>';
+ }
+ if(S.mcMode==='request'){
+   return '<div class="card pad0 mc-panel"><div class="mc-panel-h"><div><div class="mc-kick">Training</div><div class="mc-title">Request training</div></div></div>'+
+     '<div class="mc-desc">Ask the Training Manager to arrange training. Your request lands in their diary; admin can see it too.</div>'+
+     '<div style="padding:6px 18px 20px">'+
+       '<div class="field"><label>What training do you need?</label><input class="inp" id="rq_what" placeholder="e.g. GWO Working at Height — refresher"></div>'+
+       '<div class="grid g2" style="gap:12px"><div class="field"><label>Category</label><select class="inp" id="rq_cat"><option>Qualification</option><option>Scope-specific</option><option>PPE</option><option>Other</option></select></div>'+
+       '<div class="field"><label>Manufacturer / type (if any)</label><input class="inp" id="rq_mfr" placeholder="e.g. Vestas, Skyman, HMF"></div></div>'+
+       '<div class="grid g2" style="gap:12px"><div class="field"><label>Needed by</label><input class="inp" type="date" id="rq_by"></div>'+
+       '<div class="field"><label>Priority</label><select class="inp" id="rq_pri"><option>Renewal</option><option>Urgent / expired</option><option>Development</option></select></div></div>'+
+       '<div class="field"><label>Reason / notes</label><textarea class="inp" id="rq_note" rows="2" placeholder="Why this is needed"></textarea></div>'+
+       '<button class="btn pri" data-act="submitrequest">'+I.up+' Submit request</button>'+
+     '</div></div>';
+ }
  if(S.mcMode==='ppe'){
    var g=PPE_GROUPS.filter(function(x){return x.key===S.ppeGroup;})[0]||PPE_GROUPS[0];
    var recs=DB.ppe.filter(function(x){return x.engId===id&&g.items.indexOf(x.type)>=0;});
@@ -764,18 +833,25 @@ function mcPanel(id){
      var s=statusOf(x);var m=STMETA(s);
      return '<tr class="clk" data-act="open" data-kind="ppe" data-id="'+x.id+'"><td>'+esc(it)+'</td><td>'+fmt(x.expires)+'</td><td><span class="pill '+m[0]+'">'+m[1]+'</span></td><td style="text-align:right">'+certCell(x,'ppe')+'</td></tr>';
    }).join('');
+   rows+=otherRow('ppe');
    return mcPanelShell(g.label, g.desc, badge, rows, g.key==='minimum'?'Minimum PPE — required for every deployment':'PPE category');
  }
  if(S.mcMode==='scope'){
-   var sc=S.mcScope;var x=qualRec(id,sc);
-   var rows;
-   if(x){var s=statusOf(x);var m=STMETA(s);
-     rows='<tr class="clk" data-act="open" data-kind="training" data-id="'+x.id+'"><td>'+esc(sc)+' <span class="pill n" style="font-size:8.5px;padding:1px 6px">scope</span></td><td>'+fmt(x.expires)+'</td><td><span class="pill '+m[0]+'">'+m[1]+'</span></td><td style="text-align:right">'+certCell(x,'training')+'</td></tr>';
-   } else {
-     rows='<tr><td>'+esc(sc)+'</td><td>—</td><td><span class="pill r">Not held</span></td><td style="text-align:right"><button class="btn sm pri" data-act="reqscope" data-s="'+esc(sc)+'" style="padding:4px 9px;font-size:10.5px">'+I.up+' Request</button></td></tr>';
-   }
-   var badge=x?'<span class="pill '+STMETA(statusOf(x))[0]+'">'+STMETA(statusOf(x))[1]+'</span>':'<span class="pill r">Not held</span>';
-   return mcPanelShell(sc, 'Scope-specific training course.', badge, rows, 'Scope-specific training');
+   // show ALL scope courses with a Type/manufacturer column; engineer can upload (can't view back)
+   var recs=DB.training.filter(function(x){return x.engId===id&&x.kind==='scope';});
+   var rows=SCOPE_TRAIN.map(function(sc){
+     var x=recs.filter(function(r){return r.cert===sc;})[0];
+     if(x){var s=statusOf(x);var m=STMETA(s);
+       return '<tr class="clk" data-act="open" data-kind="training" data-id="'+x.id+'"><td>'+esc(sc)+'</td><td>'+(x.mfr?'<span class="pill n" style="font-size:9px">'+esc(x.mfr)+'</span>':'<span style="color:var(--text3);font-size:11px">—</span>')+'</td><td>'+fmt(x.expires)+'</td><td><span class="pill '+m[0]+'">'+m[1]+'</span></td><td style="text-align:right">'+certCell(x,'training')+'</td></tr>';
+     }
+     return '<tr><td>'+esc(sc)+'</td><td><span style="color:var(--text3);font-size:11px">—</span></td><td>—</td><td><span class="pill r">Not held</span></td><td style="text-align:right"><button class="btn sm pri" data-act="scopeupload" data-s="'+esc(sc)+'" style="padding:4px 9px;font-size:10.5px">'+I.up+' Upload</button></td></tr>';
+   }).join('');
+   // Other catch-all
+   rows+=otherRow('scope');
+   var held=recs.length, total=SCOPE_TRAIN.length;
+   var badge='<span class="pill '+(held>=total?'g':held?'a':'n')+'">'+held+' of '+total+' held</span>';
+   return mcPanelShellCols('Scope-specific Training','Manufacturer / type-specific competence. Upload a certificate for the office to approve — you won’t be able to view it back.', badge,
+     ['Course','Type','Expires','Status',{t:'Certificate',r:true}], rows, 'Scope-specific training');
  }
  // qualifications group
  var g=QUAL_GROUPS.filter(function(x){return x.key===S.mcGroup;})[0]||QUAL_GROUPS[0];
@@ -787,6 +863,7 @@ function mcPanel(id){
    var s=statusOf(x);var m=STMETA(s);
    return '<tr class="clk" data-act="open" data-kind="training" data-id="'+x.id+'"><td>'+esc(ct)+' <span class="pill n" style="font-size:8.5px;padding:1px 6px">competence</span></td><td>'+fmt(x.expires)+'</td><td><span class="pill '+m[0]+'">'+m[1]+'</span></td><td style="text-align:right">'+certCell(x,'training')+'</td></tr>';
  }).join('');
+ rows+=otherRow('qual');
  return mcPanelShell(g.label+' Requirements', g.desc, badge, rows, 'Qualifications');
 }
 
@@ -796,6 +873,19 @@ function mcPanelShell(title, desc, badge, rows, kicker){
    '<div class="mc-desc">'+esc(desc)+'</div>'+
    '<table><thead><tr><th>Item</th><th>Expires</th><th>Status</th><th style="text-align:right">Certificate</th></tr></thead><tbody>'+rows+'</tbody></table>'+
  '</div>';
+}
+function mcPanelShellCols(title, desc, badge, cols, rows, kicker){
+ var head=cols.map(function(c){if(typeof c==='string')return '<th>'+c+'</th>';return '<th style="text-align:'+(c.r?'right':'left')+'">'+c.t+'</th>';}).join('');
+ return '<div class="card pad0 mc-panel">'+
+   '<div class="mc-panel-h"><div><div class="mc-kick">'+esc(kicker)+'</div><div class="mc-title">'+esc(title)+'</div></div><div class="mc-badge">'+badge+'</div></div>'+
+   '<div class="mc-desc">'+esc(desc)+'</div>'+
+   '<table><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table>'+
+ '</div>';
+}
+// "Other" catch-all row — upload anything not pre-listed
+function otherRow(kind){
+ var cols = kind==='scope'?5:4;
+ return '<tr style="background:rgba(0,212,255,.03)"><td colspan="'+(cols-1)+'"><span style="color:var(--text2)">＋ Other</span> <span style="color:var(--text3);font-size:11px">— anything not listed above</span></td><td style="text-align:right"><button class="btn sm" data-act="otherupload" data-kind="'+kind+'" style="padding:4px 9px;font-size:10.5px">'+I.up+' Upload</button></td></tr>';
 }
 
 /* ===================== INTERACTIVITY ===================== */
@@ -828,6 +918,11 @@ document.addEventListener('click',function(ev){
  if(a==='mcgroup'){S.mcMode='qual';S.mcGroup=t.dataset.g;var c=$('#content');c.innerHTML=view();bindDynamic();return;}
  if(a==='mcscope'){S.mcMode='scope';S.mcScope=t.dataset.s;var c=$('#content');c.innerHTML=view();bindDynamic();return;}
  if(a==='mcppe'){S.mcMode='ppe';S.ppeGroup=t.dataset.g;var c=$('#content');c.innerHTML=view();bindDynamic();return;}
+ if(a==='mcassets'){S.mcMode='assets';var c=$('#content');c.innerHTML=view();bindDynamic();return;}
+ if(a==='mcrequest'){S.mcMode='request';var c=$('#content');c.innerHTML=view();bindDynamic();return;}
+ if(a==='scopeupload'){uploadScope(t.dataset.s);return;}
+ if(a==='otherupload'){uploadOther(t.dataset.kind);return;}
+ if(a==='submitrequest'){submitRequest();return;}
  if(a==='requal'||a==='reqscope'){toast('Request sent to office — '+(t.dataset.c||t.dataset.s));audit('Requested '+(t.dataset.c||t.dataset.s));return;}
  if(a==='open'){openRecord(t.dataset.kind,t.dataset.id);return;}
  if(a==='profile'){S.sel=t.dataset.id;S.tab='engineers';render();return;}
@@ -870,6 +965,52 @@ function doReject(kind,id){var x=findRec(kind,id);x.pending=false;x.verified=fal
 function doDelete(kind,id){var x=findRec(kind,id);var arr=recArr(kind);var i=arr.indexOf(x);arr.splice(i,1);audit('Permanently deleted record '+(x.type||x.cert||x.tool)+' (Director)');save();toast('Record permanently deleted');closeOverlay();var c=$('#content');c.innerHTML=view();bindDynamic();}
 function toggleRams(siteId){var s=DB.sites.filter(function(x){return x.id===siteId;})[0];s.rams=s.rams==='approved'?'awaiting':'approved';audit((s.rams==='approved'?'Approved':'Revoked')+' SSOW/RAMS for '+s.name);save();toast('RAMS '+(s.rams==='approved'?'approved ✓':'revoked')+' — '+s.name);var c=$('#content');c.innerHTML=view();bindDynamic();}
 function archiveEng(id){var e=eById(id);audit('Archived engineer '+e.name+' (Director)');toast(e.name+' archived (demo)');}
+// engineer uploads a scope-specific cert for approval (can't view back)
+function uploadScope(sc){
+ var id=myEngId();var mfrs=SCOPE_MFR[sc]||[];
+ var mfrOpts=mfrs.map(function(m){return '<option>'+esc(m)+'</option>';}).join('')+'<option>Other / not listed</option>';
+ modal('Upload — '+sc,
+   '<div class="field"><label>Manufacturer / type</label><select class="inp" id="su_mfr">'+mfrOpts+'</select></div>'+
+   '<div class="field"><label>Certificate</label><div class="uploadzone" id="su_uz">'+I.up+'<div><b id="su_n">Choose a file</b> or drag &amp; drop</div><div style="font-size:10px;margin-top:4px">PDF/JPG · simulated</div></div></div>'+
+   '<div class="field"><label>Expiry date</label><input class="inp" type="date" id="su_exp" value="'+iso(new Date(TODAY.getFullYear()+2,TODAY.getMonth(),TODAY.getDate()))+'"></div>'+
+   '<div class="miniwarn">'+I.lock+' This goes to the office for approval. As with competence certs, you won’t be able to view the PDF back.</div>',
+   '<button class="btn gho" data-act="closeov">Cancel</button><button class="btn pri" id="su_go">'+I.up+' Submit for approval</button>');
+ var picked={name:null};
+ $('#su_uz').onclick=function(){var inp=document.createElement('input');inp.type='file';inp.onchange=function(){if(inp.files[0]){picked.name=inp.files[0].name;$('#su_n').textContent=picked.name;}};inp.click();};
+ $('#su_go').onclick=function(){
+   var mfrEl=$('#su_mfr'), expEl=$('#su_exp');
+   var mfr=mfrEl?mfrEl.value:'', exp=expEl?expEl.value:iso(new Date(TODAY.getFullYear()+2,TODAY.getMonth(),TODAY.getDate()));
+   DB.training.push({id:'TS'+(Date.now()%1000000),engId:id,cert:sc,kind:'scope',mfr:(mfr==='Other / not listed'?'':mfr),obtained:iso(TODAY),expires:exp,certName:picked.name||(sc.replace(/[^A-Za-z0-9]/g,'_')+'_'+id+'.pdf'),verified:false,pending:true,competence:true});
+   audit('Engineer uploaded scope cert '+sc+(mfr?' ('+mfr+')':''));save();closeOverlay();toast('Uploaded — pending office approval');var c=$('#content');c.innerHTML=view();bindDynamic();
+ };
+}
+// "Other" catch-all upload
+function uploadOther(kind){
+ var id=myEngId();var label={qual:'qualification',ppe:'PPE item',scope:'scope course'}[kind]||'item';
+ modal('Upload — Other '+label,
+   '<div class="field"><label>Describe what this is</label><input class="inp" id="ot_name" placeholder="e.g. Manufacturer course not listed"></div>'+
+   '<div class="field"><label>Certificate</label><div class="uploadzone" id="ot_uz">'+I.up+'<div><b id="ot_n">Choose a file</b> or drag &amp; drop</div></div></div>'+
+   '<div class="field"><label>Expiry date (if any)</label><input class="inp" type="date" id="ot_exp"></div>'+
+   '<div class="miniwarn">'+I.lock+' Goes to the office for approval and filing.</div>',
+   '<button class="btn gho" data-act="closeov">Cancel</button><button class="btn pri" id="ot_go">'+I.up+' Submit</button>');
+ var picked={name:null};
+ $('#ot_uz').onclick=function(){var inp=document.createElement('input');inp.type='file';inp.onchange=function(){if(inp.files[0]){picked.name=inp.files[0].name;$('#ot_n').textContent=picked.name;}};inp.click();};
+ $('#ot_go').onclick=function(){
+   var nm=$('#ot_name').value||'Other item';var exp=$('#ot_exp').value||iso(new Date(TODAY.getFullYear()+2,TODAY.getMonth(),TODAY.getDate()));
+   if(kind==='ppe'){DB.ppe.push({id:'P'+(Date.now()%100000),engId:id,type:nm,issued:iso(TODAY),expires:exp,certName:picked.name||'OTHER_'+id+'.pdf',verified:false,pending:true});}
+   else{DB.training.push({id:'T'+(Date.now()%100000),engId:id,cert:nm,kind:(kind==='scope'?'scope':'qual'),other:true,obtained:iso(TODAY),expires:exp,certName:picked.name||'OTHER_'+id+'.pdf',verified:false,pending:true,competence:true});}
+   audit('Engineer uploaded "Other" '+label+': '+nm);save();closeOverlay();toast('Uploaded — pending approval');var c=$('#content');c.innerHTML=view();bindDynamic();
+ };
+}
+function submitRequest(){
+ var g=function(id){var el=$('#'+id);return el?el.value:'';};
+ var what=g('rq_what');
+ if(!what.trim()){toast('Tell us what training you need first');return;}
+ var req={id:'RQ'+(Date.now()%100000),engId:myEngId(),eng:DEMO[S.role].name,what:what,cat:g('rq_cat'),mfr:g('rq_mfr'),by:g('rq_by'),pri:g('rq_pri'),note:g('rq_note'),ts:Date.now(),status:'requested'};
+ DB.trainingRequests=DB.trainingRequests||[];DB.trainingRequests.unshift(req);
+ audit('Training requested: '+what);save();toast('Request submitted to the Training Manager');
+ S.mcMode='qual';var c=$('#content');c.innerHTML=view();bindDynamic();
+}
 function doExport(){
  var rows=[['Engineer','Type','Item','Expires','Status','Verified']];
  DB.ppe.forEach(function(x){var e=eById(x.engId);rows.push([e.name,'PPE',x.type,x.expires,statusOf(x),x.verified]);});

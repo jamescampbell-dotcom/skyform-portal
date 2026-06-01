@@ -149,6 +149,17 @@ body.alpine .fo-mapbox{background:radial-gradient(ellipse at 42% 30%,#EAF0FA,#ff
 .fo-card{transition:border-color .12s,transform .12s}
 .fo-card.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 @media(max-width:900px){.fo-headwrap{grid-template-columns:1fr}.fo-mapbox{height:300px}}
+/* Training bookings diary */
+.dgrid-h{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+.dcell-h{font-family:var(--fm);font-size:9px;letter-spacing:.08em;color:var(--text3);text-align:center;text-transform:uppercase}
+.dgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dcell{min-height:62px;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:5px 5px 6px}
+.dcell.empty{background:transparent;border:none}
+.dnum{font-family:var(--fm);font-size:10px;color:var(--text3);margin-bottom:4px}
+.dev{font-size:9.5px;line-height:1.15;border-radius:4px;padding:2px 4px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.dev-a{background:var(--abg);border:1px solid var(--amber);color:var(--amber)}
+.dev-g{background:var(--gbg);border:1px solid var(--green2);color:var(--green2)}
+@media(max-width:760px){.dcell{min-height:48px}.dev{font-size:8px}}
 .mk-lab{position:absolute;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 8px;font-size:9.5px;transform:translateY(-50%);pointer-events:none;white-space:nowrap}.mk-lab .t{font-family:var(--fh);font-weight:700;font-size:10.5px}.mk-lab .s{color:var(--text3);font-size:8px}
 /* planner */
 .planner{overflow-x:auto}
@@ -413,7 +424,25 @@ function genData(){
      list.push({kind:'cal',name:cal.tool,meta:'CAL '+(s==='expired'?'overdue':s==='expiring'?'due':'valid')+' '+fmt(cal.dueCal),flag:s==='valid'?'ok':(s==='expiring'?'due':'overdue'),calId:cal.id});});
    assets[e.id]=list;
  });
- return {engineers:engineers,sites:sites,ppe:ppe,training:training,calibration:calibration,scopes:scopes,weeks:weeks,assign:assign,accred:accred,assets:assets,audit:[{ts:Date.now(),who:'System',act:'Demo data initialised'}]};
+ // training requests (from engineers) + bookings (Training Manager)
+ var TRAIN_COURSES=['GWO Working at Height','GWO Sea Survival','GWO First Aid','IRATA Level 1','Confined Space Entry','HV Authorised Person','Bolt-tensioning','First Aid at Work'];
+ var PROVIDERS=['Maersk Training, Aberdeen','3sun Academy, Lowestoft','RelyOn Nutec, Aberdeen','AIS Survivex, Aberdeen','Petans, Norwich'];
+ var trainingRequests=[], treqid=1;
+ var bookings=[], bkid=1;
+ var pris=['Renewal','Urgent / expired','Development'];
+ for(var i=0;i<7;i++){
+   var e=engineers[Math.floor(r()*engineers.length)];
+   var crs=TRAIN_COURSES[Math.floor(r()*TRAIN_COURSES.length)];
+   var byd=new Date(TODAY); byd.setDate(byd.getDate()+20+Math.floor(r()*120));
+   var status = i<3?'requested':(i<5?'booked':'completed');
+   var req={id:'RQ'+(treqid++),engId:e.id,eng:e.name,what:crs,cat:'Qualification',mfr:'',by:iso(byd),pri:pris[Math.floor(r()*pris.length)],note:'',ts:Date.now()-i*86400000,status:status};
+   trainingRequests.push(req);
+   if(status!=='requested'){
+     var bd=new Date(TODAY); bd.setDate(bd.getDate()+10+Math.floor(r()*90));
+     bookings.push({id:'BK'+(bkid++),reqId:req.id,engId:e.id,eng:e.name,course:crs,provider:PROVIDERS[Math.floor(r()*PROVIDERS.length)],date:iso(bd),cost:300+Math.floor(r()*9)*50,po:'PO-'+(20600+Math.floor(r()*400)),status:status});
+   }
+ }
+ return {engineers:engineers,sites:sites,ppe:ppe,training:training,calibration:calibration,scopes:scopes,weeks:weeks,assign:assign,accred:accred,assets:assets,trainingRequests:trainingRequests,bookings:bookings,audit:[{ts:Date.now(),who:'System',act:'Demo data initialised'}]};
 }
 
 /* ---------- state ---------- */
@@ -496,7 +525,7 @@ function sidebar(){
    nav=[['mycompliance','My Compliance',I.me]];
  } else {
    nav=[['dashboard','Dashboard',I.dash],['planner','Planner',I.plan],['engineers','Engineers',I.eng],
-        ['ppe','PPE Register',I.ppe],['training','Training',I.train],['calibration','Calibration',I.cal],
+        ['ppe','PPE Register',I.ppe],['training','Training',I.train],['bookings','Training Bookings',I.train],['calibration','Calibration',I.cal],
         ['sites','Field Ops',I.site],['scopes','Work Scopes',I.scope],['reports','Reports',I.rep],['audit','Audit Log',I.audit]];
    if(S.role==='dual') nav.unshift(['mycompliance','My Compliance',I.me]);
  }
@@ -512,7 +541,7 @@ function sidebar(){
 }
 
 function topbar(){
- var u=DEMO[S.role];var crumbs={dashboard:'Operations Command Centre',planner:'Live Deployment Planner',engineers:'Engineers',ppe:'PPE Register',training:'Training & Competence',calibration:'Calibration Register',sites:'Field Operations',scopes:'Work Scopes',reports:'Reports',audit:'Audit Log',mycompliance:'My Compliance'};
+ var u=DEMO[S.role];var crumbs={dashboard:'Operations Command Centre',planner:'Live Deployment Planner',engineers:'Engineers',ppe:'PPE Register',training:'Training & Competence',calibration:'Calibration Register',sites:'Field Operations',scopes:'Work Scopes',reports:'Reports',audit:'Audit Log',mycompliance:'My Compliance',bookings:'Training Bookings & Diary'};
  return '<div class="topbar"><div class="crumb">'+(crumbs[S.tab]||'')+'</div>'+
   '<div class="search">'+ '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>'+'<input id="q" placeholder="Search engineers, certs, sites…" value="'+esc(S.q)+'"></div>'+
   '<div class="tb-right"><span class="live"><span class="pd"></span>LIVE</span>'+
@@ -530,6 +559,7 @@ function view(){
    case 'engineers':return S.sel?vEngineerProfile(S.sel):vEngineers();
    case 'ppe':return vRegister('ppe');
    case 'training':return vRegister('training');
+   case 'bookings':return vBookings();
    case 'calibration':return vRegister('calibration');
    case 'sites':return vSites();
    case 'scopes':return vScopes();
@@ -772,6 +802,58 @@ function vReports(){
 }
 
 /* ---------- Audit ---------- */
+function vBookings(){
+ var reqs=DB.trainingRequests||[]; var bks=DB.bookings||[];
+ var pendReqs=reqs.filter(function(r){return r.status==='requested';});
+ var booked=bks.filter(function(b){return b.status==='booked';});
+ var done=bks.filter(function(b){return b.status==='completed';});
+ var prc={ 'Urgent / expired':'r','Renewal':'a','Development':'b' };
+ // KPI strip
+ var kpis='<div class="grid g4" style="margin-bottom:16px">'+
+   '<div class="kpi" style="--kc:var(--accent)"><div class="v">'+pendReqs.length+'</div><div class="l">Open requests</div></div>'+
+   '<div class="kpi" style="--kc:var(--amber)"><div class="v">'+booked.length+'</div><div class="l">Booked / scheduled</div></div>'+
+   '<div class="kpi" style="--kc:var(--green2)"><div class="v">'+done.length+'</div><div class="l">Completed</div></div>'+
+   '<div class="kpi" style="--kc:var(--purple)"><div class="v">\u00a3'+(bks.reduce(function(a,b){return a+(b.cost||0);},0)).toLocaleString()+'</div><div class="l">Committed spend</div></div>'+
+ '</div>';
+ // request queue
+ var qrows=pendReqs.map(function(r){
+   var e=eById(r.engId);
+   return '<tr><td><div style="display:flex;align-items:center;gap:9px"><span class="av-sm" style="background:linear-gradient(135deg,var(--accent),var(--purple))">'+(e?e.init:'?')+'</span><span class="nm">'+esc(r.eng)+'</span></div></td>'+
+     '<td>'+esc(r.what)+'</td><td>'+fmt(r.by)+'</td><td><span class="pill '+(prc[r.pri]||'n')+'">'+esc(r.pri||'\u2014')+'</span></td>'+
+     '<td style="text-align:right"><button class="btn sm pri" data-act="bookreq" data-id="'+r.id+'">Book course</button></td></tr>';
+ }).join('')||'<tr><td colspan="5"><div class="empty" style="padding:18px">No open requests</div></td></tr>';
+ var queue='<div class="card pad0"><div class="card-h"><span class="t">Request queue</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">'+pendReqs.length+' awaiting</span></div><div style="overflow-x:auto"><table><thead><tr><th>Engineer</th><th>Course</th><th>Needed by</th><th>Priority</th><th style="text-align:right">Action</th></tr></thead><tbody>'+qrows+'</tbody></table></div></div>';
+ // bookings list
+ var brows=bks.slice().sort(function(a,b){return new Date(a.date)-new Date(b.date);}).map(function(b){
+   var e=eById(b.engId);var st=b.status==='completed'?['g','Completed']:['a','Booked'];
+   var act = b.status==='booked'? '<button class="btn sm" data-act="completebk" data-id="'+b.id+'">Mark complete</button>' : '<span style="color:var(--green2);font-size:11px">\u2713 cert renewed</span>';
+   return '<tr><td><div style="display:flex;align-items:center;gap:9px"><span class="av-sm" style="background:linear-gradient(135deg,var(--accent),var(--purple))">'+(e?e.init:'?')+'</span><span class="nm">'+esc(b.eng)+'</span></div></td>'+
+     '<td>'+esc(b.course)+'</td><td style="font-size:11px;color:var(--text2)">'+esc(b.provider)+'</td><td>'+fmt(b.date)+'</td><td class="mono" style="font-size:11px">\u00a3'+b.cost+'</td><td><span class="pill '+st[0]+'">'+st[1]+'</span></td><td style="text-align:right">'+act+'</td></tr>';
+ }).join('')||'<tr><td colspan="7"><div class="empty" style="padding:18px">No bookings yet</div></td></tr>';
+ var blist='<div class="card pad0"><div class="card-h"><span class="t">Bookings</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">provider \u00b7 date \u00b7 cost</span></div><div style="overflow-x:auto"><table><thead><tr><th>Engineer</th><th>Course</th><th>Provider</th><th>Date</th><th>Cost</th><th>Status</th><th style="text-align:right">Action</th></tr></thead><tbody>'+brows+'</tbody></table></div></div>';
+ // diary (current + next 2 months mini)
+ var diary=bookingsDiary(bks);
+ return '<div class="hero"><div><h2>Training Bookings &amp; Diary</h2><div class="sub">Requests \u2192 booked courses \u2192 completed. Admin-visible.</div></div></div>'+
+   kpis+queue+'<div style="height:16px"></div>'+diary+'<div style="height:16px"></div>'+blist;
+}
+function bookingsDiary(bks){
+ // month grid for current month based on TODAY
+ var y=TODAY.getFullYear(), m=TODAY.getMonth();
+ var first=new Date(y,m,1); var startDow=(first.getDay()+6)%7; // Mon=0
+ var daysIn=new Date(y,m+1,0).getDate();
+ var monthName=first.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+ var byday={};
+ bks.forEach(function(b){var d=new Date(b.date);if(d.getFullYear()===y&&d.getMonth()===m){ (byday[d.getDate()]=byday[d.getDate()]||[]).push(b); }});
+ var cells='';
+ var dn=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+ var head=dn.map(function(d){return '<div class="dcell-h">'+d+'</div>';}).join('');
+ for(var i=0;i<startDow;i++){cells+='<div class="dcell empty"></div>';}
+ for(var day=1;day<=daysIn;day++){
+   var evs=(byday[day]||[]).map(function(b){var cls=b.status==='completed'?'g':'a';var e=eById(b.engId);return '<div class="dev dev-'+cls+'" title="'+esc(b.course)+'">'+esc((e?e.init:'')+' '+b.course.split(' ').slice(0,2).join(' '))+'</div>';}).join('');
+   cells+='<div class="dcell"><div class="dnum">'+day+'</div>'+evs+'</div>';
+ }
+ return '<div class="card pad0"><div class="card-h"><span class="t">Training diary \u2014 '+monthName+'</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">amber booked \u00b7 green completed</span></div><div style="padding:14px"><div class="dgrid-h">'+head+'</div><div class="dgrid">'+cells+'</div></div></div>';
+}
 function vAudit(){
  var rows=DB.audit.map(function(a){return '<tr><td class="mono" style="font-size:11px;color:var(--text3)">'+new Date(a.ts).toLocaleString('en-GB')+'</td><td class="nm">'+esc(a.who)+'</td><td>'+esc(a.act)+'</td></tr>';}).join('');
  return '<div class="hero"><div><h2>Audit Log</h2><div class="sub">Every change is recorded · newest first</div></div></div><div class="card pad0"><div style="overflow-x:auto"><table><thead><tr><th>When</th><th>Who</th><th>Action</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
@@ -969,6 +1051,8 @@ document.addEventListener('click',function(ev){
  if(a==='scopeupload'){uploadScope(t.dataset.s);return;}
  if(a==='otherupload'){uploadOther(t.dataset.kind);return;}
  if(a==='submitrequest'){submitRequest();return;}
+ if(a==='bookreq'){bookCourse(t.dataset.id);return;}
+ if(a==='completebk'){completeBooking(t.dataset.id);return;}
  if(a==='requal'||a==='reqscope'){toast('Request sent to office — '+(t.dataset.c||t.dataset.s));audit('Requested '+(t.dataset.c||t.dataset.s));return;}
  if(a==='open'){openRecord(t.dataset.kind,t.dataset.id);return;}
  if(a==='profile'){S.sel=t.dataset.id;S.tab='engineers';render();return;}
@@ -1047,6 +1131,34 @@ function uploadOther(kind){
    else{DB.training.push({id:'T'+(Date.now()%100000),engId:id,cert:nm,kind:(kind==='scope'?'scope':'qual'),other:true,obtained:iso(TODAY),expires:exp,certName:picked.name||'OTHER_'+id+'.pdf',verified:false,pending:true,competence:true});}
    audit('Engineer uploaded "Other" '+label+': '+nm);save();closeOverlay();toast('Uploaded — pending approval');var c=$('#content');c.innerHTML=view();bindDynamic();
  };
+}
+function bookCourse(reqId){
+ var req=(DB.trainingRequests||[]).filter(function(r){return r.id===reqId;})[0]; if(!req)return;
+ var provs=['Maersk Training, Aberdeen','3sun Academy, Lowestoft','RelyOn Nutec, Aberdeen','AIS Survivex, Aberdeen','Petans, Norwich'];
+ var provOpts=provs.map(function(pp){return '<option>'+esc(pp)+'</option>';}).join('');
+ modal('Book course \u2014 '+esc(req.eng),
+   '<div class="field"><label>Course</label><input class="inp" id="bk_course" value="'+esc(req.what)+'"></div>'+
+   '<div class="grid g2" style="gap:12px"><div class="field"><label>Provider</label><select class="inp" id="bk_prov">'+provOpts+'</select></div>'+
+   '<div class="field"><label>Course date</label><input class="inp" type="date" id="bk_date" value="'+iso(new Date(TODAY.getFullYear(),TODAY.getMonth(),Math.min(28,TODAY.getDate()+14)))+'"></div></div>'+
+   '<div class="grid g2" style="gap:12px"><div class="field"><label>Cost (\u00a3)</label><input class="inp" type="number" id="bk_cost" value="545"></div>'+
+   '<div class="field"><label>PO / reference</label><input class="inp" id="bk_po" placeholder="PO-20614"></div></div>'+
+   '<div class="miniwarn">Booking schedules the course in the diary. When marked complete it renews the engineer\u2019s cert (pending office verification).</div>',
+   '<button class="btn gho" data-act="closeov">Cancel</button><button class="btn pri" id="bk_go">Confirm booking</button>');
+ $('#bk_go').onclick=function(){
+   var g=function(id){var el=$('#'+id);return el?el.value:'';};
+   DB.bookings=DB.bookings||[];
+   DB.bookings.push({id:'BK'+(Date.now()%100000),reqId:req.id,engId:req.engId,eng:req.eng,course:g('bk_course'),provider:g('bk_prov'),date:g('bk_date'),cost:parseInt(g('bk_cost'),10)||0,po:g('bk_po'),status:'booked'});
+   req.status='booked';
+   audit('Booked course "'+g('bk_course')+'" for '+req.eng);save();closeOverlay();toast('Course booked \u2014 added to diary');var c=$('#content');c.innerHTML=view();bindDynamic();
+ };
+}
+function completeBooking(bkId){
+ var b=(DB.bookings||[]).filter(function(x){return x.id===bkId;})[0]; if(!b)return;
+ b.status='completed';
+ var exp=new Date(b.date); exp.setFullYear(exp.getFullYear()+2);
+ DB.training.push({id:'TB'+(Date.now()%100000),engId:b.engId,cert:b.course,kind:'qual',obtained:b.date,expires:iso(exp),certName:null,verified:false,pending:true,competence:true});
+ audit('Completed booking "'+b.course+'" \u2014 cert renewed for '+b.eng+' (pending verify)');save();toast('Marked complete \u2014 cert renewed, pending verification');
+ var c=$('#content');c.innerHTML=view();bindDynamic();
 }
 function submitRequest(){
  var g=function(id){var el=$('#'+id);return el?el.value:'';};

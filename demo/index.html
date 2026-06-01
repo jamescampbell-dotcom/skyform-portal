@@ -447,9 +447,10 @@ function genData(){
 
 /* ---------- state ---------- */
 var SKEY='skyform_demo_v2';
-var DB, S={role:null,profile:'admin',tab:'dashboard',theme:'night',sel:null,filter:'all',q:'',mcGroup:'min-offshore',mcScope:null,mcMode:'qual',ppeGroup:'minimum',siteSel:0};
+var DB, S={role:null,profile:'admin',tab:'dashboard',theme:'night',sel:null,filter:'all',q:'',mcGroup:'min-offshore',mcScope:null,mcMode:'qual',ppeGroup:'minimum',siteSel:0,repType:'all',repStatus:'all',repName:'all'};
 function load(){try{var raw=localStorage.getItem(SKEY);if(raw){DB=JSON.parse(raw);return;}}catch(e){}DB=genData();save();}
 function save(){try{localStorage.setItem(SKEY,JSON.stringify(DB));}catch(e){}}
+function rerender(){var c=$('#content');if(c){c.innerHTML=view();bindDynamic();}}
 function reset(){DB=genData();save();toast('Demo data reset');render();}
 function audit(act){DB.audit.unshift({ts:Date.now(),who:DEMO[S.role].name,act:act});if(DB.audit.length>200)DB.audit.pop();}
 
@@ -571,14 +572,39 @@ function view(){
 }
 
 /* ---------- Dashboard ---------- */
+function kpiDetail(key){
+ var title,intro,rowsHtml='';
+ if(key==='fleet'){
+   var per=DB.engineers.map(function(e){return {e:e,pct:compOf(e.id).pct};}).sort(function(a,b){return a.pct-b.pct;});
+   var avg=Math.round(per.reduce(function(a,x){return a+x.pct;},0)/per.length);
+   title='Fleet compliance — '+avg+'%';
+   intro='Average of every engineer’s personal compliance score. Each engineer’s score is the % of their required certs (qualifications, PPE, calibration) that are currently <b>valid and verified</b>. Fleet % = mean of all '+per.length+' scores.';
+   rowsHtml='<table><thead><tr><th>Engineer</th><th>Base</th><th style="text-align:right">Score</th></tr></thead><tbody>'+per.map(function(x){var col=x.pct>=92?'var(--green2)':x.pct>=78?'var(--amber)':'var(--red)';return '<tr><td><span class="nm">'+esc(x.e.name)+'</span></td><td style="color:var(--text3)">'+esc(x.e.base||'—')+'</td><td style="text-align:right" class="mono"><b style="color:'+col+'">'+x.pct+'%</b></td></tr>';}).join('')+'</tbody></table>';
+ } else if(key==='engineers'){
+   title='Active fleet — '+DB.engineers.length+' engineers';
+   intro='Every engineer currently on the active roster. This is a simple count of active engineer records.';
+   rowsHtml='<table><thead><tr><th>Engineer</th><th>Role</th><th>Base</th></tr></thead><tbody>'+DB.engineers.map(function(e){return '<tr><td><span class="nm">'+esc(e.name)+'</span></td><td style="color:var(--text3)">'+esc(e.role||'Engineer')+'</td><td style="color:var(--text3)">'+esc(e.base||'—')+'</td></tr>';}).join('')+'</tbody></table>';
+ } else {
+   var att=attentionList();var list,desc;
+   if(key==='expiring'){list=att.filter(function(a){return a.s==='expiring';});title='Expiring soon — '+list.length;desc='Certificates or calibrations with a valid date that falls within the next 60 days. These need renewing before they lapse.';}
+   else if(key==='overdue'){list=att.filter(function(a){return a.s==='expired'||a.s==='action';});title='Overdue / missing — '+list.length;desc='Items that are already <b>expired</b>, or a required cert that is <b>missing</b> entirely. Immediate action needed.';}
+   else {list=att.filter(function(a){return a.s==='pending';});title='Pending checks — '+list.length;desc='Items an engineer has uploaded that are <b>awaiting office verification</b>. They don’t count as valid until verified.';}
+   intro=desc;
+   rowsHtml='<table><thead><tr><th>Engineer</th><th>Type</th><th>Item</th><th style="text-align:right">Status</th></tr></thead><tbody>'+(list.map(function(a){var m=STMETA(a.s);return '<tr><td><span class="nm">'+esc(a.eng.name)+'</span></td><td style="color:var(--text3)">'+a.kind+'</td><td>'+esc(a.label)+'</td><td style="text-align:right"><span class="pill '+m[0]+'">'+m[1]+'</span></td></tr>';}).join('')||'<tr><td colspan="4"><div class="empty" style="padding:14px">None — all clear</div></td></tr>')+'</tbody></table>';
+ }
+ modal(title,
+   '<div class="miniwarn" style="background:var(--card3);border-color:var(--border);color:var(--text2)">'+I.chk+' <b>How this is calculated:</b> '+intro+'</div>'+
+   '<div style="max-height:340px;overflow:auto;margin-top:6px">'+rowsHtml+'</div>',
+   '<button class="btn pri" data-act="closeov">Close</button>');
+}
 function vDashboard(){
  var fp=fleetPct();var att=attentionList();var exp=att.filter(function(a){return a.s==='expiring';}).length;var over=att.filter(function(a){return a.s==='expired'||a.s==='action';}).length;var pend=pendingCount();
- var kpis=[['Fleet compliance',fp+'%',compColor(fp>=92?'g':fp>=78?'a':'r'),I.chk,fp>=85?'On target':'Below target',compColor(fp>=92?'g':fp>=78?'a':'r')],
-   ['Engineers',DB.engineers.length,'var(--accent)',I.eng,'Active fleet','var(--text3)'],
-   ['Expiring soon',exp,'var(--amber)',I.warn,'Within 60 days','var(--amber)'],
-   ['Overdue / missing',over,'var(--red)',I.warn,'Needs action','var(--red)'],
-   ['Pending checks',pend,'var(--accent)',I.up,'Awaiting verify','var(--accent)']];
- var kp=kpis.map(function(k){return '<div class="kpi" style="--kc:'+k[2]+'"><div class="ic" style="background:var(--card3);color:'+k[2]+'">'+k[3]+'</div><div class="v" style="color:'+k[2]+'">'+k[1]+'</div><div class="l">'+k[0]+'</div><div class="d" style="color:'+k[5]+'">'+k[4]+'</div></div>';}).join('');
+ var kpis=[['Fleet compliance',fp+'%',compColor(fp>=92?'g':fp>=78?'a':'r'),I.chk,fp>=85?'On target':'Below target',compColor(fp>=92?'g':fp>=78?'a':'r'),'fleet'],
+   ['Engineers',DB.engineers.length,'var(--accent)',I.eng,'Active fleet','var(--text3)','engineers'],
+   ['Expiring soon',exp,'var(--amber)',I.warn,'Within 60 days','var(--amber)','expiring'],
+   ['Overdue / missing',over,'var(--red)',I.warn,'Needs action','var(--red)','overdue'],
+   ['Pending checks',pend,'var(--accent)',I.up,'Awaiting verify','var(--accent)','pending']];
+ var kp=kpis.map(function(k){return '<div class="kpi" data-act="kpi" data-k="'+k[6]+'" style="--kc:'+k[2]+';cursor:pointer" title="Click to see how this is calculated"><div class="ic" style="background:var(--card3);color:'+k[2]+'">'+k[3]+'</div><div class="v" style="color:'+k[2]+'">'+k[1]+'</div><div class="l">'+k[0]+'</div><div class="d" style="color:'+k[5]+'">'+k[4]+'</div></div>';}).join('');
  // map
  var kc={onshore:'#00D4FF',offshore:'#A78BFA'};
  var paths=MAP.paths.map(function(p){return '<path d="'+p+'" fill="var(--mapland)" stroke="var(--mapline)" stroke-width="0.8"/>';}).join('');
@@ -779,6 +805,35 @@ function vScopes(){
 }
 
 /* ---------- Reports ---------- */
+function reportRows(){
+ var src=[];
+ var addP=function(arr,kind){arr.forEach(function(x){src.push({rec:x,kind:kind});});};
+ if(S.repType==='all'||S.repType==='ppe') addP(DB.ppe,'PPE');
+ if(S.repType==='all'||S.repType==='training') addP(DB.training,'Qualification');
+ if(S.repType==='all'||S.repType==='calibration') addP(DB.calibration,'Calibration');
+ return src.map(function(o){var x=o.rec;var e=eById(x.engId);return {engId:x.engId,engName:e?e.name:'\u2014',kind:o.kind,label:x.type||x.cert||x.tool||'\u2014',expires:x.expires||x.dueCal,status:statusOf(x)};})
+   .filter(function(r){return (S.repName==='all'||r.engId===S.repName) && (S.repStatus==='all'||r.status===S.repStatus);})
+   .sort(function(a,b){return new Date(a.expires||0)-new Date(b.expires||0);});
+}
+function reportBuilder(){
+ var types=[['all','All records'],['calibration','Calibrated Tooling'],['ppe','PPE'],['training','Qualifications']];
+ var typeBtns=types.map(function(t){return '<button class="btn sm '+(S.repType===t[0]?'pri':'gho')+'" data-act="reptype" data-v="'+t[0]+'">'+t[1]+'</button>';}).join('');
+ var stats=[['all','All'],['valid','Valid'],['expiring','Expiring'],['pending','Pending'],['expired','Expired'],['action','Missing']];
+ var statBtns=stats.map(function(s){return '<button class="btn sm '+(S.repStatus===s[0]?'pri':'gho')+'" data-act="repstatus" data-v="'+s[0]+'">'+s[1]+'</button>';}).join('');
+ var nameOpts='<option value="all">All engineers</option>'+DB.engineers.map(function(e){return '<option value="'+e.id+'"'+(S.repName===e.id?' selected':'')+'>'+esc(e.name)+'</option>';}).join('');
+ var rows=reportRows();
+ var body=rows.map(function(r){var m=STMETA(r.status);return '<tr><td><span class="nm">'+esc(r.engName)+'</span></td><td style="color:var(--text3)">'+r.kind+'</td><td>'+esc(r.label)+'</td><td>'+fmt(r.expires)+'</td><td style="text-align:right"><span class="pill '+m[0]+'">'+m[1]+'</span></td></tr>';}).join('')||'<tr><td colspan="5"><div class="empty" style="padding:16px">No records match these filters</div></td></tr>';
+ return '<div class="card pad0" style="margin-bottom:16px"><div class="card-h"><span class="t">Build a report</span><span style="margin-left:auto;font-size:11px;color:var(--text3)">'+rows.length+' record'+(rows.length===1?'':'s')+'</span></div>'+
+   '<div style="padding:14px 17px">'+
+     '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Report type</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px">'+typeBtns+'</div>'+
+     '<div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end">'+
+       '<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Engineer</div><select class="inp" style="min-width:200px" onchange="S.repName=this.value;rerender()">'+nameOpts+'</select></div>'+
+       '<div style="flex:1;min-width:220px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Status</div><div style="display:flex;gap:7px;flex-wrap:wrap">'+statBtns+'</div></div>'+
+     '</div>'+
+   '</div>'+
+   '<div style="overflow-x:auto"><table><thead><tr><th>Engineer</th><th>Type</th><th>Item</th><th>Expires</th><th style="text-align:right">Status</th></tr></thead><tbody>'+body+'</tbody></table></div>'+
+ '</div>';
+}
 function vReports(){
  var fp=fleetPct();
  var byStatus={valid:0,expiring:0,expired:0,pending:0,action:0};DB.ppe.concat(DB.training,DB.calibration).forEach(function(x){var s=statusOf(x);byStatus[s]=(byStatus[s]||0)+1;});
@@ -792,6 +847,7 @@ function vReports(){
  var bars=months.map(function(m){var h=Math.round(m.n/maxN*120);return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="font-family:var(--fm);font-size:11px;color:var(--amber);font-weight:700">'+m.n+'</div><div style="width:60%;height:'+Math.max(h,3)+'px;background:linear-gradient(180deg,var(--amber),rgba(255,183,3,.3));border-radius:5px 5px 0 0"></div><div style="font-size:10px;color:var(--text3)">'+m.k+'</div></div>';}).join('');
  var topAtt=attentionList().slice(0,6).map(function(a){var m=STMETA(a.s);return '<tr><td><span class="nm">'+esc(a.eng.name)+'</span></td><td>'+a.kind+'</td><td>'+esc(a.label)+'</td><td><span class="pill '+m[0]+'">'+m[1]+'</span></td></tr>';}).join('');
  return '<div class="hero"><div><h2>Reports</h2><div class="sub">Fleet compliance analytics · '+total+' tracked records</div></div><div class="hero-act"><button class="btn" data-act="export">'+I.dl+' Export CSV</button></div></div>'+
+  reportBuilder()+
   '<div class="grid g-rep" style="margin-bottom:16px">'+
    '<div class="card"><div class="card-t">Compliance breakdown</div><div style="display:flex;align-items:center;gap:18px"><div>'+donut+'</div><div style="flex:1">'+legend+'</div></div></div>'+
    '<div class="card"><div class="card-t">Certificates expiring — next 6 months</div><div style="display:flex;align-items:flex-end;gap:10px;height:170px;padding-top:10px">'+bars+'</div></div>'+
@@ -826,14 +882,16 @@ function vBookings(){
  // bookings list
  var brows=bks.slice().sort(function(a,b){return new Date(a.date)-new Date(b.date);}).map(function(b){
    var e=eById(b.engId);var st=b.status==='completed'?['g','Completed']:['a','Booked'];
-   var act = b.status==='booked'? '<button class="btn sm" data-act="completebk" data-id="'+b.id+'">Mark complete</button>' : '<span style="color:var(--green2);font-size:11px">\u2713 cert renewed</span>';
+   var act = b.status==='booked'
+     ? '<div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap"><button class="btn sm" data-act="completebk" data-id="'+b.id+'">Mark complete</button><button class="btn sm gho" data-act="amendbk" data-id="'+b.id+'">Amend</button><button class="btn sm gho" data-act="cancelbk" data-id="'+b.id+'" style="color:var(--red)">Cancel</button></div>'
+     : '<span style="color:var(--green2);font-size:11px">\u2713 cert renewed</span>';
    return '<tr><td><div style="display:flex;align-items:center;gap:9px"><span class="av-sm" style="background:linear-gradient(135deg,var(--accent),var(--purple))">'+(e?e.init:'?')+'</span><span class="nm">'+esc(b.eng)+'</span></div></td>'+
      '<td>'+esc(b.course)+'</td><td style="font-size:11px;color:var(--text2)">'+esc(b.provider)+'</td><td>'+fmt(b.date)+'</td><td class="mono" style="font-size:11px">\u00a3'+b.cost+'</td><td><span class="pill '+st[0]+'">'+st[1]+'</span></td><td style="text-align:right">'+act+'</td></tr>';
  }).join('')||'<tr><td colspan="7"><div class="empty" style="padding:18px">No bookings yet</div></td></tr>';
  var blist='<div class="card pad0"><div class="card-h"><span class="t">Bookings</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">provider \u00b7 date \u00b7 cost</span></div><div style="overflow-x:auto"><table><thead><tr><th>Engineer</th><th>Course</th><th>Provider</th><th>Date</th><th>Cost</th><th>Status</th><th style="text-align:right">Action</th></tr></thead><tbody>'+brows+'</tbody></table></div></div>';
  // diary (current + next 2 months mini)
  var diary=bookingsDiary(bks);
- return '<div class="hero"><div><h2>Training Bookings &amp; Diary</h2><div class="sub">Requests \u2192 booked courses \u2192 completed. Admin-visible.</div></div></div>'+
+ return '<div class="hero"><div><h2>Training Bookings &amp; Diary</h2><div class="sub">Requests \u2192 booked courses \u2192 completed. Admin, Managers &amp; the Training Manager can book, amend &amp; cancel.</div></div></div>'+
    kpis+queue+'<div style="height:16px"></div>'+diary+'<div style="height:16px"></div>'+blist;
 }
 function bookingsDiary(bks){
@@ -1053,6 +1111,11 @@ document.addEventListener('click',function(ev){
  if(a==='submitrequest'){submitRequest();return;}
  if(a==='bookreq'){bookCourse(t.dataset.id);return;}
  if(a==='completebk'){completeBooking(t.dataset.id);return;}
+ if(a==='amendbk'){amendBooking(t.dataset.id);return;}
+ if(a==='cancelbk'){cancelBooking(t.dataset.id);return;}
+ if(a==='kpi'){kpiDetail(t.dataset.k);return;}
+ if(a==='reptype'){S.repType=t.dataset.v;rerender();return;}
+ if(a==='repstatus'){S.repStatus=t.dataset.v;rerender();return;}
  if(a==='requal'||a==='reqscope'){toast('Request sent to office — '+(t.dataset.c||t.dataset.s));audit('Requested '+(t.dataset.c||t.dataset.s));return;}
  if(a==='open'){openRecord(t.dataset.kind,t.dataset.id);return;}
  if(a==='profile'){S.sel=t.dataset.id;S.tab='engineers';render();return;}
@@ -1159,6 +1222,35 @@ function completeBooking(bkId){
  DB.training.push({id:'TB'+(Date.now()%100000),engId:b.engId,cert:b.course,kind:'qual',obtained:b.date,expires:iso(exp),certName:null,verified:false,pending:true,competence:true});
  audit('Completed booking "'+b.course+'" \u2014 cert renewed for '+b.eng+' (pending verify)');save();toast('Marked complete \u2014 cert renewed, pending verification');
  var c=$('#content');c.innerHTML=view();bindDynamic();
+}
+function amendBooking(bkId){
+ var b=(DB.bookings||[]).filter(function(x){return x.id===bkId;})[0]; if(!b)return;
+ var provs=['Maersk Training, Aberdeen','3sun Academy, Lowestoft','RelyOn Nutec, Aberdeen','AIS Survivex, Aberdeen','Petans, Norwich'];
+ if(provs.indexOf(b.provider)<0&&b.provider) provs.unshift(b.provider);
+ var provOpts=provs.map(function(pp){return '<option'+(pp===b.provider?' selected':'')+'>'+esc(pp)+'</option>';}).join('');
+ modal('Amend booking \u2014 '+esc(b.eng),
+   '<div class="field"><label>Course</label><input class="inp" id="am_course" value="'+esc(b.course)+'"></div>'+
+   '<div class="grid g2" style="gap:12px"><div class="field"><label>Provider</label><select class="inp" id="am_prov">'+provOpts+'</select></div>'+
+   '<div class="field"><label>Course date</label><input class="inp" type="date" id="am_date" value="'+esc(b.date)+'"></div></div>'+
+   '<div class="grid g2" style="gap:12px"><div class="field"><label>Cost (\u00a3)</label><input class="inp" type="number" id="am_cost" value="'+(b.cost||0)+'"></div>'+
+   '<div class="field"><label>PO / reference</label><input class="inp" id="am_po" value="'+esc(b.po||'')+'"></div></div>',
+   '<button class="btn gho" data-act="closeov">Cancel</button><button class="btn pri" id="am_go">Save changes</button>');
+ $('#am_go').onclick=function(){
+   var g=function(id){var el=$('#'+id);return el?el.value:'';};
+   b.course=g('am_course');b.provider=g('am_prov');b.date=g('am_date');b.cost=parseInt(g('am_cost'),10)||0;b.po=g('am_po');
+   audit('Amended booking "'+b.course+'" for '+b.eng);save();closeOverlay();toast('Booking updated');rerender();
+ };
+}
+function cancelBooking(bkId){
+ var b=(DB.bookings||[]).filter(function(x){return x.id===bkId;})[0]; if(!b)return;
+ modal('Cancel booking?',
+   '<div class="miniwarn">'+I.warn+' This cancels the course for <b>'+esc(b.eng)+'</b> (\u201c'+esc(b.course)+'\u201d). The linked request returns to the queue so it can be re-booked.</div>',
+   '<button class="btn gho" data-act="closeov">Keep booking</button><button class="btn" style="background:var(--red);color:#fff;border-color:var(--red)" id="cx_go">Cancel booking</button>');
+ $('#cx_go').onclick=function(){
+   DB.bookings=DB.bookings.filter(function(x){return x.id!==bkId;});
+   if(b.reqId){var r=(DB.trainingRequests||[]).filter(function(x){return x.id===b.reqId;})[0];if(r)r.status='requested';}
+   audit('Cancelled booking "'+b.course+'" for '+b.eng);save();closeOverlay();toast('Booking cancelled \u2014 request back in queue');rerender();
+ };
 }
 function submitRequest(){
  var g=function(id){var el=$('#'+id);return el?el.value:'';};

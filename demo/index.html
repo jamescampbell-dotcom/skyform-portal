@@ -149,6 +149,72 @@ body.alpine .fo-mapbox{background:radial-gradient(ellipse at 42% 30%,#EAF0FA,#ff
 .fo-card{transition:border-color .12s,transform .12s}
 .fo-card.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 @media(max-width:900px){.fo-headwrap{grid-template-columns:1fr}.fo-mapbox{height:300px}}
+/* ===== Deployment Planner (blend) ===== */
+.plannerwrap{overflow:hidden}
+.plannerwrap.fullplan{position:fixed;inset:12px;z-index:120;margin:0;box-shadow:0 30px 80px rgba(0,0,0,.6);display:flex;flex-direction:column}
+.pl-toolbar{display:flex;align-items:center;gap:14px;padding:11px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.pw-segs{display:inline-flex;background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.pw-seg{background:transparent;border:none;color:var(--text3);font-family:var(--fm);font-size:11px;padding:6px 12px;cursor:pointer}
+.pw-seg.on{background:var(--accent);color:#04121f;font-weight:700}
+.pl-split{display:flex;min-height:0;flex:1}
+.pl-roster{width:230px;flex:none;border-right:1px solid var(--border);padding:12px;overflow:auto;max-height:560px}
+.plannerwrap.fullplan .pl-roster{max-height:none}
+.rs-h{font-family:var(--fm);font-size:10px;letter-spacing:.08em;color:var(--accent);margin-bottom:8px}
+.rs-item{display:flex;align-items:center;gap:8px;padding:6px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;background:var(--card)}
+.rs-item.off{opacity:.75}
+.rs-info{flex:1;min-width:0}
+.rs-nm{font-size:11.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rs-sub{font-size:9.5px;color:var(--text3)}
+.rs-rls{display:flex;gap:3px}
+.rs-rl{font-family:var(--fm);font-size:9px;font-weight:700;border:1px solid;border-radius:4px;width:15px;height:15px;display:flex;align-items:center;justify-content:center}
+.al-ring{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:10px;font-weight:700}
+.pl-boardwrap{flex:1;min-width:0;display:flex;flex-direction:column}
+.pl-scroll{overflow:auto;max-height:560px}
+.plannerwrap.fullplan .pl-scroll{max-height:none;flex:1}
+.pl-board{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%}
+.pl-board th,.pl-board td{border-bottom:1px solid var(--hair);border-right:1px solid var(--hair)}
+.pl-sitecol{position:sticky;left:0;z-index:2;background:var(--card);min-width:150px;text-align:left;padding:8px 10px}
+.pl-dayh{padding:5px 2px;text-align:center;min-width:46px;background:var(--card)}
+.pl-dayh.wknd{background:var(--bg2)}
+.pl-dn{font-family:var(--fm);font-size:9px;color:var(--text3)}
+.pl-dd{font-family:var(--fm);font-size:12px;color:var(--text2);font-weight:600}
+.pl-site{display:flex;align-items:center;gap:8px}
+.pl-sicon{font-size:15px}
+.pl-sinfo{display:flex;flex-direction:column}
+.pl-sinfo b{font-size:12px;color:var(--text)}
+.pl-sty{font-size:9px;color:var(--text3);text-transform:capitalize}
+.pl-cell{vertical-align:top;padding:3px;min-width:46px;height:42px;cursor:pointer;position:relative;transition:background .12s}
+.pl-cell.wknd{background:var(--bg2)}
+.pl-cell:hover{background:var(--card3)}
+.pl-add{position:absolute;top:2px;right:4px;color:var(--text3);font-size:13px;opacity:0;transition:opacity .12s}
+.pl-cell:hover .pl-add{opacity:.7}
+.pl-chip{display:flex;align-items:center;gap:3px;background:var(--card3);border:1px solid;border-radius:6px;padding:2px 3px;margin-bottom:3px;position:relative}
+.pl-av{flex:none;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:8px;font-weight:700;color:#04121f}
+.pl-rl{font-family:var(--fm);font-size:9px;font-weight:700}
+.pl-fl{color:var(--red);font-weight:700;font-size:11px}
+.pl-x{position:absolute;top:-6px;right:-6px;width:14px;height:14px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);color:var(--text3);font-size:10px;line-height:12px;text-align:center;cursor:pointer;opacity:0;transition:opacity .12s}
+.pl-chip:hover .pl-x{opacity:1}
+.pl-leg{padding:9px 14px;font-size:11px;color:var(--text3);display:flex;gap:10px;flex-wrap:wrap}
+.tl-bar{display:block;border-radius:5px;color:#04121f;font-family:var(--fm);font-size:9px;font-weight:700;text-align:center;padding:3px 0}
+.tl-leave{display:block;text-align:center;font-size:13px;opacity:.7}
+/* allocate modal */
+.al-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.al-k{font-family:var(--fm);font-size:10px;letter-spacing:.08em;color:var(--accent)}
+.al-site{font-family:var(--ff);font-size:14px;font-weight:600;color:var(--text)}
+.al-ctl{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.al-lab{font-size:11px;color:var(--text3);width:42px;flex:none}
+.al-roles{display:flex;gap:6px;flex-wrap:wrap}
+.al-role{background:var(--bg2);border:1px solid var(--border);color:var(--text2);border-radius:7px;padding:6px 12px;font-size:11px;cursor:pointer}
+.al-role.on{background:color-mix(in srgb, var(--rc) 20%, transparent);border-color:var(--rc);color:var(--rc);font-weight:700}
+.al-list{max-height:330px;overflow:auto;display:flex;flex-direction:column;gap:7px}
+.al-item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-left:3px solid;border-radius:9px;padding:8px 11px}
+.al-info{flex:1;min-width:0}
+.al-nm{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px}
+.al-note{font-size:10.5px}
+.al-best{background:var(--green2);color:#04121f;font-family:var(--fm);font-size:8px;font-weight:700;padding:1px 6px;border-radius:5px}
+.al-na{font-size:10.5px;color:var(--text3);font-style:italic}
+@media(max-width:820px){.pl-roster{display:none}}
+
 /* Training bookings diary */
 .dgrid-h{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
 .dcell-h{font-family:var(--fm);font-size:9px;letter-spacing:.08em;color:var(--text3);text-align:center;text-transform:uppercase}
@@ -319,6 +385,15 @@ var SCOPE_MFR={
  'HV Authorised Person':['11kV','33kV','66kV'],
  'Bolt-tensioning':['Hydratight','Enerpac','ITH']
 };
+var ALLOC_ROLES=[{key:'maintenance',label:'Maintainer',short:'M',col:'var(--accent)'},{key:'inspection',label:'Inspector',short:'I',col:'var(--purple)'},{key:'repairs',label:'Repair Tech',short:'R',col:'var(--amber)'}];
+function roleMeta(k){for(var i=0;i<ALLOC_ROLES.length;i++){if(ALLOC_ROLES[i].key===k)return ALLOC_ROLES[i];}return ALLOC_ROLES[0];}
+function planStart(){var d=new Date(DB.weeks[0].date);d.setHours(0,0,0,0);return d;}
+function planDays(){var n=(S.plannerWeeks||2)*7;var s=planStart();var out=[];for(var i=0;i<n;i++){var d=new Date(s);d.setDate(d.getDate()+i);out.push(d);}return out;}
+function weekOfDate(di){var s=planStart();var diff=Math.floor((new Date(di)-s)/(7*86400000));return Math.max(0,Math.min(5,diff));}
+function onLeave(engId,di){return (DB.absences||[]).some(function(a){return a.engId===engId&&di>=a.from&&di<=a.to;});}
+function leaveOf(engId,di){return (DB.absences||[]).filter(function(a){return a.engId===engId&&di>=a.from&&di<=a.to;})[0];}
+function hasScope(engId,scope){if(!scope)return true;return DB.training.some(function(t){return t.engId===engId&&t.cert===scope&&statusOf(t)!=='expired'&&!t.pending;});}
+function impartialityConflict(engId,siteId,role){var same=DB.assign.filter(function(a){return a.engId===engId&&a.siteId===siteId;});if(role==='inspection')return same.some(function(a){return a.role==='maintenance'||a.role==='repairs';});return same.some(function(a){return a.role==='inspection';});}
 
 // PPE categories. "minimum" always shown; others expand via the rail.
 var PPE_GROUPS=[
@@ -393,8 +468,9 @@ function genData(){
      window:'Wk '+(i+1)+'–'+(i+2),status:i===0?'active':(i<3?'planned':'scheduled')};});
  // planner: 6 weeks
  var weeks=[]; for(var w=0;w<6;w++){var ws=new Date(TODAY);ws.setDate(ws.getDate()+w*7-(TODAY.getDay()-1)); weeks.push({i:w,label:'Wk '+(w+1),date:iso(ws)});}
- var assign=[];
- sites.forEach(function(s,si){ for(var w=0;w<6;w++){ if(r()<0.42){ var e=engineers[Math.floor(r()*engineers.length)]; assign.push({engId:e.id,siteId:s.id,week:w}); } }});
+ var assign=[]; var RK=['maintenance','inspection','repairs'];
+ sites.forEach(function(s){ for(var dd=0;dd<28;dd++){ var dt=new Date(TODAY); dt.setDate(dt.getDate()-((TODAY.getDay()+6)%7)+dd); var dow=dt.getDay(); if(dow===0||dow===6)continue; if(r()<0.17){ var e=engineers[Math.floor(r()*engineers.length)]; assign.push({engId:e.id,siteId:s.id,date:iso(dt),week:Math.min(5,Math.floor(dd/7)),role:RK[Math.floor(r()*RK.length)],scope:SCOPE_TRAIN[Math.floor(r()*SCOPE_TRAIN.length)]}); } } });
+ var absences=[]; [[3,5],[10,4],[16,7],[1,2]].forEach(function(pr,ix){ var e=engineers[(ix*4+2)%engineers.length]; var f=new Date(TODAY); f.setDate(f.getDate()-((TODAY.getDay()+6)%7)+pr[0]); var t=new Date(f); t.setDate(t.getDate()+pr[1]-1); absences.push({engId:e.id,from:iso(f),to:iso(t),reason:'Annual leave'}); });
  // UKAS 17020 Type C accreditation per engineer (Inspection / Maintenance / Repairs + PPE inspection)
  var accred={};
  engineers.forEach(function(e,i){
@@ -442,12 +518,13 @@ function genData(){
      bookings.push({id:'BK'+(bkid++),reqId:req.id,engId:e.id,eng:e.name,course:crs,provider:PROVIDERS[Math.floor(r()*PROVIDERS.length)],date:iso(bd),cost:300+Math.floor(r()*9)*50,po:'PO-'+(20600+Math.floor(r()*400)),status:status});
    }
  }
- return {engineers:engineers,sites:sites,ppe:ppe,training:training,calibration:calibration,scopes:scopes,weeks:weeks,assign:assign,accred:accred,assets:assets,trainingRequests:trainingRequests,bookings:bookings,audit:[{ts:Date.now(),who:'System',act:'Demo data initialised'}]};
+ return {engineers:engineers,sites:sites,ppe:ppe,training:training,calibration:calibration,scopes:scopes,weeks:weeks,assign:assign,accred:accred,assets:assets,trainingRequests:trainingRequests,bookings:bookings,absences:absences,audit:[{ts:Date.now(),who:'System',act:'Demo data initialised'}]};
 }
 
 /* ---------- state ---------- */
 var SKEY='skyform_demo_v2';
-var DB, S={role:null,profile:'admin',tab:'dashboard',theme:'night',sel:null,filter:'all',q:'',mcGroup:'min-offshore',mcScope:null,mcMode:'qual',ppeGroup:'minimum',siteSel:0,repType:'all',repStatus:'all',repName:'all'};
+var DB, S={role:null,profile:'admin',tab:'dashboard',theme:'night',sel:null,filter:'all',q:'',mcGroup:'min-offshore',mcScope:null,mcMode:'qual',ppeGroup:'minimum',siteSel:0,repType:'all',repStatus:'all',repName:'all',plannerWeeks:2,plannerView:'board',fullplan:false};
+var AL={siteId:null,date:null,role:'maintenance',scope:''};
 function load(){try{var raw=localStorage.getItem(SKEY);if(raw){DB=JSON.parse(raw);return;}}catch(e){}DB=genData();save();}
 function save(){try{localStorage.setItem(SKEY,JSON.stringify(DB));}catch(e){}}
 function rerender(){var c=$('#content');if(c){c.innerHTML=view();bindDynamic();}}
@@ -635,21 +712,112 @@ function siteBars(){
 
 /* ---------- Planner (drag & drop) ---------- */
 function vPlanner(){
- var head='<th class="sitecol">Site</th>'+DB.weeks.map(function(w){return '<th>'+w.label+'<div style="font-size:8.5px;color:var(--text3);font-weight:400" class="mono">'+w.date.slice(5)+'</div></th>';}).join('');
- var rows=DB.sites.map(function(s){
-   var cells=DB.weeks.map(function(w){
-     var here=DB.assign.filter(function(a){return a.siteId===s.id&&a.week===w.i;});
-     var chips=here.map(function(a){var e=eById(a.engId);var comp=compOf(e.id);var clash=DB.assign.filter(function(x){return x.engId===a.engId&&x.week===w.i;}).length>1;return '<div class="echip'+(comp.st==='r'?' bad':'')+(clash?' clash':'')+'" draggable="true" data-eng="'+e.id+'" data-week="'+w.i+'" data-site="'+s.id+'"><span class="av-sm" style="width:18px;height:18px;font-size:8px;background:linear-gradient(135deg,'+compColor(comp.st)+',var(--accent))">'+e.init+'</span><span>'+e.name.split(' ')[1]+'</span>'+(comp.st==='r'?'<span class="fl" title="Not compliant">⚠</span>':'')+(clash?'<span class="fl" title="Double-booked" style="color:var(--amber)">⇄</span>':'')+'<span class="x" data-act="unassign" data-eng="'+e.id+'" data-week="'+w.i+'" data-site="'+s.id+'">×</span></div>';}).join('');
-     return '<td class="pcell" data-site="'+s.id+'" data-week="'+w.i+'">'+chips+'</td>';
-   }).join('');
-   var ic=s.type==='offshore'?'var(--pbg)':'var(--bbg)';var icc=s.type==='offshore'?'var(--purple)':'var(--accent)';
-   return '<tr><td class="sitecol"><div class="sitecell"><div class="si" style="background:'+ic+';color:'+icc+'">'+(s.type==='offshore'?'⚓':'🏔')+'</div><div><div class="nm">'+esc(s.name)+'</div><div class="ty">'+s.type+'</div></div></div></td>'+cells+'</tr>';
- }).join('');
- var pool=DB.engineers.map(function(e){var comp=compOf(e.id);return '<div class="echip'+(comp.st==='r'?' bad':'')+'" draggable="true" data-eng="'+e.id+'" data-from="pool"><span class="av-sm" style="width:18px;height:18px;font-size:8px;background:linear-gradient(135deg,'+compColor(comp.st)+',var(--accent))">'+e.init+'</span><span>'+esc(e.name)+'</span><span class="mono" style="font-size:9px;color:'+compColor(comp.st)+'">'+comp.pct+'%</span></div>';}).join('');
- return '<div class="hero"><div><h2>Live Deployment Planner</h2><div class="sub">Drag an engineer onto a site &amp; week. ⚠ flags a compliance gap; amber edge flags a double-booking.</div></div></div>'+
-  '<div class="card pad0" style="margin-bottom:16px"><div class="card-h"><span class="t">Available engineers</span><span style="margin-left:auto;font-size:10.5px;color:var(--text3)">Drag from here →</span></div><div class="pool">'+pool+'</div></div>'+
-  '<div class="card pad0 planner"><table class="ptable"><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+ var weeksN=S.plannerWeeks||2;var days=planDays();
+ var sel=[1,2,3,4].map(function(n){return '<button class="pw-seg'+(weeksN===n?' on':'')+'" data-act="planweeks" data-n="'+n+'">'+n+' wk</button>';}).join('');
+ var vt='<button class="pw-seg'+(S.plannerView!=='timeline'?' on':'')+'" data-act="planview" data-v="board">Board</button><button class="pw-seg'+(S.plannerView==='timeline'?' on':'')+'" data-act="planview" data-v="timeline">Timeline</button>';
+ var fs='<button class="btn sm gho" data-act="planfull">'+(S.fullplan?'Exit full screen':'\u26f6 Full screen')+'</button>';
+ var body=S.plannerView==='timeline'?plannerTimeline(days):plannerBoard(days);
+ var toolbar='<div class="pl-toolbar"><div class="pw-segs">'+sel+'</div><div class="pw-segs">'+vt+'</div><div style="margin-left:auto">'+fs+'</div></div>';
+ var split='<div class="pl-split">'+(S.plannerView==='timeline'?'':plannerRoster(days))+'<div class="pl-boardwrap">'+body+'</div></div>';
+ return '<div class="hero"><div><h2>Deployment Planner</h2><div class="sub">Click any day cell to allocate. Every allocation is checked for compliance, role-fit, impartiality, proximity &amp; availability.</div></div></div>'+
+   '<div class="card pad0 plannerwrap'+(S.fullplan?' fullplan':'')+'">'+toolbar+split+'</div>';
 }
+function plannerBoard(days){
+ var DN=['Su','Mo','Tu','We','Th','Fr','Sa'];
+ var hdr='<th class="pl-sitecol">Site</th>'+days.map(function(d){var w=(d.getDay()===0||d.getDay()===6);return '<th class="pl-dayh'+(w?' wknd':'')+'"><div class="pl-dn">'+DN[d.getDay()]+'</div><div class="pl-dd">'+d.getDate()+'</div></th>';}).join('');
+ var rows=DB.sites.map(function(s){
+   var cells=days.map(function(d){
+     var di=iso(d);var w=(d.getDay()===0||d.getDay()===6);
+     var here=DB.assign.filter(function(a){return a.siteId===s.id&&a.date===di;});
+     var chips=here.map(function(a){var e=eById(a.engId);if(!e)return '';var rm=roleMeta(a.role);var comp=compOf(e.id);return '<span class="pl-chip" style="border-color:'+rm.col+'" title="'+esc(e.name)+' \u00b7 '+rm.label+(a.scope?' \u00b7 '+esc(a.scope):'')+'"><span class="pl-av" style="background:'+rm.col+'">'+e.init+'</span><span class="pl-rl" style="color:'+rm.col+'">'+rm.short+'</span>'+(comp.st==='r'?'<span class="pl-fl" title="Compliance gap">!</span>':'')+'<span class="pl-x" data-act="unassign" data-eng="'+e.id+'" data-site="'+s.id+'" data-date="'+di+'">\u00d7</span></span>';}).join('');
+     return '<td class="pl-cell'+(w?' wknd':'')+'" data-act="allocate" data-site="'+s.id+'" data-date="'+di+'">'+chips+'<span class="pl-add">+</span></td>';
+   }).join('');
+   return '<tr><td class="pl-sitecol"><div class="pl-site"><span class="pl-sicon">'+(s.type==='offshore'?'\u2693':'\ud83c\udfd4')+'</span><span class="pl-sinfo"><b>'+esc(s.name)+'</b><span class="pl-sty">'+s.type+'</span></span></div></td>'+cells+'</tr>';
+ }).join('');
+ return '<div class="pl-scroll"><table class="pl-board"><thead><tr>'+hdr+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function plannerRoster(days){
+ var f=iso(days[0]),t=iso(days[days.length-1]);
+ var avail=[],unavail=[];
+ DB.engineers.forEach(function(e){
+   var lv=(DB.absences||[]).filter(function(a){return a.engId===e.id&&a.to>=f&&a.from<=t;})[0];
+   var n=DB.assign.filter(function(a){return a.engId===e.id&&a.date>=f&&a.date<=t;}).length;
+   if(lv)unavail.push({e:e,sub:fmt(lv.from)+' \u2013 '+fmt(lv.to)});else avail.push({e:e,n:n});
+ });
+ avail.sort(function(a,b){return a.n-b.n;});
+ var ac=avail.map(function(o){var e=o.e;var comp=compOf(e.id);var ac2=accredOf(e.id);var chips=ALLOC_ROLES.filter(function(r){return ac2[r.key];}).map(function(r){return '<span class="rs-rl" style="color:'+r.col+';border-color:'+r.col+'">'+r.short+'</span>';}).join('');return '<div class="rs-item"><span class="al-ring" style="border-color:'+compColor(comp.st)+';color:'+compColor(comp.st)+'">'+comp.pct+'</span><div class="rs-info"><div class="rs-nm">'+esc(e.name)+'</div><div class="rs-sub">'+esc(e.base)+' \u00b7 '+o.n+' booked</div></div><div class="rs-rls">'+chips+'</div></div>';}).join('');
+ var uc=unavail.map(function(o){var e=o.e;return '<div class="rs-item off"><span class="al-ring" style="border-color:var(--text3);color:var(--text3)">'+e.init+'</span><div class="rs-info"><div class="rs-nm" style="color:var(--text3)">'+esc(e.name)+'</div><div class="rs-sub">'+esc(o.sub)+'</div></div><span class="pill a" style="font-size:9px">On leave</span></div>';}).join('');
+ return '<div class="pl-roster"><div class="rs-h">AVAILABLE \u00b7 '+avail.length+'</div>'+ac+(unavail.length?'<div class="rs-h" style="margin-top:12px">UNAVAILABLE \u00b7 '+unavail.length+'</div>'+uc:'')+'</div>';
+}
+function plannerTimeline(days){
+ var DN=['Su','Mo','Tu','We','Th','Fr','Sa'];
+ var hdr='<th class="pl-sitecol">Engineer</th>'+days.map(function(d){var w=(d.getDay()===0||d.getDay()===6);return '<th class="pl-dayh'+(w?' wknd':'')+'"><div class="pl-dn">'+DN[d.getDay()]+'</div><div class="pl-dd">'+d.getDate()+'</div></th>';}).join('');
+ var rows=DB.engineers.map(function(e){var comp=compOf(e.id);
+   var cells=days.map(function(d){var di=iso(d);var w=(d.getDay()===0||d.getDay()===6);var inner='';
+     if(onLeave(e.id,di))inner='<span class="tl-leave" title="On leave">\ud83c\udfd6</span>';
+     else{var al=DB.assign.filter(function(a){return a.engId===e.id&&a.date===di;})[0];if(al){var rm=roleMeta(al.role);var s=DB.sites.filter(function(x){return x.id===al.siteId;})[0];inner='<span class="tl-bar" style="background:'+rm.col+'" title="'+(s?esc(s.name):'')+' \u00b7 '+rm.label+'">'+rm.short+'</span>';}}
+     return '<td class="pl-cell'+(w?' wknd':'')+'">'+inner+'</td>';}).join('');
+   return '<tr><td class="pl-sitecol"><div class="pl-site"><span class="pl-av" style="background:linear-gradient(135deg,'+compColor(comp.st)+',var(--accent))">'+e.init+'</span><span class="pl-sinfo"><b>'+esc(e.name)+'</b><span class="pl-sty">'+comp.pct+'% \u00b7 '+esc(e.base)+'</span></span></div></td>'+cells+'</tr>';
+ }).join('');
+ var leg=ALLOC_ROLES.map(function(r){return '<span style="color:'+r.col+'">\u25cf '+r.short+' '+r.label+'</span>';}).join(' \u00b7 ');
+ return '<div class="pl-scroll"><table class="pl-board"><thead><tr>'+hdr+'</tr></thead><tbody>'+rows+'</tbody></table></div><div class="pl-leg">Gaps = available \u00b7 each row is an engineer\u2019s real schedule \u00b7 '+leg+'</div>';
+}
+function rankEngineers(siteId,date,role,scope){
+ var s=DB.sites.filter(function(x){return x.id===siteId;})[0];
+ var list=DB.engineers.map(function(e){
+   var comp=compOf(e.id);var roleOK=accredOf(e.id)[role];var scopeOK=hasScope(e.id,scope);
+   var conflict=impartialityConflict(e.id,siteId,role);var leave=onLeave(e.id,date);
+   var elsewhere=DB.assign.some(function(a){return a.engId===e.id&&a.date===date&&a.siteId!==siteId;});
+   var hereDup=DB.assign.some(function(a){return a.engId===e.id&&a.date===date&&a.siteId===siteId&&a.role===role;});
+   var base=(e.base===(s?s.name:''));
+   var score=comp.pct+(roleOK?40:-120)+(scopeOK?20:-40)+(conflict?-200:0)+(leave?-1000:0)+(elsewhere?-35:0)+(base?25:0);
+   var status,note;
+   if(leave){status='leave';note='On annual leave';}
+   else if(hereDup){status='warn';note='Already on this site & role today';}
+   else if(!roleOK){status='block';note='Not accredited as '+roleMeta(role).label;}
+   else if(conflict){status='block';note='Impartiality \u2014 '+(role==='inspection'?'maintained/repaired this site':'inspected this site');}
+   else if(scope&&!scopeOK){status='warn';note='No '+scope+' competence';}
+   else if(comp.st==='r'){status='warn';note='Compliance '+comp.pct+'% \u2014 below target';}
+   else if(elsewhere){status='warn';note='Booked at another site today';}
+   else{status='ok';note='\u2713 '+roleMeta(role).label+(scope?' \u00b7 '+scope:'')+(base?' \u00b7 based on site':'')+' \u00b7 '+comp.pct+'%';}
+   return {e:e,comp:comp,score:score,status:status,note:note};
+ });
+ var ord={ok:0,warn:1,block:2,leave:3};
+ list.sort(function(a,b){if(ord[a.status]!==ord[b.status])return ord[a.status]-ord[b.status];return b.score-a.score;});
+ return list;
+}
+function allocControls(){
+ var s=DB.sites.filter(function(x){return x.id===AL.siteId;})[0];
+ var rb=ALLOC_ROLES.map(function(r){return '<button class="al-role'+(AL.role===r.key?' on':'')+'" style="--rc:'+r.col+'" data-act="alrole" data-k="'+r.key+'">'+r.label+'</button>';}).join('');
+ var so='<option value="">\u2014 any / general \u2014</option>'+SCOPE_TRAIN.map(function(sc){return '<option value="'+esc(sc)+'"'+(AL.scope===sc?' selected':'')+'>'+esc(sc)+'</option>';}).join('');
+ return '<div class="al-head"><div class="al-k">FILLING</div><div class="al-site">'+(s?esc(s.name):'')+' \u00b7 '+fmt(AL.date)+'</div></div>'+
+   '<div class="al-ctl"><span class="al-lab">Role</span><div class="al-roles">'+rb+'</div></div>'+
+   '<div class="al-ctl"><span class="al-lab">Scope</span><select class="inp" data-sel="alscope" style="flex:1">'+so+'</select></div>';
+}
+function allocList(){
+ var ranked=rankEngineers(AL.siteId,AL.date,AL.role,AL.scope);
+ var rows=ranked.map(function(o,idx){
+   var e=o.e;var col=o.status==='block'?'var(--red)':o.status==='warn'?'var(--amber)':o.status==='leave'?'var(--text3)':'var(--green2)';
+   var btn;
+   if(o.status==='leave')btn='<span class="al-na">On leave</span>';
+   else if(o.status==='block')btn='<button class="btn sm" style="background:var(--red);color:#fff;border-color:var(--red)" data-act="doalloc" data-eng="'+e.id+'" data-ov="1">Override</button>';
+   else if(o.status==='warn')btn='<button class="btn sm" style="border-color:var(--amber);color:var(--amber)" data-act="doalloc" data-eng="'+e.id+'">Assign anyway</button>';
+   else btn='<button class="btn sm pri" data-act="doalloc" data-eng="'+e.id+'">Assign</button>';
+   var best=(idx===0&&o.status==='ok')?'<span class="al-best">BEST</span>':'';
+   return '<div class="al-item" style="border-left-color:'+col+'"><span class="pl-av" style="background:linear-gradient(135deg,var(--accent),var(--purple))">'+e.init+'</span><div class="al-info"><div class="al-nm">'+esc(e.name)+best+'</div><div class="al-note" style="color:'+col+'">'+esc(o.note)+'</div></div><span class="al-ring" style="border-color:'+compColor(o.comp.st)+';color:'+compColor(o.comp.st)+'">'+o.comp.pct+'</span>'+btn+'</div>';
+ }).join('');
+ return '<div class="al-k" style="margin:14px 0 6px">BEST MATCHES \u2014 ranked</div><div class="al-list">'+rows+'</div>';
+}
+function renderAllocate(){var b=$('#alloc-body');if(b)b.innerHTML=allocControls()+allocList();}
+function openAllocate(siteId,date){AL={siteId:siteId,date:date,role:'maintenance',scope:''};modal('Smart allocate','<div id="alloc-body"></div>','<button class="btn gho" data-act="closeov">Close</button>');renderAllocate();}
+function doAllocate(engId,override){
+ if(!AL.siteId)return;
+ DB.assign.push({engId:engId,siteId:AL.siteId,date:AL.date,week:weekOfDate(AL.date),role:AL.role,scope:AL.scope});
+ var e=eById(engId);var s=DB.sites.filter(function(x){return x.id===AL.siteId;})[0];
+ audit((override?'OVERRIDE \u2014 ':'')+'Allocated '+e.name+' as '+roleMeta(AL.role).label+' to '+s.name+' on '+fmt(AL.date)+(AL.scope?' ('+AL.scope+')':''));
+ save();closeOverlay();toast(e.name+' \u2192 '+s.name+' \u00b7 '+roleMeta(AL.role).label+(override?' (override logged)':''));rerender();
+}
+function unassign(engId,siteId,date){DB.assign=DB.assign.filter(function(x){return !(x.engId===engId&&x.siteId===siteId&&x.date===date);});var e=eById(engId);audit('Removed '+(e?e.name:engId)+' from deployment '+fmt(date));save();rerender();}
 
 /* ---------- Registers (PPE / Training / Calibration) ---------- */
 function vRegister(kind){
@@ -827,7 +995,7 @@ function reportBuilder(){
    '<div style="padding:14px 17px">'+
      '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Report type</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px">'+typeBtns+'</div>'+
      '<div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end">'+
-       '<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Engineer</div><select class="inp" style="min-width:200px" onchange="S.repName=this.value;rerender()">'+nameOpts+'</select></div>'+
+       '<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Engineer</div><select class="inp" data-sel="repname" style="min-width:200px">'+nameOpts+'</select></div>'+
        '<div style="flex:1;min-width:220px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Status</div><div style="display:flex;gap:7px;flex-wrap:wrap">'+statBtns+'</div></div>'+
      '</div>'+
    '</div>'+
@@ -1082,11 +1250,7 @@ function bindDynamic(){
    ch.addEventListener('dragstart',function(ev){ev.dataTransfer.setData('text/plain',JSON.stringify({eng:ch.dataset.eng,from:ch.dataset.from||'cell',week:ch.dataset.week,site:ch.dataset.site}));setTimeout(function(){ch.style.opacity='.4';},0);});
    ch.addEventListener('dragend',function(){ch.style.opacity='';});
  });
- $$('.pcell').forEach(function(cell){
-   cell.addEventListener('dragover',function(ev){ev.preventDefault();cell.classList.add('over');});
-   cell.addEventListener('dragleave',function(){cell.classList.remove('over');});
-   cell.addEventListener('drop',function(ev){ev.preventDefault();cell.classList.remove('over');var d;try{d=JSON.parse(ev.dataTransfer.getData('text/plain'));}catch(e){return;}assignEng(d.eng,cell.dataset.site,parseInt(cell.dataset.week),d);});
- });
+ $$('select[data-sel]').forEach(function(sel){sel.addEventListener('change',function(){var k=sel.getAttribute('data-sel');if(k==='repname'){S.repName=sel.value;rerender();}else if(k==='alscope'){AL.scope=sel.value;renderAllocate();}});});
 }
 
 document.addEventListener('click',function(ev){
@@ -1124,7 +1288,13 @@ document.addEventListener('click',function(ev){
  if(a==='verify'){doVerify(t.dataset.kind,t.dataset.id);return;}
  if(a==='reject'){doReject(t.dataset.kind,t.dataset.id);return;}
  if(a==='delrec'){doDelete(t.dataset.kind,t.dataset.id);return;}
- if(a==='unassign'){unassign(t.dataset.eng,t.dataset.site,parseInt(t.dataset.week));return;}
+ if(a==='unassign'){unassign(t.dataset.eng,t.dataset.site,t.dataset.date);return;}
+ if(a==='allocate'){openAllocate(t.dataset.site,t.dataset.date);return;}
+ if(a==='doalloc'){doAllocate(t.dataset.eng,t.dataset.ov==='1');return;}
+ if(a==='alrole'){AL.role=t.dataset.k;renderAllocate();return;}
+ if(a==='planweeks'){S.plannerWeeks=parseInt(t.dataset.n,10);rerender();return;}
+ if(a==='planview'){S.plannerView=t.dataset.v;rerender();return;}
+ if(a==='planfull'){S.fullplan=!S.fullplan;rerender();return;}
  if(a==='rams'){toggleRams(t.dataset.id);return;}
  if(a==='export'){doExport();return;}
  if(a==='newrec'){newRecordModal(t.dataset.kind);return;}
@@ -1138,19 +1308,6 @@ document.addEventListener('click',function(ev){
 },true);
 
 /* actions */
-function assignEng(engId,siteId,week,d){
- if(d && d.from==='cell' && d.site && d.week!=null){ // move: remove old
-   DB.assign=DB.assign.filter(function(x){return !(x.engId===d.eng&&x.siteId===d.site&&x.week==d.week);});
- }
- if(DB.assign.some(function(x){return x.engId===engId&&x.siteId===siteId&&x.week===week;})){var cc=$('#content');cc.innerHTML=view();bindDynamic();return;}
- DB.assign.push({engId:engId,siteId:siteId,week:week});
- var e=eById(engId);var s=DB.sites.filter(function(x){return x.id===siteId;})[0];var comp=compOf(engId);
- audit('Assigned '+e.name+' to '+s.name+' ('+DB.weeks[week].label+')');save();
- var clash=DB.assign.filter(function(x){return x.engId===engId&&x.week===week;}).length>1;
- toast((comp.st==='r'?'⚠ '+e.name+' assigned — compliance gap':clash?'⚠ '+e.name+' double-booked '+DB.weeks[week].label:e.name+' → '+s.name));
- var c=$('#content');c.innerHTML=view();bindDynamic();
-}
-function unassign(engId,siteId,week){DB.assign=DB.assign.filter(function(x){return !(x.engId===engId&&x.siteId===siteId&&x.week===week);});var e=eById(engId);audit('Removed '+e.name+' from deployment');save();var c=$('#content');c.innerHTML=view();bindDynamic();}
 function recArr(kind){return kind==='ppe'?DB.ppe:kind==='training'?DB.training:DB.calibration;}
 function findRec(kind,id){return recArr(kind).filter(function(x){return x.id===id;})[0];}
 function doVerify(kind,id){var x=findRec(kind,id);x.pending=false;x.verified=true;audit('Verified '+(x.type||x.cert||x.tool)+' for '+(eById(x.engId)?eById(x.engId).name:'pool'));save();toast('Certificate verified ✓');closeOverlay();var c=$('#content');c.innerHTML=view();bindDynamic();}

@@ -149,6 +149,22 @@ body.alpine .fo-mapbox{background:radial-gradient(ellipse at 42% 30%,#EAF0FA,#ff
 .fo-card{transition:border-color .12s,transform .12s}
 .fo-card.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 @media(max-width:900px){.fo-headwrap{grid-template-columns:1fr}.fo-mapbox{height:300px}}
+/* ===== Work Scopes (category + gap analysis) ===== */
+.scsubs{padding:8px 10px 12px}
+.scsub{display:flex;align-items:center;gap:12px;padding:9px 8px;border-radius:8px;cursor:pointer;transition:background .12s}
+.scsub:hover{background:var(--card3)}
+.scsub-nm{width:120px;flex:none;font-size:12px;color:var(--text);font-weight:600}
+.scsub-bar{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden}
+.scsub-bar i{display:block;height:100%;border-radius:3px}
+.scsub-n{width:96px;flex:none;text-align:right;font-family:var(--fm);font-size:12px;font-weight:700}
+.scsub-go{flex:none;font-size:10px;color:var(--accent);opacity:0;transition:opacity .12s}
+.scsub:hover .scsub-go{opacity:1}
+.gap-wrap{max-height:400px;overflow:auto}
+.gap-head{font-family:var(--ff);font-size:14px;color:var(--text);margin-bottom:10px}
+.gap-k{font-family:var(--fm);font-size:10px;letter-spacing:.07em;margin:12px 0 6px}
+.gap-item{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-left:3px solid;border-radius:9px;padding:7px 11px;margin-bottom:6px}
+@media(max-width:760px){.scsub-nm{width:88px}.scsub-n{width:72px}}
+
 /* ===== Deployment Planner (blend) ===== */
 .plannerwrap{overflow:hidden}
 .plannerwrap.fullplan{position:fixed;inset:12px;z-index:120;margin:0;box-shadow:0 30px 80px rgba(0,0,0,.6);display:flex;flex-direction:column}
@@ -950,29 +966,53 @@ function vSites(){
  var note=canSignoff()?'':'<div class="miniwarn">'+I.lock+' Only the HSEQ Manager (or a Director) can approve a site\u2019s SSOW / RAMS. Sign in as HSEQ to try it.</div>';
  return '<div class="hero"><div><h2>Field Operations</h2><div class="sub">'+DB.sites.length+' wind farms \u00b7 live map &amp; SSOW / RAMS status</div></div></div>'+note+header+'<div style="height:16px"></div><div class="grid g3 fo-grid">'+cards+'</div>';
 }
-function vScopes(){
- var cards=DB.scopes.map(function(w){
-   var assigned=w.engIds.map(function(id){return eById(id);});
-   var reqHtml=w.required.map(function(rc){
-     var allHave=assigned.length&&assigned.every(function(e){return DB.training.some(function(t){return t.engId===e.id&&t.cert===rc&&statusOf(t)!=='expired'&&!t.pending;});});
-     return '<span class="req '+(assigned.length?(allHave?'ok':'miss'):'')+'">'+(assigned.length?(allHave?'✓ ':'✗ '):'')+esc(rc)+'</span>';
-   }).join('');
-   var crew=assigned.map(function(e){var c=compOf(e.id);var miss=w.required.some(function(rc){return !DB.training.some(function(t){return t.engId===e.id&&t.cert===rc&&statusOf(t)!=='expired'&&!t.pending;});});return '<span class="echip" style="cursor:default'+(miss?';border-color:var(--red)':'')+'"><span class="av-sm" style="width:18px;height:18px;font-size:8px;background:linear-gradient(135deg,'+compColor(c.st)+',var(--accent))">'+e.init+'</span><span>'+esc(e.name.split(' ')[1])+'</span>'+(miss?'<span class="fl" title="Missing a required cert">⚠</span>':'')+'</span>';}).join('')||'<span style="font-size:11px;color:var(--text3)">No engineers assigned</span>';
-   var st=w.status==='active'?['g','Active']:w.status==='planned'?['b','Planned']:['n','Scheduled'];
-   var assignBtn=canManage()?'<button class="btn sm" data-act="assignscope" data-id="'+w.id+'">'+I.plus+' Assign engineer</button>':'';
-   var gap=assigned.length&&w.required.some(function(rc){return !assigned.every(function(e){return DB.training.some(function(t){return t.engId===e.id&&t.cert===rc&&statusOf(t)!=='expired'&&!t.pending;});});});
-   return '<div class="card pad0"><div class="card-h"><span class="t">'+esc(w.name)+'</span><span class="pill '+st[0]+'" style="margin-left:auto"><span class="d"></span>'+st[1]+'</span></div>'+
-     '<div style="padding:14px 17px">'+
-     '<div style="display:flex;gap:16px;font-size:11px;color:var(--text3);margin-bottom:11px"><span>📍 '+esc(w.site)+'</span><span>🗓 '+esc(w.window)+'</span></div>'+
-     (gap?'<div class="miniwarn">'+I.warn+' An assigned engineer is missing a required qualification for this scope.</div>':'')+
-     '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Required competence</div><div style="margin-bottom:13px">'+reqHtml+'</div>'+
-     '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Assigned crew</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">'+crew+'</div>'+
-     assignBtn+'</div></div>';
- }).join('');
- return '<div class="hero"><div><h2>Work Scopes</h2><div class="sub">Scopes auto-check that every assigned engineer holds the required, in-date competence</div></div></div><div class="grid g2">'+cards+'</div>';
+var SCOPE_CATS=[
+ {key:'tmse',name:'TMSE',cert:'TMSE',type:'scope',mfrs:['Vestas','Siemens Gamesa','GE','Nordex'],roleHint:'Turbine mechanical & structural'},
+ {key:'hoist',name:'Tower Hoists',cert:'Tower Hoists',type:'scope',mfrs:['Skyman','Avanti','Power Climber','Alimak'],roleHint:'Service lift / hoist systems'},
+ {key:'crane',name:'Cranes & Lifting (LOLER)',cert:'Cranes & Lifting (LOLER)',type:'scope',mfrs:['HMF','Demag','Liebherr','PALFINGER'],roleHint:'LOLER lifting equipment'},
+ {key:'ppe',name:'PPE Inspection',cert:null,type:'ppe',mfrs:['Harness & fall-arrest','Lanyards & SRL','Helmets & ancillary'],roleHint:'Competent Person \u2014 PPE'}
+];
+function scopeApprovalState(engId,cert,mfr,type){
+ if(type==='ppe'){return accredOf(engId).ppeInspection?{state:'ok',gap:''}:{state:'no',gap:'Not signed off as PPE Competent Person'};}
+ var recs=DB.training.filter(function(t){return t.engId===engId&&t.kind==='scope'&&t.cert===cert&&(mfr?t.mfr===mfr:true);});
+ if(!recs.length)return {state:'no',gap:'No '+(mfr?mfr+' ':'')+cert+' training held'};
+ if(recs.some(function(t){return statusOf(t)==='valid';}))return {state:'ok',gap:''};
+ if(recs.some(function(t){return t.pending;}))return {state:'near',gap:'Uploaded \u2014 awaiting office verification'};
+ var exg=recs.filter(function(t){return statusOf(t)==='expiring';})[0];
+ if(exg)return {state:'near',gap:'Expiring '+fmt(exg.expires)+' \u2014 renew soon'};
+ return {state:'near',gap:'Expired '+fmt(recs[0].expires)+' \u2014 needs renewal'};
 }
-
-/* ---------- Reports ---------- */
+function vScopes(){
+ var cats=SCOPE_CATS.map(function(cat){
+   var fleet=DB.engineers.length;
+   var subs=cat.mfrs.map(function(mfr){
+     var states=DB.engineers.map(function(e){return scopeApprovalState(e.id,cat.cert,mfr,cat.type);});
+     var ok=states.filter(function(s){return s.state==='ok';}).length;
+     var near=states.filter(function(s){return s.state==='near';}).length;
+     var pct=Math.round(ok/fleet*100);
+     var col=ok>=fleet*0.5?'var(--green2)':ok>0?'var(--amber)':'var(--red)';
+     return '<div class="scsub" data-act="scopegaps" data-cat="'+cat.key+'" data-mfr="'+esc(mfr)+'">'+
+       '<div class="scsub-nm">'+esc(mfr)+'</div>'+
+       '<div class="scsub-bar"><i style="width:'+Math.max(pct,3)+'%;background:'+col+'"></i></div>'+
+       '<div class="scsub-n"><b style="color:'+col+'">'+ok+'</b><span style="color:var(--text3)">/'+fleet+'</span>'+(near?' <span style="color:var(--amber);font-size:9px">+'+near+' near</span>':'')+'</div>'+
+       '<span class="scsub-go">Readiness & gaps \u2192</span></div>';
+   }).join('');
+   var totalOk=0;cat.mfrs.forEach(function(mfr){DB.engineers.forEach(function(e){if(scopeApprovalState(e.id,cat.cert,mfr,cat.type).state==='ok')totalOk++;});});
+   return '<div class="card pad0"><div class="card-h"><span class="t">'+esc(cat.name)+'</span><span style="margin-left:auto;font-size:10px;color:var(--text3)">'+esc(cat.roleHint)+' \u00b7 '+cat.mfrs.length+' scopes</span></div><div class="scsubs">'+subs+'</div></div>';
+ }).join('');
+ return '<div class="hero"><div><h2>Work Scopes</h2><div class="sub">Grouped by discipline with manufacturer-specific scopes. Click any scope for who\u2019s approved and exactly what\u2019s stopping the rest \u2014 the continuous-improvement view.</div></div></div><div class="grid g2">'+cats+'</div>';
+}
+function scopeGapsModal(catKey,mfr){
+ var cat=SCOPE_CATS.filter(function(c){return c.key===catKey;})[0]; if(!cat)return;
+ var groups={ok:[],near:[],no:[]};
+ DB.engineers.forEach(function(e){var s=scopeApprovalState(e.id,cat.cert,mfr,cat.type);groups[s.state].push({e:e,gap:s.gap});});
+ function rowsFor(arr,col,showReq){return arr.map(function(o){var e=o.e;return '<div class="gap-item" style="border-left-color:'+col+'"><span class="av-sm" style="width:24px;height:24px;background:linear-gradient(135deg,var(--accent),var(--purple))">'+e.init+'</span><div style="flex:1;min-width:0"><div style="font-size:12px;color:var(--text);font-weight:600">'+esc(e.name)+'</div>'+(o.gap?'<div style="font-size:10.5px;color:'+col+'">'+esc(o.gap)+'</div>':'<div style="font-size:10.5px;color:var(--green2)">\u2713 Approved \u00b7 in date</div>')+'</div>'+(showReq?'<button class="btn sm gho" data-act="reqtraining" data-c="'+esc(mfr+' '+cat.name)+'" data-eng="'+e.id+'">Request training</button>':'')+'</div>';}).join('');}
+ var body='<div class="gap-head">'+esc(cat.name)+' \u2014 <b>'+esc(mfr)+'</b><div style="font-size:11px;color:var(--text3);margin-top:3px">'+groups.ok.length+' approved \u00b7 '+groups.near.length+' nearly there \u00b7 '+groups.no.length+' not yet</div></div>';
+ if(groups.ok.length)body+='<div class="gap-k" style="color:var(--green2)">APPROVED \u00b7 '+groups.ok.length+'</div>'+rowsFor(groups.ok,'var(--green2)',false);
+ if(groups.near.length)body+='<div class="gap-k" style="color:var(--amber)">NEARLY THERE \u2014 small gap to close \u00b7 '+groups.near.length+'</div>'+rowsFor(groups.near,'var(--amber)',true);
+ if(groups.no.length)body+='<div class="gap-k" style="color:var(--text3)">NOT YET APPROVED \u00b7 '+groups.no.length+'</div>'+rowsFor(groups.no,'var(--red)',true);
+ modal('Readiness & gaps','<div class="gap-wrap">'+body+'</div>','<button class="btn pri" data-act="closeov">Close</button>');
+}
 function reportRows(){
  var src=[];
  var addP=function(arr,kind){arr.forEach(function(x){src.push({rec:x,kind:kind});});};
@@ -1298,7 +1338,8 @@ document.addEventListener('click',function(ev){
  if(a==='rams'){toggleRams(t.dataset.id);return;}
  if(a==='export'){doExport();return;}
  if(a==='newrec'){newRecordModal(t.dataset.kind);return;}
- if(a==='assignscope'){assignScopeModal(t.dataset.id);return;}
+ if(a==='scopegaps'){scopeGapsModal(t.dataset.cat,t.dataset.mfr);return;}
+ if(a==='reqtraining'){var re=eById(t.dataset.eng);DB.trainingRequests=DB.trainingRequests||[];DB.trainingRequests.unshift({id:'RQ'+(Date.now()%100000),engId:t.dataset.eng,eng:re?re.name:'',what:t.dataset.c,cat:'Scope',mfr:'',by:iso(new Date(TODAY.getFullYear(),TODAY.getMonth()+3,1)),pri:'Development',note:'Raised from scope gap analysis',ts:Date.now(),status:'requested'});audit('Requested training "'+t.dataset.c+'" for '+(re?re.name:''));save();toast('Training requested — added to bookings queue');return;}
  if(a==='archeng'){archiveEng(t.dataset.id);return;}
  if(a==='menu'){roleMenu(t);return;}
  if(a==='setrole'){S.role=t.dataset.role;S.profile='admin';S.tab=S.role==='engineer'?'mycompliance':'dashboard';S.sel=null;$('#rolemenu')&&$('#rolemenu').remove();render();return;}
@@ -1474,16 +1515,6 @@ function newRecordModal(kind){
    if(kind==='calibration')DB.calibration.push({id:'C'+idn,tool:type,serial:type.split(' ')[0].toUpperCase().slice(0,3)+'-NEW',engId:eng,lastCal:iso(TODAY),dueCal:exp,certName:null,verified:false,pending:false});
    audit('Added '+type+' record');save();closeOverlay();toast('Record added — upload a certificate next');var c=$('#content');c.innerHTML=view();bindDynamic();
  };
-}
-function assignScopeModal(id){
- var w=DB.scopes.filter(function(x){return x.id===id;})[0];
- var opts=DB.engineers.filter(function(e){return w.engIds.indexOf(e.id)<0;}).map(function(e){
-   var has=w.required.every(function(rc){return DB.training.some(function(t){return t.engId===e.id&&t.cert===rc&&statusOf(t)!=='expired'&&!t.pending;});});
-   return '<option value="'+e.id+'">'+esc(e.name)+(has?' ✓ qualified':' ⚠ missing cert')+'</option>';}).join('');
- modal('Assign engineer to “'+esc(w.name)+'”',
-  '<div class="field"><label>Engineer</label><select class="inp" id="seng">'+opts+'</select></div><div style="font-size:11px;color:var(--text3)">The scope requires: '+w.required.map(esc).join(', ')+'</div>',
-  '<button class="btn gho" data-act="closeov">Cancel</button><button class="btn pri" id="sconfirm">Assign</button>');
- $('#sconfirm').onclick=function(){var eng=$('#seng').value;if(eng){w.engIds.push(eng);audit('Assigned '+eById(eng).name+' to scope '+w.name);save();}closeOverlay();toast('Engineer assigned to scope');var c=$('#content');c.innerHTML=view();bindDynamic();};
 }
 function roleMenu(anchor){
  var ex=$('#rolemenu');if(ex){ex.remove();return;}
